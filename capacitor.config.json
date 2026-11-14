@@ -1,0 +1,10 @@
+{
+  "appId": "com.salah.tracker",
+  "appName": "Salah Tracker",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
