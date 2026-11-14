@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salah Tracker</title>
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--tx:#1d2a24;--mu:#6b766f;--ac:#1f7a5a;--ok:#cfeadb;--part:#f6e3b4;--miss:#f4d2cc;--dis:#ecebe6;--bd:#dedbd0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a16;--card:#1a2520;--tx:#e8efe9;--mu:#92a198;--ac:#4fc296;--ok:#1f4a38;--part:#5a4a1c;--miss:#5a2b26;--dis:#1c2420;--bd:#2c3a33}}
+:root[data-theme="dark"]{--bg:#121a16;--card:#1a2520;--tx:#e8efe9;--mu:#92a198;--ac:#4fc296;--ok:#1f4a38;--part:#5a4a1c;--miss:#5a2b26;--dis:#1c2420;--bd:#2c3a33}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 40px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 6px}
+.mu,small{color:var(--mu);font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px}
+.big{font-size:46px;font-weight:700;color:var(--ac);line-height:1.1;margin:2px 0}
+.per{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
+.per div{background:var(--bg);border-radius:10px;padding:6px 2px;text-align:center}
+.per b{display:block;font-size:15px}.per span{font-size:11px;color:var(--mu)}
+button,select,input{font:inherit;color:inherit}
+button{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px 12px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+select,input[type=date],input[type=number]{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px;max-width:100%}
+.nav{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.nav select{flex:1;min-width:0}
+.wd,.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{text-align:center;font-size:12px;color:var(--mu);margin-bottom:4px}
+.day{aspect-ratio:1/1.1;padding:4px 0 5px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;border-radius:10px;font-size:14px;background:var(--card)}
+.day em{display:flex;gap:2px;font-style:normal}
+.day u{width:4px;height:4px;border-radius:50%;background:var(--bd);display:block}
+.day u.on{background:var(--ac)}
+.day.full{background:var(--ok)}.day.part{background:var(--part)}.day.none{background:var(--miss)}
+.day.dis{background:var(--dis);color:var(--mu);opacity:.5}
+.day.today{outline:2px solid var(--ac)}
+.leg{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mu)}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+summary{cursor:pointer;font-weight:600}
+.f{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.row{display:flex;gap:8px}.row button{flex:1}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 12px;font-size:17px}
+.pr{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:12px;text-align:left}
+.pr .nm{flex:1;display:flex;flex-direction:column}.pr .nm small{font-size:12px}.prow{display:flex;gap:6px;margin-bottom:8px}.prow .pr{flex:1;margin:0;width:auto}.lt{padding:6px 12px}.lt.on{background:var(--part);border-color:var(--ac)}.day u.lx{background:#d49a1a}#sm{display:block;min-height:18px;margin-bottom:6px;color:var(--ac);font-size:13px}.pr.on{background:var(--ok);border-color:var(--ac)}
+.ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--bd);display:grid;place-items:center;color:#fff;font-size:14px}
+.pr.on .ck{background:var(--ac);border-color:var(--ac)}
+#msg{color:var(--ac);font-size:14px}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{padding:5px 0;text-align:left;border-bottom:1px solid var(--bd);font-size:14px}th{color:var(--mu);font-weight:500}td+td,th+th{text-align:right}.card a{color:var(--ac)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>🕌 Salah Tracker</h1><div><small id="stat"></small> <button id="th" aria-label="Light or dark mode">◐</button> <button id="gear" aria-label="Settings" hidden>⚙︎</button></div></header>
+
+<section id="setup" class="card" hidden>
+<h2>Your starting date</h2>
+<p class="mu">Enter the date you reached puberty. Prayers are counted from this day, and you can change it later.</p>
+<div class="f"><input type="date" id="pd" min="1940-01-01"><button class="pri" id="ps">Save &amp; start</button><button id="pc" hidden>Cancel</button></div>
+<small id="ph"></small>
+<div id="rs" hidden style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bd)"><p class="mu">Start from scratch: erases your start date, every tick and your make-up counts. This cannot be undone.</p><button id="rb">Reset all data</button></div>
+</section>
+
+<section id="app" hidden>
+<div class="card">
+<div class="mu">Still to make up</div>
+<div id="miss" class="big">0</div>
+<div id="sub" class="mu"></div>
+<div id="per" class="per"></div>
+<p class="mu" style="margin:10px 0 0">Log make-up prayers below. Any prayer you haven’t ticked counts as missed once its day has passed.</p>
+</div>
+
+<div class="card">
+<div class="nav"><button id="pv" aria-label="Previous month">‹</button><select id="ms"></select><select id="ys"></select><button id="nx" aria-label="Next month">›</button></div>
+<div class="wd"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+<div id="grid" class="grid"></div>
+<div class="leg"><span><i style="background:var(--ok)"></i>All 5</span><span><i style="background:var(--part)"></i>Some</span><span><i style="background:var(--miss)"></i>None</span><span><i style="background:#d49a1a;border-radius:50%"></i>Late</span></div>
+</div>
+
+<div class="card">
+<h2>Made up a prayer?</h2>
+<p class="mu">Log make-up (qada) prayers here. Each one reduces what is left to make up.</p>
+<div class="f"><input type="number" id="qn" min="1" value="1" style="width:84px"><select id="qp"></select></div>
+<div class="row"><button class="pri" id="qa">Add</button><button id="qu">Undo</button></div>
+<p id="qm" class="mu" style="margin:10px 0 0"></p>
+</div>
+
+<details class="card">
+<summary>Bulk tick past days</summary>
+<p class="mu">Use this for stretches you know you prayed, instead of tapping day by day.</p>
+<div class="f"><input type="date" id="bf"><input type="date" id="bt"><select id="bp"></select></div>
+<div class="row"><button class="pri" id="b1">Mark prayed</button><button id="b0">Clear</button></div>
+<p id="msg"></p>
+</details>
+<details class="card"><summary>Masjid times</summary><div id="mj"></div></details>
+<small id="foot"></small>
+</section>
+</div>
+
+<div class="ov" id="ov" hidden><div class="sheet"><h3 id="st"></h3><div id="sl"></div><small id="sm"></small><div class="row"><button data-a="all">All prayed</button><button data-a="clr">Clear</button><button class="pri" data-a="done">Done</button></div></div></div>
+
+<script>
+const P=['Fajr','Dhuhr','Asr','Maghrib','Isha'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
+const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
+const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0]},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+
+/* storage: private account db when signed in, else this device */
+async function initStore(){
+  try{
+    if(typeof claude==='undefined')return;
+    const [d,u]=await Promise.race([Promise.all([claude.use('db'),claude.use('user')]),new Promise(r=>setTimeout(()=>r([null,null]),6000))]);
+    if(d&&u){const id=await u.id();if(id)ref=k=>d.collection('data/users/'+id).doc(k)}
+  }catch(e){}
+}
+async function load(k){
+  if(ref){try{const s=await ref(k).get();return s.exists?s.data():null}catch(e){return null}}
+  try{return JSON.parse(localStorage.getItem('salah_'+k))}catch(e){return null}
+}
+async function save(k,o){
+  if(ref)return ref(k).set(o);
+  try{localStorage.setItem('salah_'+k,JSON.stringify(o))}catch(e){}
+}
+const stat=t=>$('#stat').textContent=t;
+function dirty(y){D.add(y);stat('Saving…');clearTimeout(T);T=setTimeout(flush,500)}
+async function flush(){
+  const ys=[...D];D.clear();
+  try{for(const y of ys)await save('y'+y,{m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)});stat('Saved ✓')}
+  catch(e){ys.forEach(y=>D.add(y));stat('Couldn’t save')}
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&D.size)flush()});
+
+/* data: each year is a 366-char string, one base-32 digit per day (bit 0 Fajr … bit 4 Isha) */
+function getMask(d){const s=S.yrs[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+function getLate(d){const s=S.yl[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+function setMask(d,m,l){
+  const y=d.getFullYear(),i=doy(d),s=S.yrs[y]||'0'.repeat(366),t=S.yl[y]||'0'.repeat(366);
+  l=(l===undefined?getLate(d):l)&m;
+  S.yrs[y]=s.slice(0,i)+m.toString(32)+s.slice(i+1);
+  S.yl[y]=t.slice(0,i)+l.toString(32)+t.slice(i+1);dirty(y);
+}
+async function loadYears(){
+  const a=parse(S.pub).getFullYear(),b=new Date().getFullYear(),ys=[];
+  for(let y=a;y<=b;y++)if(!(y in S.yrs))ys.push(y);
+  await Promise.all(ys.map(async y=>{const o=await load('y'+y);S.yrs[y]=o&&typeof o.m==='string'?o.m:null;S.yl[y]=o&&typeof o.l==='string'?o.l:null}));
+}
+
+/* stats: every past day since puberty counts 5 prayers; unticked = missed */
+function stats(){
+  const t=today0(),per=[0,0,0,0,0];let n=0,pr=0,lt=0;
+  for(const d=parse(S.pub);d<t;d.setDate(d.getDate()+1)){n++;const m=getMask(d),L=getLate(d);for(let i=0;i<5;i++)if(m>>i&1){per[i]++;pr++;if(L>>i&1)lt++}}
+  return{n,pr,per,lt,miss:5*n-pr};
+}
+function renderStats(){
+  const s=stats(),rem=P.map((_,i)=>Math.max(0,s.n-s.per[i]-S.q[i])),made=S.q.reduce((a,b)=>a+b,0);
+  $('#miss').textContent=rem.reduce((a,b)=>a+b,0).toLocaleString();$('#qm').textContent='Made up so far: '+P.map((p,i)=>p+' '+S.q[i].toLocaleString()).join(' · ');
+  $('#sub').textContent=s.miss.toLocaleString()+' missed since '+fmt(parse(S.pub))+' · '+made.toLocaleString()+' made up · today '+pc(getMask(today0()))+'/5'+(s.lt?' · '+s.lt.toLocaleString()+' late':'');
+  $('#per').innerHTML=P.map((p,i)=>'<div><b>'+rem[i].toLocaleString()+'</b><span>'+p+'</span></div>').join('');
+}
+
+/* calendar */
+function clamp(){
+  const pd=parse(S.pub),t=today0(),a=pd.getFullYear()*12+pd.getMonth(),b=t.getFullYear()*12+t.getMonth();
+  const c=Math.max(a,Math.min(b,V.y*12+V.m));V.y=Math.floor(c/12);V.m=c%12;
+}
+function renderCal(){
+  const pd=parse(S.pub),t=today0(),a=pd.getFullYear(),b=t.getFullYear();
+  $('#ms').innerHTML=MN.map((n,i)=>'<option value="'+i+'">'+n+'</option>').join('');$('#ms').value=V.m;
+  let yo='';for(let y=b;y>=a;y--)yo+='<option>'+y+'</option>';$('#ys').innerHTML=yo;$('#ys').value=V.y;
+  $('#pv').disabled=V.y*12+V.m<=a*12+pd.getMonth();
+  $('#nx').disabled=V.y*12+V.m>=b*12+t.getMonth();
+  const off=new Date(V.y,V.m,1).getDay(),dim=new Date(V.y,V.m+1,0).getDate();let h='';
+  for(let i=0;i<off;i++)h+='<i></i>';
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(V.y,V.m,d),dis=dt<pd||dt>t,m=getMask(dt),L=getLate(dt),c=pc(m);
+    let cl=dis?'dis':c==5?'full':c>0?'part':dt<t?'none':'';
+    if(+dt==+t)cl+=' today';
+    h+='<button class="day '+cl+'" data-d="'+ymd(dt)+'"'+(dis?' disabled':'')+'><span>'+d+'</span><em>'+P.map((_,i)=>'<u'+(m>>i&1?' class="on'+(L>>i&1?' lx':'')+'"':'')+'></u>').join('')+'</em></button>';
+  }
+  $('#grid').innerHTML=h;
+}
+const all=()=>{renderStats();renderCal()};
+
+/* day sheet */
+function renderSheet(){
+  const m=getMask(sel),L=getLate(sel),W=win(sel),rel=(new Date()-sel)/6e4,past=sel<today0();
+  $('#st').textContent=sel.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('#sl').innerHTML=P.map((p,i)=>{
+    const on=m>>i&1,lt=L>>i&1,w=W[i],r=Math.round(w[1]-rel);let s;
+    if(on)s=lt?'Late':(S.ts&&ymd(sel)>=S.ts?'On time':'Prayed');
+    else if(past)s='Missed';
+    else s=rel<w[0]?'Starts '+hm(w[0]):rel<=w[1]?Math.floor(r/60)+'h '+r%60+'m left':'Time passed';
+    return '<div class="prow"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+'</b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button>':'')+'</div>'}).join('');
+  $('#sm').textContent=MS;MS='';
+}
+$('#grid').onclick=e=>{const b=e.target.closest('.day');if(!b||b.disabled)return;sel=parse(b.dataset.d);renderSheet();$('#ov').hidden=false};
+$('#ov').onclick=e=>{
+  if(e.target.id==='ov'){$('#ov').hidden=true;return}
+  const p=e.target.closest('.pr'),l=e.target.closest('.lt'),a=e.target.closest('[data-a]');
+  if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.i));
+  else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr')setMask(sel,0);else for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i)}
+  else return;
+  renderSheet();all();
+};
+
+/* nav + bulk */
+const go=n=>{V.m+=n;clamp();renderCal()};
+$('#pv').onclick=()=>go(-1);$('#nx').onclick=()=>go(1);
+$('#ms').onchange=()=>{V.m=+$('#ms').value;clamp();renderCal()};
+$('#ys').onchange=()=>{V.y=+$('#ys').value;clamp();renderCal()};
+function bulk(set){
+  const a=parse($('#bf').value||'x-1-1'),b=parse($('#bt').value||'x-1-1'),pd=parse(S.pub),t=today0();
+  const from=a<pd?pd:a,to=b>t?t:b;
+  if(isNaN(from)||isNaN(to)||from>to){$('#msg').textContent='Pick a valid date range.';return}
+  const v=$('#bp').value,bits=v==='all'?31:1<<+v;let n=0;
+  for(const d=new Date(from);d<=to;d.setDate(d.getDate()+1)){const m=getMask(d);setMask(d,set?m|bits:m&~bits,getLate(d)&~bits);n++}
+  $('#msg').textContent='Updated '+n.toLocaleString()+' days.';all();
+}
+$('#b1').onclick=()=>bulk(true);$('#b0').onclick=()=>bulk(false);
+
+/* prayer windows for Lakefield (Hanafi Asr, 18° Fajr/Isha), worked out from the date */
+const LAT=-26.186925,LON=28.282288,TZ=2,ANG=18;
+const hm=m=>{m=Math.round(((m%1440)+1440)%1440);return pad(Math.floor(m/60))+':'+pad(m%60)};
+let LIVE=null; /* today's exact times from the board, when it has been read */
+function sun(d){const c=sunCalc(d),L=LIVE;if(L&&L.date===ymd(d))for(const k in L.t)if(L.t[k]!=null)c[k]=L.t[k];return c}
+function sunCalc(d){
+  const R=Math.PI/180,g=2*Math.PI/365*doy(d);
+  const eq=229.18*(7.5e-5+1.868e-3*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g));
+  const dc=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+9.07e-4*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g);
+  const noon=720-4*LON-eq+TZ*60;
+  const ha=a=>Math.acos(Math.max(-1,Math.min(1,(Math.sin(a*R)-Math.sin(LAT*R)*Math.sin(dc))/(Math.cos(LAT*R)*Math.cos(dc)))))/R*4;
+  return{fj:noon-ha(-ANG),sr:noon-ha(-.833),zw:noon+5,as:noon+ha(Math.atan(1/(2+Math.tan(Math.abs(LAT*R-dc))))/R),ss:noon+ha(-.833),is:noon+ha(-ANG)};
+}
+function win(d){const a=sun(d),b=sun(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1));return[[a.fj,a.sr],[a.zw,a.as],[a.as,a.ss],[a.ss,a.is],[a.is,1440+b.fj]]}
+/* Masjid board times: saved defaults, replaced by the live board whenever it can be reached */
+const MASJID={asOf:'2026-11-14',url:'https://masjidboardlive.com/boards/?id=lakefield-ansaar',
+  rows:[['Fajr','04:20','04:40'],['Dhuhr','12:45','13:00'],['Asr','17:15','17:30'],['Maghrib','18:35','18:38'],['Esha','20:00','20:15']],
+  info:[['Fajr starts','03:45'],['Sunrise','05:10'],['Zawaal ends','11:56'],['Asr (Hanafi)','16:33'],['Sunset','18:32'],['Isha starts','19:58']],
+  jumuah:['12:25','12:55','13:00'],note:'The board lists an Esha change to 20:30 on 15 Nov 2026.'};
+function renderMasjid(){
+  const M=MASJID;
+  $('#mj').innerHTML='<small>Masjid-ul-Ansaar, Lakefield. '+(M.status||'Saved times from '+fmt(parse(M.asOf))+'.')+'</small>'
+    +'<table><tr><th></th><th>Adhān</th><th>Iqāmah</th></tr>'+M.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</table>'
+    +'<table>'+M.info.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</table>'
+    +'<p class="mu">Jumu’ah: adhān '+M.jumuah[0]+', sunan '+M.jumuah[1]+', khutbah '+M.jumuah[2]+'.<br>'+M.note+'</p>'
+    +'<a href="'+M.url+'" target="_blank" rel="noopener">Open the live board ↗</a>';
+}
+/* ---- live board: read in the background when the app opens ---- */
+const BOARD='https://masjidboardlive.com/boards/?id=lakefield-ansaar';
+const tm=x=>{const m=/(\d{1,2}):(\d{2})/.exec(x||'');return m?+m[1]*60+ +m[2]:null};
+const isT=x=>/^\s*\d{1,2}:\d{2}\s*$/.test(x||'');
+function boardRows(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  return[...doc.querySelectorAll('tr')].map(r=>[...r.children].map(c=>c.textContent.replace(/\s+/g,' ').trim()));
+}
+function parseRows(rows){
+  const R={rows:[],info:{},jumuah:null,chg:[]};let hdr=null;
+  for(const r of rows){
+    if(r.length>=3&&/^(fajr|dhuhr|zuhr|asr|maghrib|esha|isha)/i.test(r[0])&&isT(r[1])&&isT(r[2]))R.rows.push([r[0].replace(/^zuhr$/i,'Dhuhr'),r[1],r[2]]);
+    else if(r.length===3&&r.every(isT))R.jumuah=r;
+    else if(r.length===2&&isT(r[1])){
+      const k=r[0].toLowerCase(),set=n=>{if(!(n in R.info))R.info[n]=r[1]};
+      if(/fajr\s*starts/.test(k))set('fj');else if(/sunrise/.test(k))set('sr');else if(/zawaal\s*ends/.test(k))set('zw');
+      else if(/hanafi/.test(k))set('as');else if(/sunset/.test(k))set('ss');else if(/^(esh|ish)[a\u0101]$/.test(k))set('is');
+    }
+    else if(r.length===3&&/^fajr$/i.test(r[0])&&/asr/i.test(r[1]))hdr=r;
+    else if(hdr&&r.length===3&&r.some(c=>/\d{4}/.test(c)))hdr.d=r;
+    else if(hdr&&hdr.d&&r.length===3&&r.some(isT)){
+      r.forEach((c,i)=>{if(isT(c)&&hdr.d[i])R.chg.push(hdr[i].replace(/^['\u2019]/,'')+' changes to '+c+' on '+hdr.d[i].replace(/\s*\d{1,2}:\d{2}$/,''))});hdr=null;
+    }
+  }
+  const I=R.info;R.t={fj:tm(I.fj),sr:tm(I.sr),zw:tm(I.zw),as:tm(I.as),ss:tm(I.ss),is:tm(I.is)};const t=R.t;
+  R.ok=R.rows.length===5&&Object.values(t).every(v=>v!=null)&&t.fj<t.sr&&t.sr<t.zw&&t.zw<t.as&&t.as<t.ss&&t.ss<t.is;
+  return R;
+}
+async function getBoard(){
+  const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;
+  if(H){const r=await H.get({url:BOARD});return typeof r.data==='string'?r.data:''}
+  const c=new AbortController(),to=setTimeout(()=>c.abort(),12000);
+  try{const r=await fetch(BOARD,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('http');return await r.text()}
+  finally{clearTimeout(to)}
+}
+function refreshViews(){if(S.pub&&!S.edit){all();if(!$('#ov').hidden)renderSheet()}}
+function applyBoard(R){
+  const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
+  const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],['Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
+  Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'.'});
+  try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m}))}catch(e){}
+  renderMasjid();refreshViews();
+}
+function loadBoardCache(){
+  try{const c=JSON.parse(localStorage.getItem('salah_board'));
+    if(c&&c.t&&c.m){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
+}
+let pulled=0;
+async function pullBoard(){
+  if(Date.now()-pulled<6e5)return;pulled=Date.now();
+  try{
+    const R=parseRows(boardRows(await getBoard())),c=sunCalc(today0());
+    if(!R.ok||['fj','sr','zw','as','ss','is'].some(k=>Math.abs(R.t[k]-c[k])>20))throw new Error('unreadable');
+    applyBoard(R);
+  }catch(e){
+    MASJID.status='Couldn\u2019t reach the board, so saved times and calculated windows are in use ('+fmt(parse(MASJID.asOf))+').';renderMasjid();
+  }
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)pullBoard()});
+
+let MS='';
+/* ticking today is timed: on time inside the window, late after it, blocked before it */
+function timing(d,i){
+  const t0=today0(),y0=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()-1),rel=(new Date()-d)/6e4,w=win(d)[i];
+  if(+d==+t0)return{s:rel<w[0]-2?'wait':rel<=w[1]?'ok':'late',w};
+  if(+d==+y0&&i===4&&rel<=w[1])return{s:'ok',w};
+  return null;
+}
+function tick(i){
+  const t=timing(sel,i),b=1<<i;
+  if(t&&t.s==='wait'){MS=P[i]+' starts at '+hm(t.w[0]);return}
+  setMask(sel,getMask(sel)|b,t&&t.s==='late'?getLate(sel)|b:getLate(sel)&~b);
+  if(t&&t.s==='late')MS=P[i]+' is past its time, so it is marked Late. Tap Late to change it.';
+}
+
+/* make-up (qada) prayers: counts per prayer, kept with the settings */
+async function saveSettings(){stat('Saving…');try{await save('settings',{pub:S.pub,q:S.q,ts:S.ts});stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
+let sq=Promise.resolve();
+function qada(sign){
+  const n=Math.floor(+$('#qn').value);
+  if(!(n>0)){$('#qm').textContent='Enter a number of 1 or more.';return}
+  const v=$('#qp').value,idx=v==='all'?[0,1,2,3,4]:[+v];
+  idx.forEach(i=>S.q[i]=Math.max(0,S.q[i]+sign*n));
+  renderStats();sq=sq.then(saveSettings);return sq;
+}
+$('#qa').onclick=()=>qada(1);$('#qu').onclick=()=>qada(-1);
+
+/* setup */
+$('#gear').onclick=()=>{S.edit=true;boot()};
+$('#pc').onclick=()=>{S.edit=false;boot()};
+/* reset: two taps, then everything is erased */
+async function resetAll(){
+  stat('Resetting…');
+  const keys=['settings',...Object.keys(S.yrs).map(y=>'y'+y)];
+  try{
+    for(const k of keys){
+      if(ref){const r=ref(k);if(typeof r.delete==='function')await r.delete();else await r.set({})}
+      else try{localStorage.removeItem('salah_'+k)}catch(e){}
+    }
+  }catch(e){stat('Couldn’t reset, please try again');return}
+  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();
+  stat('Reset done');boot();
+}
+let rt;
+$('#rb').onclick=async()=>{
+  const b=$('#rb');
+  if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to erase everything';clearTimeout(rt);rt=setTimeout(()=>{delete b.dataset.arm;b.textContent='Reset all data'},5000);return}
+  clearTimeout(rt);delete b.dataset.arm;b.textContent='Reset all data';await resetAll();
+};
+function theme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('salah_theme',t)}catch(e){}}
+$('#th').onclick=()=>{const c=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');theme(c==='dark'?'light':'dark')};
+try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+$('#ps').onclick=async()=>{
+  const v=$('#pd').value;
+  if(!v||parse(v)>today0()){$('#ph').textContent='Please choose a date that is today or earlier.';return}
+  S.pub=v;S.edit=false;if(!S.ts)S.ts=ymd(today0());stat('Saving…');
+  try{await save('settings',{pub:v,q:S.q,ts:S.ts});await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
+  boot();
+};
+function boot(){
+  const ok=S.pub&&!S.edit;
+  $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#pc').hidden=!S.pub;
+  $('#pd').max=ymd(today0());
+  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;return}
+  const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
+  V={y:t.getFullYear(),m:t.getMonth()};clamp();
+  $('#bp').innerHTML='<option value="all">All 5 prayers</option>'+P.map((p,i)=>'<option value="'+i+'">'+p+' only</option>').join('');
+  $('#qp').innerHTML=$('#bp').innerHTML;$('#bf').value=S.pub;$('#bt').value=y<parse(S.pub)?S.pub:ymd(y);
+  renderMasjid();$('#foot').textContent=ref?'Saved privately to your account.':'Saved on this device only.';
+  all();
+}
+(async()=>{
+  stat('Loading…');await initStore();
+  const st=await load('settings');if(st&&st.pub)S.pub=st.pub;
+  if(st&&Array.isArray(st.q)&&st.q.length===5)S.q=st.q.map(x=>Math.max(0,+x||0));
+  if(st&&typeof st.ts==='string')S.ts=st.ts;
+  if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
+  if(S.pub)await loadYears();
+  stat('');loadBoardCache();boot();pullBoard();
+})();
+</script>
+</body>
+</html>
