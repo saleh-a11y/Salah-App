@@ -57,7 +57,19 @@ jobs:
         run: |
           echo "Using Android SDK at $ANDROID_HOME"
           chmod +x gradlew
+          test -f keystore/debug.keystore
           ./gradlew assembleDebug --no-daemon
+
+      - name: Check APK is signed with the committed keystore
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          EXPECTED=$(keytool -list -v -keystore android/keystore/debug.keystore -storepass android -alias androiddebugkey \
+            | grep 'SHA256:' | sed 's/.*SHA256: //; s/://g' | tr 'A-F' 'a-f')
+          ACTUAL=$("$APKSIGNER" verify --print-certs "$APK" | grep 'SHA-256 digest' | head -1 | sed 's/.*: //')
+          echo "expected: $EXPECTED"
+          echo "actual:   $ACTUAL"
+          [ "$EXPECTED" = "$ACTUAL" ]
 
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk SalahTracker.apk
