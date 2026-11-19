@@ -97,6 +97,9 @@ th{color:var(--gold);font-weight:500;font-size:12px;text-transform:uppercase;let
 td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 .card a{color:var(--gold)}
 #foot{display:block;text-align:center;margin-top:8px}
+.upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;z-index:15;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:linear-gradient(180deg,var(--em),var(--em2));color:#fbf4e2;border:1px solid rgba(227,194,122,.5);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.upd span{flex:1;font-size:14px}.upd b{display:block;color:var(--gold2);font-weight:400;font-family:"Marcellus",Georgia,serif;font-size:16px}
+.upd button{border-color:rgba(227,194,122,.5);background:transparent;color:#fbf4e2;padding:8px 10px}.upd button.go{background:var(--gold2);color:#0a3f30;border-color:var(--gold2);font-weight:600}
 </style>
 </head>
 <body>
@@ -147,6 +150,8 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <small id="foot"></small>
 </section>
 </div>
+
+<div class="upd" id="upd" hidden><span><b>New version available</b>Tap Update, then Install.</span><button id="ul">Later</button><button class="go" id="ug">Update</button></div>
 
 <div class="ov" id="ov" hidden><div class="sheet"><h3 id="st"></h3><div id="sl"></div><small id="sm"></small><div class="row"><button data-a="all">All prayed</button><button data-a="clr">Clear</button><button class="pri" data-a="done">Done</button></div></div></div>
 
@@ -302,6 +307,27 @@ function renderMasjid(){
     +'<p class="mu">Jumu’ah: adhān '+M.jumuah[0]+', sunan '+M.jumuah[1]+', khutbah '+M.jumuah[2]+'.<br>'+M.note+'</p>'
     +'<a href="'+M.url+'" target="_blank" rel="noopener">Open the live board ↗</a>';
 }
+/* ---- update check: compare this build with the newest one on GitHub ---- */
+const BUILD='__BUILD__',REL='https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/latest',APK='https://github.com/saleh-a11y/Salah-App/releases/download/latest/SalahTracker.apk';
+async function getJSON(url){
+  const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;
+  if(H){const r=await H.get({url,headers:{Accept:'application/vnd.github+json'}});return typeof r.data==='string'?JSON.parse(r.data):r.data}
+  const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('http');return r.json();
+}
+let checked=0,later=false;
+async function checkUpdate(){
+  const mine=parseInt(BUILD,10);
+  if(!(mine>0)||later||Date.now()-checked<18e5)return;
+  checked=Date.now();
+  try{
+    const j=await getJSON(REL),m=/Build (\d+)/.exec((j&&j.body)||''),hasApk=(j.assets||[]).some(a=>a.name==='SalahTracker.apk');
+    if(m&&hasApk&&+m[1]>mine)$('#upd').hidden=false;
+  }catch(e){}
+}
+$('#ul').onclick=()=>{later=true;$('#upd').hidden=true};
+$('#ug').onclick=()=>{$('#upd').hidden=true;location.href=APK};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
+
 /* ---- live board: read in the background when the app opens ---- */
 const BOARD='https://masjidboardlive.com/boards/?id=lakefield-ansaar';
 const tm=x=>{const m=/(\d{1,2}):(\d{2})/.exec(x||'');return m?+m[1]*60+ +m[2]:null};
@@ -440,7 +466,7 @@ function boot(){
   if(st&&typeof st.ts==='string')S.ts=st.ts;
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');loadBoardCache();boot();pullBoard();
+  stat('');loadBoardCache();boot();pullBoard();checkUpdate();
 })();
 </script>
 </body>
