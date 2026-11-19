@@ -99,6 +99,11 @@ th{color:var(--gold);font-weight:500;font-size:12px;text-transform:uppercase;let
 td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 .card a{color:var(--gold)}
 #foot{display:block;text-align:center;margin-top:8px}
+.tg{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd);cursor:pointer}
+.tg:last-of-type{border-bottom:0}
+.tg input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--em);flex:none}
+.tg span{flex:1}.tg small{display:block;font-size:13px}
+#nst{margin:4px 0 6px}
 .upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;z-index:15;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:linear-gradient(180deg,var(--em),var(--em2));color:#fbf4e2;border:1px solid rgba(227,194,122,.5);box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .upd span{flex:1;font-size:14px}.upd b{display:block;color:var(--gold2);font-weight:400;font-family:"Marcellus",Georgia,serif;font-size:16px}
 .upd button{border-color:rgba(227,194,122,.5);background:transparent;color:#fbf4e2;padding:8px 10px}.upd button.go{background:var(--gold2);color:#0a3f30;border-color:var(--gold2);font-weight:600}
@@ -148,6 +153,17 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <div class="row"><button class="pri" id="b1">Mark prayed</button><button id="b0">Clear</button></div>
 <p id="msg"></p>
 </details>
+<div class="card" id="ncard">
+<h2 class="serif">Prayer notifications</h2>
+<p id="nst" class="mu"></p>
+<div id="nopts">
+<label class="tg"><input type="checkbox" id="n_pre"><span>15 minutes before each prayer time starts<small class="mu">e.g. "Asr in 15 minutes"</small></span></label>
+<label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu">Masjid-ul-Ansaar iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
+<label class="tg"><input type="checkbox" id="n_end"><span>10 minutes before a prayer's time ends<small class="mu">Only if you haven't ticked it yet</small></span></label>
+</div>
+<div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
+</div>
+
 <details class="card"><summary>Masjid times</summary><div id="mj"></div></details>
 <small id="foot"></small>
 </section>
@@ -185,7 +201,7 @@ async function save(k,o){
   try{localStorage.setItem('salah_'+k,JSON.stringify(o))}catch(e){}
 }
 const stat=t=>$('#stat').textContent=t;
-function dirty(y){D.add(y);stat('Saving…');clearTimeout(T);T=setTimeout(flush,500)}
+function dirty(y){D.add(y);stat('Saving…');clearTimeout(T);T=setTimeout(flush,500);if(typeof queueNotifs==='function')queueNotifs()}
 async function flush(){
   const ys=[...D];D.clear();
   try{for(const y of ys)await save('y'+y,{m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)});stat('Saved ✓')}
@@ -330,6 +346,63 @@ $('#ul').onclick=()=>{later=true;$('#upd').hidden=true};
 $('#ug').onclick=()=>{$('#upd').hidden=true;location.href=APK};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 
+/* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
+const LN=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?(Capacitor.registerPlugin?Capacitor.registerPlugin('LocalNotifications'):Capacitor.Plugins.LocalNotifications):null;
+let NP={on:false,pre:true,jam:true,end:true},NT;
+try{const o=JSON.parse(localStorage.getItem('salah_notif'));if(o)NP=Object.assign(NP,o)}catch(e){}
+const saveNP=()=>{try{localStorage.setItem('salah_notif',JSON.stringify(NP))}catch(e){}};
+function jamaah(i,fri){
+  const M=MASJID;
+  if(fri&&i===1&&M.jumuah&&tm(M.jumuah[2])!=null)return{t:tm(M.jumuah[2]),label:"Jumu'ah khutbah"};
+  const re=[/^fajr/i,/^(dhuhr|zuhr)/i,/^asr/i,/^maghrib/i,/^(esha|isha)/i][i];
+  const r=(M.rows||[]).find(x=>re.test(x[0]));
+  return r&&tm(r[2])!=null?{t:tm(r[2]),label:P[i]+" jamā'ah"}:null;
+}
+function planNotifs(){
+  const out=[],now=Date.now(),t0=today0();
+  for(let k=0;k<7;k++){
+    const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+k),W=win(d),fri=d.getDay()===5,m=getMask(d);
+    const at=min=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(min));
+    for(let i=0;i<5;i++){
+      const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body)=>{if(t.getTime()>now+30000)out.push({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}})};
+      if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
+      if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · Masjid-ul-Ansaar');}
+      if(NP.end&&!(m>>i&1))add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.');
+    }
+  }
+  return out.sort((a,b)=>a.schedule.at-b.schedule.at);
+}
+async function scheduleNotifs(){
+  if(!LN)return;
+  try{
+    const pend=await LN.getPending();
+    if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    if(!NP.on||!S.pub)return renderNotif();
+    if((await LN.checkPermissions()).display!=='granted'){NP.on=false;saveNP();return renderNotif()}
+    const list=planNotifs();
+    if(list.length)await LN.schedule({notifications:list});
+    renderNotif(list[0]);
+  }catch(e){$('#nst').textContent='Couldn’t set up notifications. Open the app again to retry.'}
+}
+const queueNotifs=()=>{clearTimeout(NT);NT=setTimeout(scheduleNotifs,1500)};
+async function renderNotif(next){
+  const st=$('#nst');
+  if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;return}
+  ['pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});
+  $('#non').hidden=NP.on;
+  let exact=true;try{exact=(await LN.checkExactNotificationSetting()).exact_alarm==='granted'}catch(e){}
+  $('#nex').hidden=!NP.on||exact;
+  if(!NP.on){st.textContent='Off. Turn them on to get reminders for each prayer.';return}
+  st.textContent=(next?'On · next: '+next.title.replace(/ in \d+ minutes| ends in \d+ minutes/,'')+' at '+hm((new Date(next.schedule.at)-today0())/6e4):'On')+(exact?'':' · Times may be a few minutes late until you allow exact timing.');
+}
+$('#non').onclick=async()=>{
+  try{const p=await LN.requestPermissions();if(p.display!=='granted'){$('#nst').textContent='Notifications are blocked. Allow them for Salah Tracker in your phone’s settings.';return}}catch(e){return}
+  NP.on=true;saveNP();await scheduleNotifs();
+};
+$('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(e){};scheduleNotifs()};
+['pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
+
 /* ---- live board: read in the background when the app opens ---- */
 const BOARD='https://masjidboardlive.com/boards/?id=lakefield-ansaar';
 const tm=x=>{const m=/(\d{1,2}):(\d{2})/.exec(x||'');return m?+m[1]*60+ +m[2]:null};
@@ -371,7 +444,7 @@ function applyBoard(R){
   const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],['Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
   Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'.'});
   try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m}))}catch(e){}
-  renderMasjid();refreshViews();
+  renderMasjid();refreshViews();queueNotifs();
 }
 function loadBoardCache(){
   try{const c=JSON.parse(localStorage.getItem('salah_board'));
@@ -468,7 +541,7 @@ function boot(){
   if(st&&typeof st.ts==='string')S.ts=st.ts;
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');loadBoardCache();boot();pullBoard();checkUpdate();
+  stat('');loadBoardCache();boot();pullBoard();checkUpdate();renderNotif();queueNotifs();
 })();
 </script>
 </body>

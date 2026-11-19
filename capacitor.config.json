@@ -5,6 +5,10 @@
   "plugins": {
     "CapacitorHttp": {
       "enabled": true
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_salah",
+      "iconColor": "#1F7A4C"
     }
   }
 }
