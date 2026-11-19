@@ -104,6 +104,14 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 .tg input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--em);flex:none}
 .tg span{flex:1}.tg small{display:block;font-size:13px}
 #nst{margin:4px 0 6px}
+.fld{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--bd)}
+.fld>b{display:block;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:16px;margin-bottom:6px}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:10px 8px}.seg button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}
+.fld input[type=url],.fld input[type=text],.fld select{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit}
+.brow{display:flex;gap:6px;margin-top:6px}.brow input{flex:1;min-width:0}
+#bmsg{display:block;margin-top:6px;font-size:13px}#bmsg.okm{color:var(--em)}
+:root[data-theme="dark"] #bmsg.okm{color:#7fd1ad}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #bmsg.okm{color:#7fd1ad}}
 .upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;z-index:15;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:linear-gradient(180deg,var(--em),var(--em2));color:#fbf4e2;border:1px solid rgba(227,194,122,.5);box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .upd span{flex:1;font-size:14px}.upd b{display:block;color:var(--gold2);font-weight:400;font-family:"Marcellus",Georgia,serif;font-size:16px}
 .upd button{border-color:rgba(227,194,122,.5);background:transparent;color:#fbf4e2;padding:8px 10px}.upd button.go{background:var(--gold2);color:#0a3f30;border-color:var(--gold2);font-weight:600}
@@ -114,9 +122,22 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <header><div class="htop"><div class="brand"><svg width="44" height="44" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#e3c27a" stroke-opacity=".6" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-family="Amiri,serif" font-weight="700" font-size="33" fill="#e3c27a">صلاة</text></svg><div><h1 class="serif">Salah Tracker</h1><span class="ar">مُتَتَبِّع الصَّلَاة</span></div></div><div class="hbtns"><small id="stat"></small><button id="th" aria-label="Light or dark mode">◐</button><button id="gear" aria-label="Settings" hidden>⚙︎</button></div></div><svg class="sky" viewBox="0 0 360 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc48c"/><stop offset="1" stop-color="#23915a"/></linearGradient></defs><g fill="#f7f0dc" fill-opacity=".17"><path d="M31 44L36 30L41 44Z"/><rect x="32" y="44" width="8" height="40"/><rect x="29" y="57" width="14" height="3" rx="1"/><rect x="29" y="75" width="14" height="3" rx="1"/><path d="M99 22L104 8L109 22Z"/><rect x="100" y="22" width="8" height="62"/><rect x="97" y="35" width="14" height="3" rx="1"/><rect x="97" y="53" width="14" height="3" rx="1"/><path d="M251 22L256 8L261 22Z"/><rect x="252" y="22" width="8" height="62"/><rect x="249" y="35" width="14" height="3" rx="1"/><rect x="249" y="53" width="14" height="3" rx="1"/><path d="M319 44L324 30L329 44Z"/><rect x="320" y="44" width="8" height="40"/><rect x="317" y="57" width="14" height="3" rx="1"/><rect x="317" y="75" width="14" height="3" rx="1"/><rect x="14" y="66" width="332" height="18"/><path d="M58 66A12 10 0 0 1 82 66Z"/><path d="M122 66A12 10 0 0 1 146 66Z"/><path d="M214 66A12 10 0 0 1 238 66Z"/><path d="M278 66A12 10 0 0 1 302 66Z"/></g><rect x="154" y="50" width="52" height="34" fill="#1d7f4f"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52Z" fill="url(#gd)"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52" fill="none" stroke="#e6c983" stroke-opacity=".5" stroke-width=".8"/><rect x="148" y="51" width="64" height="3" fill="#e6c983" fill-opacity=".7"/><g stroke="#e6c983" stroke-width="1.4" stroke-linecap="round"><line x1="180" y1="15" x2="180" y2="9"/><line x1="36" y1="30" x2="36" y2="24"/><line x1="104" y1="8" x2="104" y2="2"/><line x1="256" y1="8" x2="256" y2="2"/><line x1="324" y1="30" x2="324" y2="24"/></g><path d="M182.6 3.2a3.2 3.2 0 1 0 0 5.6a2.6 2.6 0 1 1 0-5.6z" fill="#e6c983"/></svg></header>
 
 <section id="setup" class="card" hidden>
-<h2 class="serif">Your starting date</h2>
-<p class="mu">Enter the date you reached puberty. Prayers are counted from this day, and you can change it later.</p>
-<div class="f"><input type="date" id="pd" min="1940-01-01"><button class="pri" id="ps">Save &amp; start</button><button id="pc" hidden>Cancel</button></div>
+<h2 class="serif">Set up your tracker</h2>
+<div class="fld" style="border-top:0;padding-top:0"><b>Your starting date</b>
+<p class="mu" style="margin:0 0 6px">The date you reached puberty. Prayers are counted from this day.</p>
+<input type="date" id="pd" min="1940-01-01"></div>
+<div class="fld"><b>Asr time</b>
+<div class="seg" role="group" aria-label="Asr method"><button type="button" id="a_h" data-asr="hanafi">Hanafi</button><button type="button" id="a_s" data-asr="shafii">Shāfi'i</button></div>
+<small class="mu">Hanafi Asr starts later in the afternoon than Shāfi'i.</small></div>
+<div class="fld"><b>Your masjid board <span class="mu" style="font-size:13px">(optional)</span></b>
+<p class="mu" style="margin:0 0 6px">Paste your masjid's masjidboardlive.com link to use its jamā'ah times and reminders.</p>
+<div class="brow"><input type="url" id="bu" placeholder="masjidboardlive.com/boards/?id=…" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" id="bc">Check</button></div>
+<small id="bmsg" class="mu"></small>
+<a href="https://masjidboardlive.com/findmasjid" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;color:var(--gold);font-size:14px">Find your masjid's board ↗</a></div>
+<div class="fld"><b>Your area</b>
+<p class="mu" style="margin:0 0 6px">Used to work out prayer times when the board can't be read.</p>
+<select id="loc"></select></div>
+<div class="row" style="margin-top:16px"><button class="pri" id="ps">Save &amp; start</button><button id="pc" hidden>Cancel</button></div>
 <small id="ph"></small>
 <div id="rs" hidden style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bd)"><p class="mu">Start from scratch: erases your start date, every tick and your make-up counts. This cannot be undone.</p><button id="rb">Reset all data</button></div>
 </section>
@@ -158,7 +179,7 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <p id="nst" class="mu"></p>
 <div id="nopts">
 <label class="tg"><input type="checkbox" id="n_pre"><span>15 minutes before each prayer time starts<small class="mu">e.g. "Asr in 15 minutes"</small></span></label>
-<label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu">Masjid-ul-Ansaar iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
+<label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu" id="n_jam_s">Your masjid's iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
 <label class="tg"><input type="checkbox" id="n_end"><span>10 minutes before a prayer's time ends<small class="mu">Only if you haven't ticked it yet</small></span></label>
 </div>
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
@@ -182,7 +203,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0]},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -298,8 +319,10 @@ function bulk(set){
 }
 $('#b1').onclick=()=>bulk(true);$('#b0').onclick=()=>bulk(false);
 
-/* prayer windows for Lakefield (Hanafi Asr, 18° Fajr/Isha), worked out from the date */
-const LAT=-26.186925,LON=28.282288,TZ=2,ANG=18;
+/* prayer windows for the chosen location and Asr method (18° Fajr/Isha), worked out from the date */
+const LAKE={url:'https://masjidboardlive.com/boards/?id=lakefield-ansaar',name:'Masjid-ul-Ansaar',town:'Lakefield',lat:-26.186925,lon:28.282288};
+const CITIES=[['jhb','Johannesburg',-26.2041,28.0473],['pta','Pretoria',-25.7479,28.2293],['dbn','Durban',-29.8587,31.0218],['cpt','Cape Town',-33.9249,18.4241],['gqb','Gqeberha (Port Elizabeth)',-33.9608,25.6022],['bfn','Bloemfontein',-29.0852,26.1596],['pmb','Pietermaritzburg',-29.6006,30.3794],['plk','Polokwane',-23.9045,29.4689],['mbo','Mbombela (Nelspruit)',-25.4753,30.9694],['ksd','Kimberley',-28.7282,24.7499]];
+let LAT=LAKE.lat,LON=LAKE.lon;const ANG=18;
 const hm=m=>{m=Math.round(((m%1440)+1440)%1440);return pad(Math.floor(m/60))+':'+pad(m%60)};
 let LIVE=null; /* today's exact times from the board, when it has been read */
 function sun(d){const c=sunCalc(d),L=LIVE;if(L&&L.date===ymd(d))for(const k in L.t)if(L.t[k]!=null)c[k]=L.t[k];return c}
@@ -307,23 +330,37 @@ function sunCalc(d){
   const R=Math.PI/180,g=2*Math.PI/365*doy(d);
   const eq=229.18*(7.5e-5+1.868e-3*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g));
   const dc=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+9.07e-4*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g);
-  const noon=720-4*LON-eq+TZ*60;
+  const noon=720-4*LON-eq-d.getTimezoneOffset(),af=S.asr==='shafii'?1:2;
   const ha=a=>Math.acos(Math.max(-1,Math.min(1,(Math.sin(a*R)-Math.sin(LAT*R)*Math.sin(dc))/(Math.cos(LAT*R)*Math.cos(dc)))))/R*4;
-  return{fj:noon-ha(-ANG),sr:noon-ha(-.833),zw:noon+5,as:noon+ha(Math.atan(1/(2+Math.tan(Math.abs(LAT*R-dc))))/R),ss:noon+ha(-.833),is:noon+ha(-ANG)};
+  return{fj:noon-ha(-ANG),sr:noon-ha(-.833),zw:noon+5,as:noon+ha(Math.atan(1/(af+Math.tan(Math.abs(LAT*R-dc))))/R),ss:noon+ha(-.833),is:noon+ha(-ANG)};
 }
 function win(d){const a=sun(d),b=sun(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1));return[[a.fj,a.sr],[a.zw,a.as],[a.as,a.ss],[a.ss,a.is],[a.is,1440+b.fj]]}
 /* Masjid board times: saved defaults, replaced by the live board whenever it can be reached */
-const MASJID={asOf:'2026-11-14',url:'https://masjidboardlive.com/boards/?id=lakefield-ansaar',
+const LAKE_SNAP={asOf:'2026-11-14',
   rows:[['Fajr','04:20','04:40'],['Dhuhr','12:45','13:00'],['Asr','17:15','17:30'],['Maghrib','18:35','18:38'],['Esha','20:00','20:15']],
   info:[['Fajr starts','03:45'],['Sunrise','05:10'],['Zawaal ends','11:56'],['Asr (Hanafi)','16:33'],['Sunset','18:32'],['Isha starts','19:58']],
   jumuah:['12:25','12:55','13:00'],note:'The board lists an Esha change to 20:30 on 15 Nov 2026.'};
+const MASJID={rows:[],info:[],jumuah:null,note:''};
+function resetMasjid(){
+  for(const k of Object.keys(MASJID))delete MASJID[k];
+  Object.assign(MASJID,{rows:[],info:[],jumuah:null,note:'',asOf:ymd(today0())},S.board===LAKE.url&&S.asr==='hanafi'?JSON.parse(JSON.stringify(LAKE_SNAP)):{});
+  MASJID.url=S.board;
+}
+function applyLoc(){
+  const c=CITIES.find(x=>x[0]===S.loc);
+  if(S.loc==='board'&&S.blat!=null){LAT=S.blat;LON=S.blon}else if(c){LAT=c[2];LON=c[3]}else{LAT=LAKE.lat;LON=LAKE.lon}
+}
+const bLabel=()=>S.bname?(S.bname+(S.btown?', '+S.btown:'')):'your masjid';
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function renderMasjid(){
   const M=MASJID;
-  $('#mj').innerHTML='<small>Masjid-ul-Ansaar, Lakefield. '+(M.status||'Saved times from '+fmt(parse(M.asOf))+'.')+'</small>'
-    +'<table><tr><th></th><th>Adhān</th><th>Iqāmah</th></tr>'+M.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</table>'
-    +'<table>'+M.info.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</table>'
-    +'<p class="mu">Jumu’ah: adhān '+M.jumuah[0]+', sunan '+M.jumuah[1]+', khutbah '+M.jumuah[2]+'.<br>'+M.note+'</p>'
-    +'<a href="'+M.url+'" target="_blank" rel="noopener">Open the live board ↗</a>';
+  if(!S.board){$('#mj').innerHTML='<p class="mu">No masjid board chosen. Add one in settings (⚙︎) to see its jamā\'ah times here and get jamā\'ah reminders.</p>';return}
+  if(!M.rows.length){$('#mj').innerHTML='<small>'+esc(bLabel())+'. '+(M.status||'Times will appear once the board has been read.')+'</small><br><a href="'+esc(M.url)+'" target="_blank" rel="noopener">Open the live board ↗</a>';return}
+  $('#mj').innerHTML='<small>'+esc(bLabel())+'. '+(M.status||'Saved times from '+fmt(parse(M.asOf))+'.')+'</small>'
+    +'<table><tr><th></th><th>Adhān</th><th>Iqāmah</th></tr>'+M.rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>').join('')+'</table>'
+    +'<table>'+M.info.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>'
+    +'<p class="mu">'+(M.jumuah?'Jumu’ah: adhān '+M.jumuah[0]+', sunan '+M.jumuah[1]+', khutbah '+M.jumuah[2]+'.<br>':'')+esc(M.note||'')+'</p>'
+    +'<a href="'+esc(M.url)+'" target="_blank" rel="noopener">Open the live board ↗</a>';
 }
 /* ---- update check: compare this build with the newest one on GitHub ---- */
 const BUILD='__BUILD__',REL='https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/latest',APK='https://github.com/saleh-a11y/Salah-App/releases/download/latest/SalahTracker.apk';
@@ -366,7 +403,7 @@ function planNotifs(){
     for(let i=0;i<5;i++){
       const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body)=>{if(t.getTime()>now+30000)out.push({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}})};
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
-      if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · Masjid-ul-Ansaar');}
+      if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
       if(NP.end&&!(m>>i&1))add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.');
     }
   }
@@ -389,6 +426,7 @@ async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;return}
   ['pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});
+  if(!S.board){$('#n_jam').disabled=true;$('#n_jam_s').textContent='Needs a masjid board · add one in settings (⚙︎)'}else $('#n_jam_s').textContent=(S.bname||'Your masjid')+' iqāmah times · Jumu\'ah khutbah on Fridays';
   $('#non').hidden=NP.on;
   let exact=true;try{exact=(await LN.checkExactNotificationSetting()).exact_alarm==='granted'}catch(e){}
   $('#nex').hidden=!NP.on||exact;
@@ -404,7 +442,19 @@ $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
 
 /* ---- live board: read in the background when the app opens ---- */
-const BOARD='https://masjidboardlive.com/boards/?id=lakefield-ansaar';
+function boardURL(x){
+  x=(x||'').trim();if(!x)return'';
+  if(/^[a-z0-9][a-z0-9-]*$/i.test(x))return'https://masjidboardlive.com/boards/?id='+x.toLowerCase();
+  if(!/^https?:\/\//i.test(x))x='https://'+x;
+  if(/\s/.test(x))return'';try{const u=new URL(x);return /^https?:$/.test(u.protocol)&&/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(u.hostname)?u.href:''}catch(e){return''}
+}
+function boardMeta(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  const h=[...doc.querySelectorAll('h1')].map(e=>e.textContent.replace(/\s+/g,' ').trim()).filter(Boolean);
+  const m=/destination=\s*(-?\d{1,2}(?:\.\d+)?)\s*(?:,|%2C)\s*(?:%20|\s)*(-?\d{1,3}(?:\.\d+)?)/i.exec(html);
+  const lat=m?+m[1]:null,lon=m?+m[2]:null,ok=m&&Math.abs(lat)<=90&&Math.abs(lon)<=180;
+  return{name:h.length>1?h[1]:(h[0]||''),town:h.length>1?h[0]:'',lat:ok?lat:null,lon:ok?lon:null};
+}
 const tm=x=>{const m=/(\d{1,2}):(\d{2})/.exec(x||'');return m?+m[1]*60+ +m[2]:null};
 const isT=x=>/^\s*\d{1,2}:\d{2}\s*$/.test(x||'');
 function boardRows(html){
@@ -419,7 +469,7 @@ function parseRows(rows){
     else if(r.length===2&&isT(r[1])){
       const k=r[0].toLowerCase(),set=n=>{if(!(n in R.info))R.info[n]=r[1]};
       if(/fajr\s*starts/.test(k))set('fj');else if(/sunrise/.test(k))set('sr');else if(/zawaal\s*ends/.test(k))set('zw');
-      else if(/hanafi/.test(k))set('as');else if(/sunset/.test(k))set('ss');else if(/^(esh|ish)[a\u0101]$/.test(k))set('is');
+      else if(S.asr==='shafii'?/sh[a\u0101]f/.test(k):/hanafi/.test(k))set('as');else if(/sunset/.test(k))set('ss');else if(/^(esh|ish)[a\u0101]$/.test(k))set('is');
     }
     else if(r.length===3&&/^fajr$/i.test(r[0])&&/asr/i.test(r[1]))hdr=r;
     else if(hdr&&r.length===3&&r.some(c=>/\d{4}/.test(c)))hdr.d=r;
@@ -431,34 +481,36 @@ function parseRows(rows){
   R.ok=R.rows.length===5&&Object.values(t).every(v=>v!=null)&&t.fj<t.sr&&t.sr<t.zw&&t.zw<t.as&&t.as<t.ss&&t.ss<t.is;
   return R;
 }
-async function getBoard(){
+async function getBoard(url){
+  url=url||S.board;if(!url)throw new Error('none');
   const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;
-  if(H){const r=await H.get({url:BOARD});return typeof r.data==='string'?r.data:''}
+  if(H){const r=await H.get({url});return typeof r.data==='string'?r.data:''}
   const c=new AbortController(),to=setTimeout(()=>c.abort(),12000);
-  try{const r=await fetch(BOARD,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('http');return await r.text()}
+  try{const r=await fetch(url,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('http');return await r.text()}
   finally{clearTimeout(to)}
 }
 function refreshViews(){if(S.pub&&!S.edit){all();if(!$('#ov').hidden)renderSheet()}}
 function applyBoard(R){
   const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
-  const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],['Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
+  const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
   Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'.'});
-  try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m}))}catch(e){}
+  try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m,board:S.board,asr:S.asr}))}catch(e){}
   renderMasjid();refreshViews();queueNotifs();
 }
 function loadBoardCache(){
   try{const c=JSON.parse(localStorage.getItem('salah_board'));
-    if(c&&c.t&&c.m){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
+    if(c&&c.t&&c.m&&c.board===S.board&&(c.asr||'hanafi')===S.asr){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
 }
 let pulled=0;
 async function pullBoard(){
-  if(Date.now()-pulled<6e5)return;pulled=Date.now();
+  if(!S.board||Date.now()-pulled<6e5)return;pulled=Date.now();
   try{
-    const R=parseRows(boardRows(await getBoard())),c=sunCalc(today0());
+    const html=await getBoard(),R=parseRows(boardRows(html)),c=sunCalc(today0()),bm=boardMeta(html);
+    if(bm.name&&!S.bname){S.bname=bm.name;S.btown=bm.town;saveSettings()}
     if(!R.ok||['fj','sr','zw','as','ss','is'].some(k=>Math.abs(R.t[k]-c[k])>20))throw new Error('unreadable');
     applyBoard(R);
   }catch(e){
-    MASJID.status='Couldn\u2019t reach the board, so saved times and calculated windows are in use ('+fmt(parse(MASJID.asOf))+').';renderMasjid();
+    MASJID.status=MASJID.rows.length?'Couldn\u2019t reach the board, so saved times and calculated windows are in use ('+fmt(parse(MASJID.asOf))+').':'Couldn\u2019t read the board yet, so calculated times are in use.';renderMasjid();
   }
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pullBoard()});
@@ -479,7 +531,8 @@ function tick(i){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-async function saveSettings(){stat('Saving…');try{await save('settings',{pub:S.pub,q:S.q,ts:S.ts});stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
+const setDoc=()=>({pub:S.pub,q:S.q,ts:S.ts,asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
   const n=Math.floor(+$('#qn').value);
@@ -503,7 +556,7 @@ async function resetAll(){
       else try{localStorage.removeItem('salah_'+k)}catch(e){}
     }
   }catch(e){stat('Couldn’t reset, please try again');return}
-  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();
+  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
   stat('Reset done');boot();
 }
 let rt;
@@ -515,18 +568,59 @@ $('#rb').onclick=async()=>{
 function theme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('salah_theme',t)}catch(e){}}
 $('#th').onclick=()=>{const c=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');theme(c==='dark'?'light':'dark')};
 try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+/* setup screen: Asr method, masjid board and area */
+let F={};
+function fillLoc(){
+  const o=(F.blat!=null?'<option value="board">'+esc((F.bname||'Masjid board')+' (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $('#loc').innerHTML=o;$('#loc').value=F.loc==='board'&&F.blat==null?'jhb':F.loc;if(!$('#loc').value)$('#loc').value='jhb';
+}
+function fillSetup(){
+  F={asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,blat:S.blat,blon:S.blon,loc:S.loc,checked:S.board};
+  $('#bu').value=S.board;$('#bmsg').textContent=S.board?(S.bname?'Current board: '+bLabel():''):'';$('#bmsg').className='mu';
+  setAsr(S.asr);fillLoc();
+}
+function setAsr(a){F.asr=a;$('#a_h').classList.toggle('on',a==='hanafi');$('#a_s').classList.toggle('on',a==='shafii');$('#a_h').setAttribute('aria-pressed',a==='hanafi');$('#a_s').setAttribute('aria-pressed',a==='shafii')}
+$('#a_h').onclick=()=>setAsr('hanafi');$('#a_s').onclick=()=>setAsr('shafii');
+$('#bu').oninput=()=>{F.checked=null;$('#bmsg').textContent='';$('#bmsg').className='mu'};
+async function checkBoard(){
+  const url=boardURL($('#bu').value),m=$('#bmsg');
+  if(!$('#bu').value.trim()){Object.assign(F,{board:'',bname:'',btown:'',blat:null,blon:null,checked:''});if(F.loc==='board')F.loc='jhb';fillLoc();m.textContent='';return true}
+  if(!url){m.className='mu';m.textContent='That doesn’t look like a link. Paste the board’s address.';return false}
+  m.className='mu';m.textContent='Checking the board…';
+  try{
+    const html=await getBoard(url),R=parseRows(boardRows(html)),bm=boardMeta(html);
+    if(!R.rows.length&&!R.ok)throw new Error('unreadable');
+    Object.assign(F,{board:url,bname:bm.name,btown:bm.town,blat:bm.lat,blon:bm.lon,checked:url});
+    if(bm.lat!=null)F.loc='board';
+    fillLoc();m.className='okm';
+    const fj=(R.rows.find(r=>/^fajr/i.test(r[0]))||[])[2];
+    m.textContent='✓ '+(bm.name?bm.name+(bm.town?', '+bm.town:''):'Board found')+(fj?' · Fajr jamā’ah '+fj:'')+(bm.lat==null?' · no map location, so choose your area below':'');
+    return true;
+  }catch(e){
+    Object.assign(F,{board:url,bname:'',btown:'',blat:null,blon:null,checked:url});if(F.loc==='board')F.loc='jhb';fillLoc();
+    m.className='mu';m.textContent='Couldn’t read that board right now. It will be saved and tried again when the app opens. Check the link if this keeps happening.';
+    return true;
+  }
+}
+$('#bc').onclick=checkBoard;
+$('#loc').onchange=()=>{F.loc=$('#loc').value};
 $('#ps').onclick=async()=>{
   const v=$('#pd').value;
   if(!v||parse(v)>today0()){$('#ph').textContent='Please choose a date that is today or earlier.';return}
-  S.pub=v;S.edit=false;if(!S.ts)S.ts=ymd(today0());stat('Saving…');
-  try{await save('settings',{pub:v,q:S.q,ts:S.ts});await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
-  boot();
+  if(boardURL($('#bu').value)!==(F.checked||'')||(!$('#bu').value.trim()&&F.board)){if(!(await checkBoard()))return}
+  const changed=F.board!==S.board||F.asr!==S.asr;
+  Object.assign(S,{pub:v,asr:F.asr,board:F.board,bname:F.bname,btown:F.btown,blat:F.blat,blon:F.blon,loc:$('#loc').value||'jhb',edit:false});
+  if(!S.ts)S.ts=ymd(today0());stat('Saving…');
+  try{await save('settings',setDoc());await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
+  applyLoc();
+  if(changed){LIVE=null;resetMasjid();try{localStorage.removeItem('salah_board')}catch(e){}pulled=0}
+  boot();pullBoard();queueNotifs();
 };
 function boot(){
   const ok=S.pub&&!S.edit;
   $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#pc').hidden=!S.pub;
   $('#pd').max=ymd(today0());
-  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;return}
+  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
   const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
   V={y:t.getFullYear(),m:t.getMonth()};clamp();
   $('#bp').innerHTML='<option value="all">All 5 prayers</option>'+P.map((p,i)=>'<option value="'+i+'">'+p+' only</option>').join('');
@@ -539,6 +633,9 @@ function boot(){
   const st=await load('settings');if(st&&st.pub)S.pub=st.pub;
   if(st&&Array.isArray(st.q)&&st.q.length===5)S.q=st.q.map(x=>Math.max(0,+x||0));
   if(st&&typeof st.ts==='string')S.ts=st.ts;
+  if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
+  else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon'])if(typeof st[k]==='number')S[k]=st[k]}
+  applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
   stat('');loadBoardCache();boot();pullBoard();checkUpdate();renderNotif();queueNotifs();
