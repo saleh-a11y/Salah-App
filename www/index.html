@@ -113,7 +113,7 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 :root[data-theme="dark"] #bmsg.okm{color:#7fd1ad}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #bmsg.okm{color:#7fd1ad}}
 .upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;z-index:15;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:linear-gradient(180deg,var(--em),var(--em2));color:#fbf4e2;border:1px solid rgba(227,194,122,.5);box-shadow:0 10px 30px rgba(0,0,0,.3)}
-.upd span{flex:1;font-size:14px}.upd b{display:block;color:var(--gold2);font-weight:400;font-family:"Marcellus",Georgia,serif;font-size:16px}
+.upd span{flex:1;font-size:14px}.upd .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin-top:6px;overflow:hidden}.upd .bar i{display:block;height:100%;width:0;background:var(--gold2);transition:width .2s}.upd b{display:block;color:var(--gold2);font-weight:400;font-family:"Marcellus",Georgia,serif;font-size:16px}
 .upd button{border-color:rgba(227,194,122,.5);background:transparent;color:#fbf4e2;padding:8px 10px}.upd button.go{background:var(--gold2);color:#0a3f30;border-color:var(--gold2);font-weight:600}
 </style>
 </head>
@@ -190,7 +190,7 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 </section>
 </div>
 
-<div class="upd" id="upd" hidden><span><b>New version available</b>Tap Update, then Install.</span><button id="ul">Later</button><button class="go" id="ug">Update</button></div>
+<div class="upd" id="upd" hidden><span><b>New version available</b><i id="umsg" style="font-style:normal">Tap Update to download and install it.</i></span><button id="ul">Later</button><button class="go" id="ug">Update</button></div>
 
 <div class="ov" id="ov" hidden><div class="sheet"><h3 id="st"></h3><div id="sl"></div><small id="sm"></small><div class="row"><button data-a="all">All prayed</button><button data-a="clr">Clear</button><button class="pri" data-a="done">Done</button></div></div></div>
 
@@ -380,7 +380,33 @@ async function checkUpdate(){
   }catch(e){}
 }
 $('#ul').onclick=()=>{later=true;$('#upd').hidden=true};
-$('#ug').onclick=()=>{$('#upd').hidden=true;location.href=APK};
+/* in-app update: download inside the app, then open Android's installer (falls back to the browser) */
+const AU=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('AppUpdater'):null;
+let ustate='idle',ulisten=null;
+const umsg=(t,btn,bar)=>{$('#umsg').innerHTML=esc(t)+(bar!=null?'<span class="bar"><i style="width:'+bar+'%"></i></span>':'');if(btn){$('#ug').textContent=btn;$('#ug').disabled=false}else $('#ug').disabled=true};
+async function uInstall(){
+  try{await AU.install();ustate='installing';umsg('Tap Install on the next screen.','Install')}
+  catch(e){if(String(e&&e.message||e).includes('permission')){ustate='perm';umsg('Allow Salah Tracker to install updates (one time only), then come back.','Allow')}else{ustate='idle';umsg('Couldn’t open the installer. Try again.','Update')}}
+}
+$('#ug').onclick=async()=>{
+  if(!AU){$('#upd').hidden=true;location.href=APK;return}
+  if(ustate==='perm'){try{await AU.openInstallSettings()}catch(e){}return}
+  if(ustate==='ready'||ustate==='installing')return uInstall();
+  if(ustate==='busy')return;
+  ustate='busy';$('#ul').hidden=true;umsg('Downloading… 0%',null,0);
+  try{
+    if(!ulisten)ulisten=await AU.addListener('progress',e=>{if(ustate==='busy')umsg('Downloading… '+e.percent+'%',null,e.percent)});
+    await AU.download({url:APK});ustate='ready';await uInstall();
+  }catch(e){
+    const msg=String(e&&e.message||e);
+    if(/not implemented|unimplemented/i.test(msg)){$('#upd').hidden=true;ustate='idle';location.href=APK;return}
+    ustate='idle';$('#ul').hidden=false;umsg('Download failed. Check your internet and try again.','Update');
+  }
+};
+document.addEventListener('visibilitychange',async()=>{
+  if(document.hidden||!AU||ustate!=='perm')return;
+  try{if((await AU.canInstall()).granted){ustate='ready';uInstall()}}catch(e){}
+});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 
 /* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
