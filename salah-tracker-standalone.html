@@ -756,7 +756,7 @@ function boot(){
   V={y:t.getFullYear(),m:t.getMonth()};clamp();
   $('#bp').innerHTML='<option value="all">All 5 prayers</option>'+P.map((p,i)=>'<option value="'+i+'">'+p+' only</option>').join('');
   $('#qp').innerHTML=$('#bp').innerHTML;$('#bf').value=S.pub;$('#bt').value=y<parse(S.pub)?S.pub:ymd(y);
-  renderMasjid();$('#foot').textContent=ref?'Saved privately to your account.':'Saved on this device only.';
+  renderMasjid();$('#foot').textContent=(ref?'Saved privately to your account.':'Saved on this device only.')+(/^\d+$/.test(BUILD)?' · Version 1.'+BUILD:'');
   all();renderBackup();
 }
 (async()=>{
