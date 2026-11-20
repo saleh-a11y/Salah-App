@@ -10,4 +10,11 @@ jobs:
         run: |
           UA="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36"
           curl -sSL -A "$UA" "https://masjidboardlive.com/boards/script.js?1791452611000" -o /tmp/s; wc -c /tmp/s
-          grep -o -i -E '.{0,700}(islamicDateAdjust|islamicDate=|islamic-umalqura|islamic-civil|ummalqura|umalqura).{0,900}' /tmp/s | head -8
+          python3 - <<'PY'
+          import re
+          s=open('/tmp/s',encoding='utf8',errors='replace').read()
+          seen=0
+          for m in re.finditer(r'islamicDateAdjust|islamic-umalqura|islamic-civil|ummalqura|umalqura|islamicDate\b',s):
+              a=max(0,m.start()-500);print('---',m.group(0),m.start());print(s[a:m.start()+900]);seen+=1
+              if seen>6:break
+          PY
