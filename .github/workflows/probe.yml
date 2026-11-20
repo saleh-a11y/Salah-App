@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: photos
+      - name: names
         run: |
-          pip install pillow >/dev/null 2>&1 || pip install --break-system-packages pillow >/dev/null
-          python3 tools/dl.py
+          mkdir -p names
+          curl -sSL -A "SalahTrackerApp/1.0" "https://api.aladhan.com/v1/asmaAlHusna" -o names/aladhan.json
+          python3 -c "import json;d=json.load(open('names/aladhan.json'));print(d.get('code'),len(d.get('data',[])));print(d['data'][0]);print(d['data'][98])"
           git config user.name bot && git config user.email bot@users.noreply.github.com
-          git add full && git commit -qm "full photos [skip ci]" && git push -q origin HEAD:probe
+          git add names && git commit -qm "names [skip ci]" && git push -q origin HEAD:probe
