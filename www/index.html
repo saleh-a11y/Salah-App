@@ -284,6 +284,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="bkm" class="mu" style="margin:8px 0 0"></p>
 </div>
 
+<div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
 <div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
 <small id="foot"></small>
 </div>
@@ -484,17 +485,29 @@ async function httpGet(url,headers){
   }finally{clearTimeout(to)}
 }
 async function getJSON(url){return JSON.parse(await httpGet(url,{Accept:'application/vnd.github+json'}))}
+/* newest build: a small version.json published beside the APK (no GitHub API limits), the API as a fallback */
+const VJ='https://github.com/saleh-a11y/Salah-App/releases/download/latest/version.json';
+async function latestBuild(){
+  try{const o=JSON.parse(await httpGet(VJ+'?t='+Date.now()));if(o&&+o.build>0)return +o.build}catch(e){}
+  const j=await getJSON(REL),m=/Build (\d+)/.exec((j&&j.body)||''),hasApk=(j.assets||[]).some(a=>a.name==='SalahTracker.apk');
+  if(!m||!hasApk)throw new Error('no release');return +m[1];
+}
 let checked=0,later=false;
-async function checkUpdate(){
+async function checkUpdate(force){
   const mine=parseInt(BUILD,10);
-  if(!(mine>0)||later||Date.now()-checked<18e5)return;
+  if(!(mine>0))return'dev';
+  if(!force&&(later||Date.now()-checked<3e5))return'skip';
   checked=Date.now();
-  try{
-    const j=await getJSON(REL),m=/Build (\d+)/.exec((j&&j.body)||''),hasApk=(j.assets||[]).some(a=>a.name==='SalahTracker.apk');
-    if(m&&hasApk&&+m[1]>mine)$('#upd').hidden=false;
-  }catch(e){}
+  try{const n=await latestBuild();if(n>mine){if(force)later=false;$('#upd').hidden=false;return'new:'+n}return'latest'}
+  catch(e){return'err'}
 }
 $('#ul').onclick=()=>{later=true;$('#upd').hidden=true};
+$('#vtxt').textContent=/^\d+$/.test(BUILD)?'You have version 1.'+BUILD+'.':'Updates work in the Android app.';
+$('#vchk').onclick=async()=>{
+  const m=$('#vmsg');m.textContent='Checking…';$('#vchk').disabled=true;
+  const r=await checkUpdate(true);$('#vchk').disabled=false;
+  m.textContent=r==='latest'?'✓ You have the latest version.':r.startsWith('new:')?'Version 1.'+r.slice(4)+' is available. Tap Update in the banner below.':r==='dev'?'Updates work in the Android app.':'Couldn’t reach GitHub. Check your internet connection and try again.';
+};
 /* in-app update: download inside the app, then open Android's installer (falls back to the browser) */
 const AU=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('AppUpdater'):null;
 let ustate='idle',ulisten=null;
@@ -1046,7 +1059,7 @@ function boot(){
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');loadBoardCache();boot();pullBoard();checkUpdate();renderNotif();queueNotifs();
+  stat('');checkUpdate(true);loadBoardCache();boot();pullBoard();renderNotif();queueNotifs();
 })();
 </script>
 </body>

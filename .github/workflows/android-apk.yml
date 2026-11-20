@@ -92,7 +92,9 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           git push origin :refs/tags/latest || true
-          gh release create latest SalahTracker.apk \
+          echo '{"build":${{ github.run_number }}}' > version.json
+          cat version.json
+          gh release create latest SalahTracker.apk version.json \
             --title "latest" \
             --notes "Build ${{ github.run_number }}. Debug APK built from ${GITHUB_SHA} on ${GITHUB_REF_NAME}." \
             --target "${GITHUB_SHA}" \
