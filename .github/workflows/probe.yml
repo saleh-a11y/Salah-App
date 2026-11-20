@@ -12,7 +12,7 @@ jobs:
           for id in lakefield-ansaar boksburg-islamic-institute; do
             echo "=========== board $id"
             curl -sSL -A "$UA" "https://masjidboardlive.com/boards/?id=$id" -o /tmp/b; wc -c /tmp/b
-            sed -e 's/<script[^>]*>/\n<SCRIPT>/g' /tmp/b | grep -n -i -E 'hijri|islamic|jumad|rajab|1448|1447|date_adjust|moon|ummalqura|islamic-umalqura|hdate|hijridate' | cut -c1-400 | head -40
+            grep -n -i -o -E '.{0,160}(hijri|islamic|jumad|rajab|1448|date_adjust|moon|umalqura|hdate).{0,160}' /tmp/b | head -40
             echo "--- scripts"; grep -oE '<script[^>]*src="[^"]*"' /tmp/b
             echo "--- visible text"; sed -e 's/<[^>]*>/ /g' /tmp/b | tr -s ' \n' ' ' | head -c 1500; echo
           done
