@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Salah Tracker</title>
 <script src="capacitor.js"></script>
-<script>try{var k=localStorage.getItem("salah_skin");if(/^(rawdah|kiswah|nabawi|alhambra|iznik|isfahan|mughal)$/.test(k||""))document.documentElement.setAttribute("data-skin",k)}catch(e){}</script>
+<script>try{var k=localStorage.getItem("salah_skin");if(/^(rawdah|kiswah|nabawi|alhambra|iznik|isfahan|mughal)$/.test(k||""))document.documentElement.setAttribute("data-skin",k);else document.documentElement.setAttribute("data-skin","rawdah")}catch(e){document.documentElement.setAttribute("data-skin","rawdah")}</script>
 <style>
 
 
@@ -267,6 +267,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .fmi{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-bottom:6px;padding:11px 12px;border-radius:14px;background:var(--bg);min-height:52px}
 .fmi span{flex:1;min-width:0}.fmi b{display:block;font-weight:600}.fmi small{display:block;font-size:12px;color:var(--mu)}
 .fmi i{font-style:normal;color:var(--gold);font-weight:600}.fmi.got{opacity:.55}.fmi.alt{background:none;border-style:dashed}
+.crd summary{font-size:18px;cursor:pointer}.crd ul{margin:10px 0 0;padding-left:18px}.crd li{margin-bottom:8px;font-size:14px}.crd small{color:var(--mu)}
 .skg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .skb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:0 0 10px;border-radius:16px;overflow:hidden;text-align:left;position:relative}
 .skb i{display:block;width:100%;height:44px}
@@ -389,6 +390,101 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 :root[data-skin="mughal"] .tabs button.on{color:#9b3b2a;background:rgba(155,59,42,.1)}
 :root[data-skin="mughal"] header.compact{background:linear-gradient(180deg,#3d1912 0%,#7c3826 55%,#c06a46 100%)}
 /* ===== end looks ===== */
+/* ===== realistic layer: photographs and materials ===== */
+:root[data-skin="rawdah"]{--cardtex:url(img/marble.webp)}
+:root[data-skin="rawdah"][data-theme="dark"]{--cardtex:none;--veil:0}
+@media (prefers-color-scheme:dark){:root[data-skin="rawdah"]:not([data-theme="light"]){--cardtex:none}}
+:root[data-skin="rawdah"] header{background:linear-gradient(180deg,rgba(0,0,0,.50) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-rawdah.webp) center 42%/cover no-repeat!important}
+:root[data-skin="rawdah"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="rawdah"] header::before{opacity:0!important}:root[data-skin="rawdah"] .sky{display:none}
+:root[data-skin="rawdah"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="rawdah"] header::after{display:none}
+:root[data-skin="rawdah"] header h1,:root[data-skin="rawdah"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="rawdah"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="rawdah"] .card:not(.cd-card){background:linear-gradient(rgba(255,254,250,var(--veil,.6)),rgba(255,254,250,var(--veil,.6))),var(--cardtex,none) 0 0/420px,var(--card)!important}
+:root[data-skin="rawdah"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="rawdah"] .cd-card{border:2.5px solid transparent!important;background:url(img/enamel.webp) 0 0/300px padding-box,url(img/goldleaf.webp) 0 0/160px border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="rawdah"] .cd-name,:root[data-skin="rawdah"] .cd-c,:root[data-skin="rawdah"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="rawdah"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="rawdah"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="kiswah"] header{background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-kiswah.webp) center 52%/cover no-repeat!important}
+:root[data-skin="kiswah"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="kiswah"] header::before{opacity:0!important}:root[data-skin="kiswah"] .sky{display:none}
+:root[data-skin="kiswah"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="kiswah"] header::after{display:none}
+:root[data-skin="kiswah"] header h1,:root[data-skin="kiswah"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="kiswah"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="kiswah"] .card:not(.cd-card){background:url(img/kiswah.webp) 0 0/256px,var(--card)!important}
+:root[data-skin="kiswah"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="kiswah"] .cd-card{border:2.5px solid transparent!important;background:url(img/kiswah.webp) 0 0/256px padding-box,url(img/goldleaf.webp) 0 0/160px border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="kiswah"] .cd-name,:root[data-skin="kiswah"] .cd-c,:root[data-skin="kiswah"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="kiswah"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="kiswah"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="nabawi"] header{background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-nabawi.webp) center 28%/cover no-repeat!important}
+:root[data-skin="nabawi"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="nabawi"] header::before{opacity:0!important}:root[data-skin="nabawi"] .sky{display:none}
+:root[data-skin="nabawi"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="nabawi"] header::after{display:none}
+:root[data-skin="nabawi"] header h1,:root[data-skin="nabawi"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="nabawi"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="nabawi"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="nabawi"] .cd-card{border:2.5px solid transparent!important;background:radial-gradient(120% 90% at 50% 0%,rgba(255,204,112,.28),transparent 60%),linear-gradient(170deg,#143f6c,#081d3a) padding-box,linear-gradient(180deg,#ffe3a6,#c88c34) border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="nabawi"] .cd-name,:root[data-skin="nabawi"] .cd-c,:root[data-skin="nabawi"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="nabawi"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="nabawi"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="alhambra"] header{background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-alhambra.webp) center 40%/cover no-repeat!important}
+:root[data-skin="alhambra"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="alhambra"] header::before{opacity:0!important}:root[data-skin="alhambra"] .sky{display:none}
+:root[data-skin="alhambra"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="alhambra"] header::after{display:none}
+:root[data-skin="alhambra"] header h1,:root[data-skin="alhambra"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="alhambra"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="alhambra"] .card:not(.cd-card){background:linear-gradient(rgba(255,250,241,.62),rgba(255,250,241,.62)),url(img/stucco.webp) 0 0/300px,var(--card)!important}
+:root[data-skin="alhambra"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="alhambra"] .cd-card{border:2.5px solid transparent!important;background:url(img/terracotta.webp) 0 0/320px padding-box,url(img/goldleaf.webp) 0 0/160px border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="alhambra"] .cd-name,:root[data-skin="alhambra"] .cd-c,:root[data-skin="alhambra"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="alhambra"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="alhambra"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="iznik"] header{background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-iznik.webp) center 62%/cover no-repeat!important}
+:root[data-skin="iznik"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="iznik"] header::before{opacity:0!important}:root[data-skin="iznik"] .sky{display:none}
+:root[data-skin="iznik"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="iznik"] header::after{display:none}
+:root[data-skin="iznik"] header h1,:root[data-skin="iznik"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="iznik"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="iznik"] .card:not(.cd-card){background:url(img/glaze.webp) 0 0/360px,var(--card)!important}
+:root[data-skin="iznik"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="iznik"] .cd-card{border:2.5px solid transparent!important;background:url(img/cobalt.webp) 0 0/300px padding-box,linear-gradient(180deg,#8fe6e6,#2a9a9a) border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="iznik"] .cd-name,:root[data-skin="iznik"] .cd-c,:root[data-skin="iznik"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="iznik"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="iznik"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="isfahan"] header{background:linear-gradient(180deg,rgba(0,0,0,.50) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-isfahan.webp) center 38%/cover no-repeat!important}
+:root[data-skin="isfahan"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="isfahan"] header::before{opacity:0!important}:root[data-skin="isfahan"] .sky{display:none}
+:root[data-skin="isfahan"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="isfahan"] header::after{display:none}
+:root[data-skin="isfahan"] header h1,:root[data-skin="isfahan"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="isfahan"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="isfahan"] .card:not(.cd-card){background:url(img/glaze.webp) 0 0/360px,var(--card)!important}
+:root[data-skin="isfahan"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="isfahan"] .cd-card{border:2.5px solid transparent!important;background:url(img/lapis.webp) 0 0/280px padding-box,url(img/goldleaf.webp) 0 0/160px border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="isfahan"] .cd-name,:root[data-skin="isfahan"] .cd-c,:root[data-skin="isfahan"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="isfahan"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="isfahan"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="mughal"] header{background:linear-gradient(180deg,rgba(0,0,0,.50) 0%,rgba(0,0,0,.12) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%),url(img/hdr-mughal.webp) center 30%/cover no-repeat!important}
+:root[data-skin="mughal"] header:not(.compact){padding-bottom:150px}
+:root[data-skin="mughal"] header::before{opacity:0!important}:root[data-skin="mughal"] .sky{display:none}
+:root[data-skin="mughal"] header{border-radius:0 0 28px 28px;box-shadow:0 12px 28px rgba(0,0,0,.22);margin-bottom:16px}:root[data-skin="mughal"] header::after{display:none}
+:root[data-skin="mughal"] header h1,:root[data-skin="mughal"] header .brand .ar{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+:root[data-skin="mughal"] .hbtns button{background:rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root[data-skin="mughal"] .card:not(.cd-card){background:linear-gradient(rgba(255,253,249,.5),rgba(255,253,249,.5)),url(img/marble.webp) 0 0/420px,var(--card)!important}
+:root[data-skin="mughal"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.10)}
+:root[data-skin="mughal"] .cd-card{border:2.5px solid transparent!important;background:url(img/sandstone.webp) 0 0/320px padding-box,url(img/marble.webp) 0 0/300px border-box!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 30px rgba(0,0,0,.22),0 16px 34px rgba(0,0,0,.24)!important}
+:root[data-skin="mughal"] .cd-name,:root[data-skin="mughal"] .cd-c,:root[data-skin="mughal"] .cd-t{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+:root[data-skin="mughal"] .cd-box{background:rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+:root[data-skin="mughal"] button.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.18)}
+:root[data-skin="kiswah"] .card:not(.cd-card){border-color:rgba(212,175,55,.38)!important}
+:root[data-skin="kiswah"] button.pri{background:url(img/goldleaf.webp) 0 0/160px!important;color:#1a1307}
+:root[data-skin="kiswah"] .card{box-shadow:inset 0 1px 0 rgba(255,230,160,.10),0 14px 30px rgba(0,0,0,.55)}
+:root[data-skin="nabawi"] .card:not(.cd-card){background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.035) 45%,rgba(255,255,255,.06))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 30px rgba(0,0,0,.4)}
+:root[data-skin="nabawi"] .cd-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 0 40px rgba(255,190,90,.18),0 16px 34px rgba(0,0,0,.4)!important}
+:root[data-skin="mughal"] .cd-box{background:rgba(255,255,255,.08)}
+:root[data-skin="mughal"] .cd-card::after{display:none}:root[data-skin="mughal"] .cd-card{padding-top:18px}
+/* ===== end realistic ===== */
 </style>
 </head>
 <body>
@@ -524,6 +620,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 
 <div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
 <div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
+<details class="card crd"><summary class="serif">Photo credits</summary><ul><li><b>The Green Dome, Masjid an-Nabawī</b><br><small>Photo: TheHadiRahim · CC0 · Wikimedia Commons · resized and cropped</small></li><li><b>The Ka‘bah, Masjid al-Ḥarām</b><br><small>Photo: Adli Wahid, edited by Basile Morin · CC BY-SA 4.0 · Wikimedia Commons · resized and cropped</small></li><li><b>Masjid an-Nabawī at night</b><br><small>Photo: Tahir mq · CC BY-SA 4.0 · Wikimedia Commons · resized and cropped</small></li><li><b>Court of the Myrtles, Alhambra</b><br><small>Photo: Jebulon · CC0 · Wikimedia Commons · resized and cropped</small></li><li><b>Sultan Ahmed (Blue) Mosque at sunset</b><br><small>Photo: Constantin Barbu · CC BY 2.0 · Wikimedia Commons · resized and cropped</small></li><li><b>Shah Mosque, Iṣfahān</b><br><small>Photo: Ninara · CC BY 2.0 · Wikimedia Commons · resized and cropped</small></li><li><b>Taj Mahal, Agra</b><br><small>Photo: Rangan Datta Wiki · CC BY-SA 4.0 · Wikimedia Commons · resized and cropped</small></li></ul><p class="mu" style="font-size:12px">Material textures and the app’s artwork were made for Salah Tracker.</p></details>
 <small id="foot"></small>
 </div>
 </section>
