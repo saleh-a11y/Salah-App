@@ -279,8 +279,20 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .nchk h4{margin:0 0 6px;font-size:14px;font-weight:600}.nchk p{margin:4px 0}.nchk .w{color:#b0473a}.nchk .g{color:var(--em)}
 .nchk ul{margin:6px 0 0;padding:0;list-style:none}.nchk li{display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--bd);font-size:13px}.nchk li:first-child{border-top:0}
 .nchk li time{flex:none;width:92px;color:var(--mu)}.nchk button{margin-top:6px;width:100%}
+/* my adhkār */
+.my-add{width:100%;margin-top:10px;border-style:dashed}
+.my-sheet textarea{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px 12px;font:inherit;color:inherit;resize:vertical}
+#myar{font-family:"Amiri",serif;font-size:21px;line-height:1.9}
+.my-l{display:block;font-size:13px;color:var(--mu);margin:12px 0 5px}
+.my-chips{display:flex;flex-wrap:wrap;gap:6px}.my-chips button{min-width:46px;padding:8px 10px}.my-chips button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}
+.my-chips input{width:84px;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:8px 10px;font:inherit;color:inherit}
+.my-when button{font-size:13px;padding:9px 4px}
+#mymode{margin-top:4px}
+.dk-mine{display:flex;gap:6px;flex-wrap:wrap;margin:0 14px 12px}.dk-mine button{font-size:13px;padding:6px 12px;min-height:34px}
+.dk-tag{display:inline-block;font-size:11px;color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);border-radius:999px;padding:1px 8px;margin:0 0 4px}
+.dk-empty{text-align:center;padding:18px 10px}
 /* 99 names */
-#dkseg{grid-template-columns:repeat(3,1fr)}
+#dkseg button{padding:10px 2px;font-size:13.5px;white-space:nowrap}
 .nm-h{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:1.9;text-align:center;margin:0;color:var(--gold)}
 .nm-hs{font-size:13px;line-height:1.5;margin:6px 0 0}
 #nmq{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px 12px;font:inherit;color:inherit;margin:10px 0 8px}
@@ -513,9 +525,10 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="qmsg"></p></div>
 </div>
 <div class="pane" id="p_dhikr" hidden>
-<div class="card dk-head"><div class="seg" id="dkseg" role="group" aria-label="Morning, evening or the 99 Names"><button data-s="m">☀ Morning</button><button data-s="e">☾ Evening</button><button data-s="n">99 Names</button></div>
+<div class="card dk-head"><div class="seg" id="dkseg" role="group" aria-label="Morning, evening or the 99 Names"><button data-s="m">Morning</button><button data-s="e">Evening</button><button data-s="y">Mine</button><button data-s="n">99 Names</button></div>
 <div id="dkhead"><p id="dkst" style="margin:10px 0 0;font-size:14px"></p><span class="bar big"><i id="dkbar"></i></span>
-<p class="mu" style="margin:8px 0 0;font-size:12px">Tap a dhikr each time you say it. <button class="lnk" id="dkreset" style="font-size:12px">Start again</button></p></div></div>
+<p class="mu" style="margin:8px 0 0;font-size:12px">Tap a dhikr each time you say it. <button class="lnk" id="dkreset" style="font-size:12px">Start again</button></p>
+<button id="myadd" class="my-add">＋ Add my own dhikr</button></div></div>
 <div id="dklist"></div>
 <div id="nmbox" hidden>
 <div class="card nm-hd"><p class="nm-h" lang="ar" dir="rtl">وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا</p>
@@ -597,6 +610,26 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="fmtop"><span id="nmd-n" class="mu"></span><button id="nmx" aria-label="Close">✕</button></div>
 <div id="nmd"></div></div></div>
 <script type="application/json" id="names-data">[[1,"الرَّحْمَنُ","Ar-Raḥmān","The Most Compassionate"],[2,"الرَّحِيمُ","Ar-Raḥīm","The Most Merciful"],[3,"الْمَلِكُ","Al-Malik","The King, the Sovereign"],[4,"الْقُدُّوسُ","Al-Quddūs","The Most Holy, the Pure"],[5,"السَّلَامُ","As-Salām","The Source of Peace"],[6,"الْمُؤْمِنُ","Al-Mu’min","The Giver of Security and Faith"],[7,"الْمُهَيْمِنُ","Al-Muhaymin","The Guardian, the Overseer"],[8,"الْعَزِيزُ","Al-‘Azīz","The Almighty"],[9,"الْجَبَّارُ","Al-Jabbār","The Compeller, the Restorer"],[10,"الْمُتَكَبِّرُ","Al-Mutakabbir","The Supreme in Greatness"],[11,"الْخَالِقُ","Al-Khāliq","The Creator"],[12,"الْبَارِئُ","Al-Bāri’","The Maker, the Evolver"],[13,"الْمُصَوِّرُ","Al-Muṣawwir","The Fashioner of Forms"],[14,"الْغَفَّارُ","Al-Ghaffār","The Ever-Forgiving"],[15,"الْقَهَّارُ","Al-Qahhār","The All-Prevailing"],[16,"الْوَهَّابُ","Al-Wahhāb","The Bestower"],[17,"الرَّزَّاقُ","Ar-Razzāq","The Provider"],[18,"الْفَتَّاحُ","Al-Fattāḥ","The Opener, the Judge"],[19,"الْعَلِيمُ","Al-‘Alīm","The All-Knowing"],[20,"الْقَابِضُ","Al-Qābiḍ","The Withholder"],[21,"الْبَاسِطُ","Al-Bāsiṭ","The Extender"],[22,"الْخَافِضُ","Al-Khāfiḍ","The Abaser"],[23,"الرَّافِعُ","Ar-Rāfi‘","The Exalter"],[24,"الْمُعِزُّ","Al-Mu‘izz","The Giver of Honour"],[25,"الْمُذِلُّ","Al-Mudhill","The Giver of Disgrace"],[26,"السَّمِيعُ","As-Samī‘","The All-Hearing"],[27,"الْبَصِيرُ","Al-Baṣīr","The All-Seeing"],[28,"الْحَكَمُ","Al-Ḥakam","The Judge"],[29,"الْعَدْلُ","Al-‘Adl","The Utterly Just"],[30,"اللَّطِيفُ","Al-Laṭīf","The Subtle, the Most Gentle"],[31,"الْخَبِيرُ","Al-Khabīr","The All-Aware"],[32,"الْحَلِيمُ","Al-Ḥalīm","The Forbearing"],[33,"الْعَظِيمُ","Al-‘Aẓīm","The Magnificent"],[34,"الْغَفُورُ","Al-Ghafūr","The All-Forgiving"],[35,"الشَّكُورُ","Ash-Shakūr","The Most Appreciative"],[36,"الْعَلِيُّ","Al-‘Aliyy","The Most High"],[37,"الْكَبِيرُ","Al-Kabīr","The Most Great"],[38,"الْحَفِيظُ","Al-Ḥafīẓ","The Preserver"],[39,"الْمُقِيتُ","Al-Muqīt","The Nourisher, the Sustainer"],[40,"الْحَسِيبُ","Al-Ḥasīb","The Reckoner"],[41,"الْجَلِيلُ","Al-Jalīl","The Majestic"],[42,"الْكَرِيمُ","Al-Karīm","The Most Generous"],[43,"الرَّقِيبُ","Ar-Raqīb","The Ever-Watchful"],[44,"الْمُجِيبُ","Al-Mujīb","The Answerer of Prayers"],[45,"الْوَاسِعُ","Al-Wāsi‘","The All-Encompassing"],[46,"الْحَكِيمُ","Al-Ḥakīm","The All-Wise"],[47,"الْوَدُودُ","Al-Wadūd","The Most Loving"],[48,"الْمَجِيدُ","Al-Majīd","The Most Glorious"],[49,"الْبَاعِثُ","Al-Bā‘ith","The Resurrector"],[50,"الشَّهِيدُ","Ash-Shahīd","The Witness"],[51,"الْحَقُّ","Al-Ḥaqq","The Truth"],[52,"الْوَكِيلُ","Al-Wakīl","The Trustee, the Disposer of Affairs"],[53,"الْقَوِيُّ","Al-Qawiyy","The All-Strong"],[54,"الْمَتِينُ","Al-Matīn","The Firm, the Steadfast"],[55,"الْوَلِيُّ","Al-Waliyy","The Protecting Friend"],[56,"الْحَمِيدُ","Al-Ḥamīd","The Praiseworthy"],[57,"الْمُحْصِي","Al-Muḥṣī","The One who counts all things"],[58,"الْمُبْدِئُ","Al-Mubdi’","The Originator"],[59,"الْمُعِيدُ","Al-Mu‘īd","The Restorer"],[60,"الْمُحْيِي","Al-Muḥyī","The Giver of Life"],[61,"الْمُمِيتُ","Al-Mumīt","The Bringer of Death"],[62,"الْحَيُّ","Al-Ḥayy","The Ever-Living"],[63,"الْقَيُّومُ","Al-Qayyūm","The Self-Sustaining, Sustainer of all"],[64,"الْوَاجِدُ","Al-Wājid","The Finder, the Self-Sufficient"],[65,"الْمَاجِدُ","Al-Mājid","The Illustrious"],[66,"الْوَاحِدُ","Al-Wāḥid","The One"],[67,"الْأَحَدُ","Al-Aḥad","The Unique, the Only One"],[68,"الصَّمَدُ","Aṣ-Ṣamad","The Eternal Refuge"],[69,"الْقَادِرُ","Al-Qādir","The All-Capable"],[70,"الْمُقْتَدِرُ","Al-Muqtadir","The All-Powerful"],[71,"الْمُقَدِّمُ","Al-Muqaddim","The Expediter"],[72,"الْمُؤَخِّرُ","Al-Mu’akhkhir","The Delayer"],[73,"الْأَوَّلُ","Al-Awwal","The First"],[74,"الآخِرُ","Al-Ākhir","The Last"],[75,"الظَّاهِرُ","Aẓ-Ẓāhir","The Manifest"],[76,"الْبَاطِنُ","Al-Bāṭin","The Hidden"],[77,"الْوَالِي","Al-Wālī","The Governor, the Patron"],[78,"الْمُتَعَالِي","Al-Muta‘ālī","The Most Exalted"],[79,"الْبَرُّ","Al-Barr","The Source of All Goodness"],[80,"التَّوَابُ","At-Tawwāb","The Ever-Accepting of Repentance"],[81,"الْمُنْتَقِمُ","Al-Muntaqim","The Avenger"],[82,"الْعَفُوُّ","Al-‘Afuww","The Pardoner"],[83,"الرَّؤُوفُ","Ar-Ra’ūf","The Most Kind"],[84,"مَالِكُ الْمُلْكِ","Mālik al-Mulk","Owner of All Sovereignty"],[85,"ذُو الْجَلَالِ وَالْإِكْرَامِ","Dhul-Jalāli wal-Ikrām","Lord of Majesty and Generosity"],[86,"الْمُقْسِطُ","Al-Muqsiṭ","The Equitable"],[87,"الْجَامِعُ","Al-Jāmi‘","The Gatherer"],[88,"الْغَنِيُّ","Al-Ghaniyy","The Self-Sufficient"],[89,"الْمُغْنِي","Al-Mughnī","The Enricher"],[90,"الْمَانِعُ","Al-Māni‘","The Preventer"],[91,"الضَّارُّ","Aḍ-Ḍārr","The One who allows harm"],[92,"النَّافِعُ","An-Nāfi‘","The One who brings benefit"],[93,"النُّورُ","An-Nūr","The Light"],[94,"الْهَادِي","Al-Hādī","The Guide"],[95,"الْبَدِيعُ","Al-Badī‘","The Incomparable Originator"],[96,"الْبَاقِي","Al-Bāqī","The Everlasting"],[97,"الْوَارِثُ","Al-Wārith","The Inheritor"],[98,"الرَّشِيدُ","Ar-Rashīd","The Guide to the Right Path"],[99,"الصَّبُورُ","Aṣ-Ṣabūr","The Most Patient"]]</script>
+<div class="ov" id="myov" hidden><div class="sheet my-sheet" role="dialog" aria-labelledby="myt">
+<div class="fmtop"><h3 id="myt">Add my own dhikr</h3><button id="myx" aria-label="Close">✕</button></div>
+<div class="seg" id="mymode" role="group" aria-label="One or a list"><button data-m="one" class="on">One dhikr</button><button data-m="list">Paste a list</button></div>
+<div id="myone">
+<label class="my-l" for="myar">Arabic (type or paste)</label>
+<textarea id="myar" dir="rtl" lang="ar" rows="3" placeholder="سُبْحَانَ اللهِ وَبِحَمْدِهِ"></textarea>
+<label class="my-l" for="myen">Meaning or translation <span class="mu">(optional)</span></label>
+<textarea id="myen" rows="2" placeholder="Glory be to Allah and praise be to Him"></textarea>
+</div>
+<div id="mylist" hidden>
+<label class="my-l" for="mytxt">One dhikr per line. Add the count at the end, e.g. <b>x33</b> or <b>(100)</b>.</label>
+<textarea id="mytxt" dir="auto" rows="7" placeholder="سُبْحَانَ اللهِ x33&#10;الْحَمْدُ لِلّٰهِ x33&#10;اللهُ أَكْبَرُ x34"></textarea>
+</div>
+<div id="mycountbox"><span class="my-l">How many times</span>
+<div class="my-chips" id="mychips"><button data-c="1">1</button><button data-c="3">3</button><button data-c="7">7</button><button data-c="10">10</button><button data-c="33">33</button><button data-c="100">100</button><input type="number" id="myn" min="1" max="10000" inputmode="numeric" placeholder="Other" aria-label="Other number"></div></div>
+<span class="my-l">When</span>
+<div class="seg my-when" id="mywhen" role="group" aria-label="When"><button data-w="m">Morning</button><button data-w="e">Evening</button><button data-w="b">Both</button><button data-w="y">Mine</button></div>
+<p id="mymsg" class="mu" style="min-height:18px;margin:8px 0 0;font-size:13px"></p>
+<div class="row"><button id="mydel" hidden>Delete</button><button class="pri" id="mysave">Save</button></div>
+</div></div>
 <input type="file" id="bkf" hidden>
 <div class="ov" id="bkov" hidden><div class="sheet"><h3>Restore this backup?</h3><p id="bksum"></p><p class="mu" style="margin:0 0 12px">This replaces everything currently in the app on this phone.</p><div class="row"><button id="bkc">Cancel</button><button class="pri" id="bkok">Restore</button></div></div></div>
 
@@ -950,7 +983,7 @@ async function backupData(){
   for(const y of Object.keys(S.yrs))if(S.yrs[y])years[y]={m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)};
   if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||''))years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)}}catch(e){}}}
   let dhikr={};try{dhikr=JSON.parse(lsGet('salah_dhikr_h'))||{}}catch(e){}
-  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),skin:lsGet('salah_skin'),dhikr,names:lsGet('salah_names')};
+  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),skin:lsGet('salah_skin'),dhikr,names:lsGet('salah_names'),mydk:MY};
 }
 function markBackup(){lsSet('salah_lastbk',String(Date.now()));renderBackup();if(typeof queueNotifs==='function')queueNotifs()}
 let bkBusy=false;
@@ -1020,6 +1053,7 @@ $('#bkok').onclick=async()=>{
     if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
     if(/^(rawdah|kiswah|nabawi|alhambra|iznik|isfahan|mughal)$/.test(o.skin||''))lsSet('salah_skin',o.skin);
     if(/^[01]{99}$/.test(o.names||''))lsSet('salah_names',o.names);
+    if(Array.isArray(o.mydk))lsSet('salah_mydk',JSON.stringify(o.mydk.filter(myValid).slice(0,200)));
     if(o.dhikr&&typeof o.dhikr==='object'){const h={};for(const [k,v] of Object.entries(o.dhikr))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&/^(me|m|e)$/.test(v))h[k]=v;lsSet('salah_dhikr_h',JSON.stringify(h))}
     try{localStorage.removeItem('salah_board')}catch(e){}
     const cr=Date.parse(o.created);if(cr)lsSet('salah_lastbk',String(Math.min(cr,Date.now())));
@@ -1205,12 +1239,14 @@ $('#qundo').onclick=()=>{
 
 /* ---- Adhkār: morning and evening, Ḥiṣn al-Muslim ---- */
 const DK=JSON.parse(document.getElementById('adhkar-data').textContent);
-const dkItems=s=>DK.filter(x=>x.t===0||x.t===(s==='m'?1:2));
+const dkItems=s=>s==='y'?MY.map(x=>Object.assign({mine:1},x)):DK.filter(x=>x.t===0||x.t===(s==='m'?1:2)).concat(MY.filter(x=>x.w===s||x.w==='b').map(x=>Object.assign({mine:1},x)));
+const dkAll=()=>DK.concat(MY);
 let DKS=null,DKST=null;
 function dkLoad(){
   const t=ymd(today0());
   try{DKST=JSON.parse(localStorage.getItem('salah_dhikr'))}catch(e){DKST=null}
-  if(!DKST||DKST.date!==t)DKST={date:t,m:{},e:{}};
+  if(!DKST||DKST.date!==t)DKST={date:t,m:{},e:{},y:{}};
+  if(!DKST.y)DKST.y={};
 }
 const dkSave=()=>{try{localStorage.setItem('salah_dhikr',JSON.stringify(DKST))}catch(e){}};
 function dkHist(){try{return JSON.parse(localStorage.getItem('salah_dhikr_h'))||{}}catch(e){return{}}}
@@ -1224,33 +1260,35 @@ const dkLeft=(s,x)=>{const v=DKST[s][x.o];return v==null?x.n:v};
 function dkDefault(){const now=new Date(),dz=dayPrayers(today0())[1].start;return now<dz?'m':'e'}
 function renderDhikr(){
   if(!$('#dklist'))return;dkLoad();if(!DKS)DKS=dkDefault();
-  const nm=DKS==='n';$('#dkhead').hidden=nm;$('#dklist').hidden=nm;$('#dkcred').hidden=nm;$('#nmbox').hidden=!nm;
+  const nm=DKS==='n';$('#dkhead').hidden=nm;$('#myadd').hidden=nm;$('#dklist').hidden=nm;$('#dkcred').hidden=nm;$('#nmbox').hidden=!nm;
   if(nm){document.querySelectorAll('#dkseg button').forEach(b=>{const on=b.dataset.s==='n';b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});renderNames();return}
   const s=DKS,xs=dkItems(s),done=xs.filter(x=>dkLeft(s,x)===0).length;
+  if(s==='y'&&!xs.length){document.querySelectorAll('#dkseg button').forEach(b=>{const on=b.dataset.s===s;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});$('#dkst').textContent='Your own adhkār';$('#dkbar').style.width='0%';
+    $('#dklist').innerHTML='<div class="card dk-empty"><p style="margin:0 0 6px">Add the adhkār you read: your shaykh’s wird, a duʿā you love, or a dhikr after salah.</p><p class="mu" style="margin:0;font-size:13px">Tap “＋ Add my own dhikr” above. They stay on this phone and in your backup.</p></div>';renderDhikrToday();return}
   document.querySelectorAll('#dkseg button').forEach(b=>{const on=b.dataset.s===s;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
-  $('#dkst').textContent=(done===xs.length?'✓ All '+xs.length+' done — may Allah accept.':done+' of '+xs.length+' done');
+  $('#dkst').textContent=(done===xs.length?'✓ All '+xs.length+' done — may Allah accept.':done+' of '+xs.length+' done')+(s==='y'?' · my adhkār':'');
   $('#dkbar').style.width=(done/xs.length*100).toFixed(1)+'%';
   $('#dklist').innerHTML=xs.map(x=>{const l=dkLeft(s,x),fin=l===0;
     return '<div class="card dk'+(fin?' done':'')+'" id="dk'+x.o+'"><button class="dk-tap" data-o="'+x.o+'" aria-label="'+(fin?'Done':'Tap to count, '+l+' left')+'">'
       +'<span class="dk-ar" lang="ar" dir="rtl">'+esc(x.ar)+(x.q?'<span class="dk-q">'+esc(x.q)+'</span>':'')+'</span>'
       +'<span class="dk-c">'+(fin?'✓':'<b>'+l+'</b>')+'<small>'+(x.n>1?x.n+'×':'once')+'</small></span></button>'
-      +'<details class="dk-more"><summary>Meaning</summary>'+(x.tr?'<p class="dk-tr">'+esc(x.tr)+'</p>':'')+'<p>'+esc(x.en)+'</p>'+(x.f?'<p class="mu">'+esc(x.f)+'</p>':'')+(x.s?'<p class="mu dk-s">'+esc(x.s)+'</p>':'')+'</details>'
+      +(x.mine?(x.en?'<details class="dk-more"><summary>Meaning</summary><p>'+esc(x.en)+'</p></details>':'')+'<div class="dk-mine"><span class="dk-tag">Mine'+(s==='y'?' · '+myWhenLabel[x.w]:'')+'</span><button data-ed="'+x.o+'">Edit</button><button data-sh="'+x.o+'">Share</button></div>':'<details class="dk-more"><summary>Meaning</summary>'+(x.tr?'<p class="dk-tr">'+esc(x.tr)+'</p>':'')+'<p>'+esc(x.en)+'</p>'+(x.f?'<p class="mu">'+esc(x.f)+'</p>':'')+(x.s?'<p class="mu dk-s">'+esc(x.s)+'</p>':'')+'</details>')
       +(x.n>1&&!fin?'<button class="dk-done" data-d="'+x.o+'">Mark done</button>':'')+'</div>'}).join('');
   renderDhikrToday();
 }
 function dkStep(o,all){
-  const s=DKS,x=DK.find(y=>y.o===o);if(!x)return;dkLoad();
+  const s=DKS,x=dkAll().find(y=>y.o===o);if(!x)return;dkLoad();
   const l=dkLeft(s,x);if(l===0)return;
   DKST[s][o]=all?0:l-1;dkSave();
   try{if(navigator.vibrate)navigator.vibrate(DKST[s][o]===0?[20,40,20]:12)}catch(e){}
   const xs=dkItems(s);
-  if(xs.every(y=>dkLeft(s,y)===0))dkMark(s);
+  if(s!=='y'&&xs.every(y=>dkLeft(s,y)===0))dkMark(s);
   if(DKST[s][o]===0){
     renderDhikr();const nx=xs.find(y=>dkLeft(s,y)>0);
     if(nx){const el=document.getElementById('dk'+nx.o);if(el)el.scrollIntoView({behavior:'smooth',block:'center'})}
   }else{const c=document.querySelector('#dk'+o+' .dk-c b');if(c)c.textContent=DKST[s][o];const b=document.querySelector('#dk'+o+' .dk-tap');if(b)b.setAttribute('aria-label','Tap to count, '+DKST[s][o]+' left')}
 }
-$('#dklist').onclick=e=>{const t=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');if(d)dkStep(+d.dataset.d,true);else if(t)dkStep(+t.dataset.o)};
+$('#dklist').onclick=e=>{const ed=e.target.closest('[data-ed]'),sh=e.target.closest('[data-sh]');if(ed)return myOpen(+ed.dataset.ed);if(sh)return myShare(+sh.dataset.sh);const t=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');if(d)dkStep(+d.dataset.d,true);else if(t)dkStep(+t.dataset.o)};
 $('#dkseg').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;DKS=b.dataset.s;renderDhikr();window.scrollTo(0,0)};
 $('#dkreset').onclick=()=>{dkLoad();DKST[DKS]={};dkSave();renderDhikr();window.scrollTo(0,0)};
 function renderDhikrToday(){
@@ -1689,6 +1727,105 @@ async function renderAdhanCheck(){
   const b=$('#nbat');if(b)b.onclick=async()=>{try{await AP.openBattery()}catch(e){}};
 }
 
+
+
+/* ---- my own adhkār: added by the person, kept only on this phone ---- */
+let MY=(()=>{try{const a=JSON.parse(localStorage.getItem('salah_mydk'));if(Array.isArray(a))return a.filter(myValid)}catch(e){}return[]})();
+function myValid(x){return x&&Number.isInteger(x.o)&&x.o>=100000&&typeof x.ar==='string'&&(x.ar.trim()||((x.en||'').trim()))&&Number.isInteger(x.n)&&x.n>=1&&x.n<=10000&&/^[mepby]$/.test(x.w)}
+function mySave(){try{localStorage.setItem('salah_mydk',JSON.stringify(MY))}catch(e){}}
+const myNextO=()=>MY.reduce((a,x)=>Math.max(a,x.o),99999)+1;
+const myWhenLabel={m:'Morning',e:'Evening',b:'Morning & evening',y:'My adhkār'};
+let MYE=null; // the dhikr being edited (o), or null for a new one
+let MYC=1,MYW='b';
+function myOpen(o,pre){
+  MYE=o||null;const x=o?MY.find(y=>y.o===o):null;
+  $('#myt').textContent=x?'Edit my dhikr':'Add my own dhikr';
+  $('#mymode').hidden=!!x;myMode('one');
+  $('#myar').value=x?x.ar:(pre&&pre.ar)||'';$('#myen').value=x?(x.en||''):(pre&&pre.en)||'';$('#mytxt').value='';
+  MYC=x?x.n:(pre&&pre.n)||1;MYW=x?x.w:(pre&&pre.w)||(DKS==='m'||DKS==='e'?DKS:DKS==='y'?'y':'b');
+  $('#mydel').hidden=!x;$('#mymsg').textContent=pre&&pre.msg||'';$('#mymsg').className=pre&&pre.msg?'okm':'mu';
+  myChips();myWhen();$('#myov').hidden=false;
+  if(!x&&!(pre&&pre.ar))setTimeout(()=>{try{$('#myar').focus()}catch(e){}},80);
+}
+function myMode(m){$('#myone').hidden=m!=='one';$('#mylist').hidden=m!=='list';$('#mycountbox').hidden=m==='list';document.querySelectorAll('#mymode button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#mymode').dataset.m=m}
+function myChips(){let hit=false;document.querySelectorAll('#mychips [data-c]').forEach(b=>{const on=+b.dataset.c===MYC;hit=hit||on;b.classList.toggle('on',on)});$('#myn').value=hit?'':MYC}
+function myWhen(){document.querySelectorAll('#mywhen button').forEach(b=>b.classList.toggle('on',b.dataset.w===MYW))}
+/* "سبحان الله x33", "... (100)", "... 33x", "... ×7" */
+function myParseLine(t){
+  t=t.replace(/\s+/g,' ').trim();if(!t)return null;
+  let n=1;const m=/\s*(?:[x×*]\s*(\d{1,5})|\((\d{1,5})\)|(\d{1,5})\s*[x×])\s*$/i.exec(t);
+  if(m){n=+(m[1]||m[2]||m[3]);t=t.slice(0,m.index).trim()}
+  if(!t||n<1||n>10000)return null;
+  return{ar:t,n};
+}
+/* text shared from Salah Tracker (or anything else) → form fields */
+function myFromShared(text){
+  text=String(text||'').replace(/\r/g,'').trim();if(!text)return null;
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean).filter(l=>!/^(dhikr from salah tracker|shared from salah tracker)/i.test(l)&&!/^https?:\/\//i.test(l));
+  let n=1,w='b',ar=[],en=[];
+  for(const l of lines){
+    const c=/^(?:recite|say|count)\s*:?\s*(\d{1,5})\s*[x×]?(?:\s*[·•,-]\s*(.*))?$/i.exec(l)||/^(\d{1,5})\s*[x×](?:\s*[·•,-]\s*(.*))?$/i.exec(l);
+    if(c){n=+c[1];const wl=(c[2]||'').toLowerCase();w=/morning/.test(wl)&&/evening/.test(wl)?'b':/morning/.test(wl)?'m':/evening/.test(wl)?'e':w;continue}
+    if(/[؀-ۿ]/.test(l))ar.push(l);else en.push(l);
+  }
+  if(!ar.length&&!en.length)return null;
+  return{ar:ar.join('\n'),en:en.join('\n'),n:Math.min(Math.max(n,1),10000),w};
+}
+function myShareText(x){
+  return 'Dhikr from Salah Tracker\n\n'+x.ar+(x.en?'\n\n'+x.en:'')+'\n\nRecite '+x.n+'×'+(x.w==='y'?'':' · '+myWhenLabel[x.w]);
+}
+async function myShare(o){
+  const x=MY.find(y=>y.o===o);if(!x)return;const text=myShareText(x);
+  try{const SH=Capacitor.registerPlugin&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?Capacitor.registerPlugin('Share'):null;if(SH){await SH.share({title:'Dhikr',text,dialogTitle:'Share this dhikr'});return}}catch(e){if(/cancel/i.test(String(e&&e.message)))return}
+  try{if(navigator.share){await navigator.share({text});return}}catch(e){return}
+  try{await navigator.clipboard.writeText(text);flashDk('Copied. Paste it in WhatsApp to share.')}catch(e){}
+}
+function flashDk(t){const el=$('#dkst');if(!el)return;const o=el.textContent;el.textContent=t;setTimeout(()=>{if(el.textContent===t)renderDhikr()},3500)}
+$('#myadd').onclick=()=>myOpen();
+['#myar','#myen','#mytxt'].forEach(id=>$(id).addEventListener('input',()=>{const m=$('#mymsg');if(m.className==='mu')m.textContent=''}));
+$('#myx').onclick=()=>{$('#myov').hidden=true};
+$('#myov').addEventListener('click',e=>{if(e.target.id==='myov')$('#myov').hidden=true});
+$('#mymode').onclick=e=>{const b=e.target.closest('[data-m]');if(b)myMode(b.dataset.m)};
+$('#mychips').onclick=e=>{const b=e.target.closest('[data-c]');if(b){MYC=+b.dataset.c;myChips()}};
+$('#myn').oninput=()=>{const v=parseInt($('#myn').value,10);if(v>=1&&v<=10000){MYC=v;document.querySelectorAll('#mychips [data-c]').forEach(b=>b.classList.toggle('on',+b.dataset.c===v))}};
+$('#mywhen').onclick=e=>{const b=e.target.closest('[data-w]');if(b){MYW=b.dataset.w;myWhen()}};
+/* pasting a whole shared message into the Arabic box fills the other fields too */
+$('#myar').addEventListener('paste',e=>{
+  const t=(e.clipboardData||window.clipboardData).getData('text');if(!t||!/\n/.test(t)||!/salah tracker|recite\s*\d|\d+\s*[x×]/i.test(t))return;
+  const f=myFromShared(t);if(!f)return;e.preventDefault();
+  $('#myar').value=f.ar;$('#myen').value=f.en;MYC=f.n;MYW=f.w;myChips();myWhen();
+});
+$('#mysave').onclick=()=>{
+  const m=$('#mymsg');m.className='mu';
+  if($('#mymode').dataset.m==='list'){
+    const rows=$('#mytxt').value.split('\n').map(myParseLine).filter(Boolean);
+    if(!rows.length){m.textContent='Paste at least one dhikr, one per line.';return}
+    if(MY.length+rows.length>200){m.textContent='You can keep up to 200 of your own adhkār.';return}
+    let o=myNextO();for(const r of rows)MY.push({o:o++,ar:r.ar.slice(0,3000),en:'',n:r.n,w:MYW});
+    mySave();$('#myov').hidden=true;DKS=MYW==='b'?(DKS==='e'?'e':'m'):MYW;renderDhikr();flashDk('✓ Added '+rows.length+' adhkār');return;
+  }
+  const ar=$('#myar').value.trim(),en=$('#myen').value.trim();
+  if(!ar&&!en){m.textContent='Type or paste the dhikr first.';return}
+  if(!(MYC>=1&&MYC<=10000)){m.textContent='Choose how many times (1 to 10,000).';return}
+  if(MYE){const x=MY.find(y=>y.o===MYE);if(x)Object.assign(x,{ar:ar.slice(0,3000),en:en.slice(0,3000),n:MYC,w:MYW})}
+  else{if(MY.length>=200){m.textContent='You can keep up to 200 of your own adhkār.';return}MY.push({o:myNextO(),ar:ar.slice(0,3000),en:en.slice(0,3000),n:MYC,w:MYW})}
+  mySave();dkLoad();if(MYE){for(const k of ['m','e','y'])if(DKST[k])delete DKST[k][MYE];dkSave()}
+  $('#myov').hidden=true;if(!MYE)DKS=MYW==='b'?(DKS==='e'?'e':'m'):MYW;renderDhikr();
+  const el=document.getElementById('dk'+(MYE||MY[MY.length-1].o));if(el)el.scrollIntoView({block:'center'});
+};
+$('#mydel').onclick=()=>{
+  if(!MYE)return;const b=$('#mydel');
+  if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Tap again to delete';setTimeout(()=>{b.dataset.sure='';b.textContent='Delete'},3000);return}
+  MY=MY.filter(y=>y.o!==MYE);mySave();b.dataset.sure='';b.textContent='Delete';$('#myov').hidden=true;renderDhikr();
+};
+/* text shared into the app from WhatsApp etc. */
+const LNCH=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('Launch'):null;
+function myReceive(text){
+  const f=myFromShared(text);if(!f)return;
+  const go=()=>{showTab('dhikr');DKS=f.w==='y'?'y':DKS==='n'||!DKS?'y':DKS;renderDhikr();myOpen(null,Object.assign(f,{msg:'Shared with you. Check it, then tap Save.'}))};
+  if(document.getElementById('intro'))setTimeout(go,2600);else go();
+}
+if(LNCH){try{LNCH.addListener('shared',e=>myReceive(e&&e.text))}catch(e){}try{LNCH.shared().then(r=>{if(r&&r.text)myReceive(r.text)}).catch(()=>{})}catch(e){}}
 
 /* ---- the 99 Names of Allah ---- */
 const NM=JSON.parse(document.getElementById('names-data').textContent); // [no, arabic, transliteration, meaning]
