@@ -2,25 +2,16 @@ name: probe
 on:
   push:
     branches: [probe]
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: render
+      - uses: actions/checkout@v5
+      - name: photos
         run: |
-          mkdir r && cd r && npm init -y >/dev/null && npm i playwright@1.49.1 >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
-          cat > r.js <<'JS'
-          const {chromium}=require('playwright');
-          (async()=>{const b=await chromium.launch();
-          for(const id of ['lakefield-ansaar','boksburg-islamic-institute']){
-            for(const t of [null,'2026-11-20T17:00:00Z','2026-12-09T18:00:00Z','2026-12-10T08:00:00Z']){
-              const c=await b.newContext({timezoneId:'Africa/Johannesburg'});const p=await c.newPage();
-              if(t)await p.clock.install({time:new Date(t)});
-              try{await p.goto('https://masjidboardlive.com/boards/?id='+id,{waitUntil:'load',timeout:45000});await p.waitForTimeout(6000);if(t)await p.clock.runFor(3000);
-                const r=await p.evaluate(()=>({isl:(document.getElementById('islamicDate')||{}).innerText,today:(document.getElementById('todaysDate')||{}).innerText,adj:typeof data!=='undefined'?data.islamicDateAdjust:null,f30:typeof data!=='undefined'?data.forceDate30:null,sunset:typeof data!=='undefined'?data.sunset:null}));
-                console.log(id,t||'now',JSON.stringify(r));}catch(e){console.log(id,t,'ERR',e.message.slice(0,200))}
-              await c.close();}
-          }
-          await b.close();})();
-          JS
-          node r.js
+          pip install pillow >/dev/null 2>&1 || pip install --break-system-packages pillow >/dev/null
+          python3 tools/photos.py
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add cand && git commit -qm "candidates [skip ci]" && git push -q origin HEAD:probe
