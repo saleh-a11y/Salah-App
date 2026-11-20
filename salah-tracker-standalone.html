@@ -614,6 +614,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdat
 /* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
 const LN=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?(Capacitor.registerPlugin?Capacitor.registerPlugin('LocalNotifications'):Capacitor.Plugins.LocalNotifications):null;
 let NP={on:false,adh:true,pre:true,jam:true,end:true},NT;
+const AP=LN&&Capacitor.registerPlugin?Capacitor.registerPlugin('AdhanPlayer'):null;
+const isAdhan=n=>n.id%10===4&&n.id<900;
 const ADHAN_CH={id:'adhan1',name:'Adhān',description:'Plays the adhān at each prayer time',importance:5,visibility:1,sound:'adhan.mp3',vibration:true};
 try{const o=JSON.parse(localStorage.getItem('salah_notif'));if(o)NP=Object.assign(NP,o)}catch(e){}
 const saveNP=()=>{try{localStorage.setItem('salah_notif',JSON.stringify(NP))}catch(e){}};
@@ -646,11 +648,15 @@ async function scheduleNotifs(){
   try{
     const pend=await LN.getPending();
     const old=pend&&pend.notifications?pend.notifications.filter(n=>n.id!==999):[];if(old.length)await LN.cancel({notifications:old.map(n=>({id:n.id}))});
-    if(!NP.on||!S.pub)return renderNotif();
-    if((await LN.checkPermissions()).display!=='granted'){NP.on=false;saveNP();return renderNotif()}
-    try{await LN.createChannel(ADHAN_CH)}catch(e){}
-    const list=planNotifs();
-    if(list.length)await LN.schedule({notifications:list});
+    const setAdhan=async items=>{if(!AP)return false;try{await AP.setSchedule({items});return true}catch(e){return false}};
+    if(!NP.on||!S.pub){await setAdhan([]);return renderNotif()}
+    if((await LN.checkPermissions()).display!=='granted'){NP.on=false;saveNP();await setAdhan([]);return renderNotif()}
+    const list=planNotifs(),adh=list.filter(isAdhan);
+    /* the adhān is played by the app's own alarm player (full recording, works with the app closed); plain notifications as a fallback */
+    const native=await setAdhan(adh.map(n=>({id:n.id,at:new Date(n.schedule.at).getTime(),title:n.title,body:n.body})));
+    if(native){try{await LN.deleteChannel({id:'adhan1'})}catch(e){}}else{try{await LN.createChannel(ADHAN_CH)}catch(e){}}
+    const rest=native?list.filter(n=>!isAdhan(n)):list;
+    if(rest.length)await LN.schedule({notifications:rest});
     renderNotif(list[0]);
   }catch(e){$('#nst').textContent='Couldn’t set up notifications. Open the app again to retry.'}
 }
@@ -659,7 +665,7 @@ async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
   ['adh','pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
-  $('#n_adh_s').textContent=S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts';
+  $('#n_adh_s').textContent=(S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts')+(AP?' · full adhān, quiet when your phone is on silent or vibrate':'');
   if(!S.board){$('#n_jam').disabled=true;$('#n_jam_s').textContent='Needs a masjid board · add one in settings (⚙︎)'}else $('#n_jam_s').textContent=(S.bname||'Your masjid')+' iqāmah times · Jumu\'ah khutbah on Fridays';
   $('#non').hidden=NP.on;
   let exact=true;try{exact=(await LN.checkExactNotificationSetting()).exact_alarm==='granted'}catch(e){}
@@ -675,6 +681,7 @@ $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(
 ['adh','pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
 $('#nadt').onclick=async()=>{
   if(!LN)return;
+  if(AP){try{await AP.test({delay:5000});$('#nst').textContent='Test adhān in 5 seconds. Lock your phone now to hear it the way it will play at prayer time. Tap “Stop adhān” on the notification to stop it.';setTimeout(()=>renderNotif(),20000);return}catch(e){}}
   try{
     await LN.createChannel(ADHAN_CH);
     await LN.schedule({notifications:[{id:999,title:'Adhān test',body:'This is how the adhān will sound at prayer time.',schedule:{at:new Date(Date.now()+5000),allowWhileIdle:true},channelId:'adhan1'}]});
