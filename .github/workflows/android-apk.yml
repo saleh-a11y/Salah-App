@@ -50,6 +50,9 @@ jobs:
       - name: Stamp build number
         run: |
           N=${{ github.run_number }}
+          cp node_modules/@capacitor/core/dist/capacitor.js www/capacitor.js
+          grep -q '<script src="capacitor.js"></script>' www/index.html
+          grep -q "registerPlugin" www/capacitor.js
           sed -i "s/const BUILD='__BUILD__'/const BUILD='$N'/" www/index.html
           grep -q "const BUILD='$N'" www/index.html
           sed -i -E "s/versionCode [0-9]+/versionCode $N/; s/versionName \"[^\"]*\"/versionName \"1.$N\"/" android/app/build.gradle

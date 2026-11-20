@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Salah Tracker</title>
+<script src="capacitor.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Marcellus&display=swap" rel="stylesheet">
 <style>
@@ -383,11 +384,17 @@ function renderMasjid(){
 }
 /* ---- update check: compare this build with the newest one on GitHub ---- */
 const BUILD='__BUILD__',REL='https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/latest',APK='https://github.com/saleh-a11y/Salah-App/releases/download/latest/SalahTracker.apk';
-async function getJSON(url){
-  const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;
-  if(H){const r=await H.get({url,headers:{Accept:'application/vnd.github+json'}});return typeof r.data==='string'?JSON.parse(r.data):r.data}
-  const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('http');return r.json();
+/* web requests: the WebView's fetch first (on the phone Capacitor routes it natively), the native HTTP plugin as a backup */
+async function httpGet(url,headers){
+  const c=new AbortController(),to=setTimeout(()=>c.abort(),12000);
+  try{const r=await fetch(url,{signal:c.signal,cache:'no-store',headers:headers||{}});if(!r.ok)throw new Error('http '+r.status);return await r.text()}
+  catch(e){
+    const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;if(!H)throw e;
+    const r=await H.get({url,headers:headers||{},responseType:'text'});if(r.status&&(r.status<200||r.status>299))throw new Error('http '+r.status);
+    return typeof r.data==='string'?r.data:JSON.stringify(r.data);
+  }finally{clearTimeout(to)}
 }
+async function getJSON(url){return JSON.parse(await httpGet(url,{Accept:'application/vnd.github+json'}))}
 let checked=0,later=false;
 async function checkUpdate(){
   const mine=parseInt(BUILD,10);
@@ -414,7 +421,7 @@ $('#ug').onclick=async()=>{
   if(ustate==='busy')return;
   ustate='busy';$('#ul').hidden=true;umsg('Downloading… 0%',null,0);
   try{
-    if(!ulisten)ulisten=await AU.addListener('progress',e=>{if(ustate==='busy')umsg('Downloading… '+e.percent+'%',null,e.percent)});
+    if(!ulisten){ulisten=true;try{Promise.resolve(AU.addListener('progress',e=>{if(ustate==='busy')umsg('Downloading… '+e.percent+'%',null,e.percent)})).catch(()=>{})}catch(e){}}
     await AU.download({url:APK});ustate='ready';await uInstall();
   }catch(e){
     const msg=String(e&&e.message||e);
@@ -614,11 +621,7 @@ function parseRows(rows){
 }
 async function getBoard(url){
   url=url||S.board;if(!url)throw new Error('none');
-  const H=typeof Capacitor!=='undefined'&&Capacitor.Plugins&&Capacitor.Plugins.CapacitorHttp;
-  if(H){const r=await H.get({url});return typeof r.data==='string'?r.data:''}
-  const c=new AbortController(),to=setTimeout(()=>c.abort(),12000);
-  try{const r=await fetch(url,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('http');return await r.text()}
-  finally{clearTimeout(to)}
+  return httpGet(url);
 }
 function refreshViews(){if(S.pub&&!S.edit){all();if(!$('#ov').hidden)renderSheet()}}
 function applyBoard(R){
