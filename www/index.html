@@ -218,6 +218,20 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .fmi span{flex:1;min-width:0}.fmi b{display:block;font-weight:600}.fmi small{display:block;font-size:12px;color:var(--mu)}
 .fmi i{font-style:normal;color:var(--gold);font-weight:600}.fmi.got{opacity:.55}.fmi.alt{background:none;border-style:dashed}
 .brow2{display:flex;gap:6px;margin:6px 0 4px}.brow2 button{flex:1}
+.hbtns button svg{display:block;margin:auto}
+.qbsheet{text-align:center}
+#qbdial{width:min(78vw,300px);margin:0 auto;transition:filter .2s}
+.qsvg{width:100%;height:auto;display:block}
+.qring{fill:var(--bg);stroke:var(--bd);stroke-width:2}
+.qt1{stroke:var(--tx);stroke-width:2}.qt2{stroke:var(--mu);stroke-width:1;opacity:.6}
+.ql{font:600 17px system-ui,sans-serif;fill:var(--mu);text-anchor:middle}.ql.qn{fill:#c0392b}
+.qline{stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 6}
+.qkb{fill:#1d1d1b;stroke:var(--gold);stroke-width:1.5}.qkb2{fill:var(--gold)}
+.qtop{fill:var(--em)}.qdot{fill:var(--em)}
+#qbdial.ok .qring{stroke:var(--em);stroke-width:5;fill:color-mix(in srgb,var(--em) 12%,var(--bg))}
+#qbst{font-size:20px;margin:10px 0 4px;min-height:28px}#qbdial.ok+#qbst{color:var(--em)}
+#qbinfo{font-size:14px;margin:4px 0}#qbinfo .mu{font-size:12px}
+#qbtip{font-size:12px;margin:6px 0 10px}
 #dktoday{display:grid;grid-template-columns:1fr 1fr;gap:8px}#dktoday button{min-height:46px}#dktoday button.ok{background:var(--ok);border-color:color-mix(in srgb,var(--em) 50%,var(--bd))}
 .lnk{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;font:inherit;cursor:pointer}
 #bksum{margin:0 0 8px;line-height:1.6}
@@ -236,7 +250,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 </head>
 <body>
 <div class="wrap">
-<header><div class="htop"><div class="brand"><svg width="44" height="44" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#e3c27a" stroke-opacity=".6" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-family="Amiri,serif" font-weight="700" font-size="33" fill="#e3c27a">صلاة</text></svg><div><h1 class="serif">Salah Tracker</h1><span class="ar">مُتَتَبِّع الصَّلَاة</span></div></div><div class="hbtns"><small id="stat"></small><button id="th" aria-label="Light or dark mode">◐</button><button id="gear" aria-label="Settings" hidden>⚙︎</button></div></div><svg class="sky" viewBox="0 0 360 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc48c"/><stop offset="1" stop-color="#23915a"/></linearGradient></defs><g fill="#f7f0dc" fill-opacity=".17"><path d="M31 44L36 30L41 44Z"/><rect x="32" y="44" width="8" height="40"/><rect x="29" y="57" width="14" height="3" rx="1"/><rect x="29" y="75" width="14" height="3" rx="1"/><path d="M99 22L104 8L109 22Z"/><rect x="100" y="22" width="8" height="62"/><rect x="97" y="35" width="14" height="3" rx="1"/><rect x="97" y="53" width="14" height="3" rx="1"/><path d="M251 22L256 8L261 22Z"/><rect x="252" y="22" width="8" height="62"/><rect x="249" y="35" width="14" height="3" rx="1"/><rect x="249" y="53" width="14" height="3" rx="1"/><path d="M319 44L324 30L329 44Z"/><rect x="320" y="44" width="8" height="40"/><rect x="317" y="57" width="14" height="3" rx="1"/><rect x="317" y="75" width="14" height="3" rx="1"/><rect x="14" y="66" width="332" height="18"/><path d="M58 66A12 10 0 0 1 82 66Z"/><path d="M122 66A12 10 0 0 1 146 66Z"/><path d="M214 66A12 10 0 0 1 238 66Z"/><path d="M278 66A12 10 0 0 1 302 66Z"/></g><rect x="154" y="50" width="52" height="34" fill="#1d7f4f"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52Z" fill="url(#gd)"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52" fill="none" stroke="#e6c983" stroke-opacity=".5" stroke-width=".8"/><rect x="148" y="51" width="64" height="3" fill="#e6c983" fill-opacity=".7"/><g stroke="#e6c983" stroke-width="1.4" stroke-linecap="round"><line x1="180" y1="15" x2="180" y2="9"/><line x1="36" y1="30" x2="36" y2="24"/><line x1="104" y1="8" x2="104" y2="2"/><line x1="256" y1="8" x2="256" y2="2"/><line x1="324" y1="30" x2="324" y2="24"/></g><path d="M182.6 3.2a3.2 3.2 0 1 0 0 5.6a2.6 2.6 0 1 1 0-5.6z" fill="#e6c983"/></svg></header>
+<header><div class="htop"><div class="brand"><svg width="44" height="44" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#e3c27a" stroke-opacity=".6" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-family="Amiri,serif" font-weight="700" font-size="33" fill="#e3c27a">صلاة</text></svg><div><h1 class="serif">Salah Tracker</h1><span class="ar">مُتَتَبِّع الصَّلَاة</span></div></div><div class="hbtns"><small id="stat"></small><button id="qbtn" aria-label="Qibla direction" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></button><button id="th" aria-label="Light or dark mode">◐</button><button id="gear" aria-label="Settings" hidden>⚙︎</button></div></div><svg class="sky" viewBox="0 0 360 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc48c"/><stop offset="1" stop-color="#23915a"/></linearGradient></defs><g fill="#f7f0dc" fill-opacity=".17"><path d="M31 44L36 30L41 44Z"/><rect x="32" y="44" width="8" height="40"/><rect x="29" y="57" width="14" height="3" rx="1"/><rect x="29" y="75" width="14" height="3" rx="1"/><path d="M99 22L104 8L109 22Z"/><rect x="100" y="22" width="8" height="62"/><rect x="97" y="35" width="14" height="3" rx="1"/><rect x="97" y="53" width="14" height="3" rx="1"/><path d="M251 22L256 8L261 22Z"/><rect x="252" y="22" width="8" height="62"/><rect x="249" y="35" width="14" height="3" rx="1"/><rect x="249" y="53" width="14" height="3" rx="1"/><path d="M319 44L324 30L329 44Z"/><rect x="320" y="44" width="8" height="40"/><rect x="317" y="57" width="14" height="3" rx="1"/><rect x="317" y="75" width="14" height="3" rx="1"/><rect x="14" y="66" width="332" height="18"/><path d="M58 66A12 10 0 0 1 82 66Z"/><path d="M122 66A12 10 0 0 1 146 66Z"/><path d="M214 66A12 10 0 0 1 238 66Z"/><path d="M278 66A12 10 0 0 1 302 66Z"/></g><rect x="154" y="50" width="52" height="34" fill="#1d7f4f"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52Z" fill="url(#gd)"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52" fill="none" stroke="#e6c983" stroke-opacity=".5" stroke-width=".8"/><rect x="148" y="51" width="64" height="3" fill="#e6c983" fill-opacity=".7"/><g stroke="#e6c983" stroke-width="1.4" stroke-linecap="round"><line x1="180" y1="15" x2="180" y2="9"/><line x1="36" y1="30" x2="36" y2="24"/><line x1="104" y1="8" x2="104" y2="2"/><line x1="256" y1="8" x2="256" y2="2"/><line x1="324" y1="30" x2="324" y2="24"/></g><path d="M182.6 3.2a3.2 3.2 0 1 0 0 5.6a2.6 2.6 0 1 1 0-5.6z" fill="#e6c983"/></svg></header>
 
 <section id="setup" class="card" hidden>
 <h2 class="serif">Set up your tracker</h2>
@@ -341,6 +355,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="hjsrc" class="mu"></p>
 </div>
 <div class="pane" id="p_more" hidden>
+<div class="card"><h2 class="serif">Qibla</h2><p class="mu" style="margin:0 0 10px">A compass that points to the Ka‘bah. Also on the compass button at the top of every page.</p><button class="pri" id="qbopen" style="width:100%">Open the Qibla compass</button></div>
 <div class="card" id="ncard">
 <h2 class="serif">Prayer notifications</h2>
 <p id="nst" class="mu"></p>
@@ -383,6 +398,14 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="fmpath" class="mu"></p>
 <input type="search" id="fmq" autocomplete="off" aria-label="Filter the list">
 <div id="fml"></div></div></div>
+<div class="ov" id="qbov" hidden><div class="sheet qbsheet" role="dialog" aria-labelledby="qbt">
+<div class="fmtop"><h3 id="qbt">Qibla</h3><button id="qbx" aria-label="Close">✕</button></div>
+<div id="qbdial"></div>
+<p id="qbst" aria-live="polite"></p>
+<p id="qbinfo"></p>
+<p id="qbtip" class="mu"></p>
+<div class="row"><button id="qbgps">Use my current location</button></div>
+</div></div>
 <input type="file" id="bkf" hidden>
 <div class="ov" id="bkov" hidden><div class="sheet"><h3>Restore this backup?</h3><p id="bksum"></p><p class="mu" style="margin:0 0 12px">This replaces everything currently in the app on this phone.</p><div class="row"><button id="bkc">Cancel</button><button class="pri" id="bkok">Restore</button></div></div></div>
 
@@ -1307,6 +1330,92 @@ function boardHijriNote(){
   return{same,html:same?'✓ '+nm+'’s board shows the same date':nm+'’s board shows <b>'+b.d+' '+esc(HM[b.m-1])+' '+b.y+'</b>. '+(j.src==='j'?'Jamiatul Ulama’s date is used; the masjid may not have updated its board yet.':'Jamiat hasn’t announced yet, so the app shows the expected date until they do.')};
 }
 
+/* ---- Qibla compass ---- */
+const KAABA=[21.422487,39.826206];
+const CMP=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('Compass'):null;
+function qiblaFrom(lat,lon){
+  const r=Math.PI/180,f1=lat*r,f2=KAABA[0]*r,dl=(KAABA[1]-lon)*r;
+  const b=Math.atan2(Math.sin(dl)*Math.cos(f2),Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))/r;
+  const a=Math.sin((f2-f1)/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2,km=2*6371*Math.asin(Math.sqrt(a));
+  return{bearing:(b+360)%360,km};
+}
+const compass16=b=>['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(b/22.5)%16];
+const wrap180=a=>((a%360)+540)%360-180;
+let QB={on:false,lat:null,lon:null,src:'',head:null,shown:null,acc:-1,tilt:0,sub:null,raf:0,aligned:false,web:null,decl:null};
+function qbPlace(){
+  if(QB.gps)return;
+  QB.lat=LAT;QB.lon=LON;
+  const c=CITIES.find(x=>x[0]===S.loc);
+  QB.src=S.loc==='board'&&S.blat!=null?(S.bname||'your masjid')+(S.btown?', '+S.btown:''):c?c[1]:'Johannesburg';
+}
+function qbDial(){
+  /* ring with ticks every 10°, letters, and the Kaaba at the Qibla bearing; the whole ring turns with the phone */
+  let t='';for(let a=0;a<360;a+=5){const big=a%30===0,len=big?12:a%10===0?8:4;t+='<line x1="150" y1="'+(18)+'" x2="150" y2="'+(18+len)+'" transform="rotate('+a+' 150 150)" class="'+(big?'qt1':'qt2')+'"/>'}
+  const L=[['N',0],['E',90],['S',180],['W',270]].map(([n,a])=>'<text x="150" y="52" transform="rotate('+a+' 150 150)" class="ql'+(n==='N'?' qn':'')+'">'+n+'</text>').join('');
+  const q=qiblaFrom(QB.lat,QB.lon).bearing;
+  return '<svg viewBox="0 0 300 300" class="qsvg" aria-hidden="true"><circle cx="150" cy="150" r="138" class="qring"/><g id="qrot">'+t+L
+    +'<g transform="rotate('+q.toFixed(1)+' 150 150)"><line x1="150" y1="150" x2="150" y2="70" class="qline"/><g transform="translate(150 44)"><rect x="-13" y="-13" width="26" height="26" rx="3" class="qkb"/><rect x="-13" y="-6" width="26" height="4" class="qkb2"/></g></g></g>'
+    +'<path d="M150 4 L160 22 L140 22 Z" class="qtop"/><circle cx="150" cy="150" r="5" class="qdot"/></svg>';
+}
+function qbOpen(){
+  qbPlace();QB.on=true;QB.head=null;QB.shown=null;QB.aligned=false;
+  $('#qbov').hidden=false;$('#qbdial').innerHTML=qbDial();qbText();
+  qbStart();cancelAnimationFrame(QB.raf);QB.raf=requestAnimationFrame(qbFrame);
+}
+function qbClose(){$('#qbov').hidden=true;QB.on=false;qbStop();cancelAnimationFrame(QB.raf)}
+async function qbStart(){
+  qbStop();
+  if(CMP){
+    try{
+      QB.sub=await CMP.addListener('heading',e=>{QB.head=+e.heading;QB.acc=e.accuracy;QB.tilt=+e.tilt||0});
+      const r=await CMP.start({lat:QB.lat,lon:QB.lon});QB.decl=r&&typeof r.declination==='number'?r.declination:null;qbText();return;
+    }catch(e){QB.nosensor=true;qbText();return}
+  }
+  /* in a browser: use the phone's absolute orientation if there is one */
+  const h=e=>{let a=null;if(typeof e.webkitCompassHeading==='number')a=e.webkitCompassHeading;else if(e.absolute&&e.alpha!=null)a=(360-e.alpha)%360;if(a!=null){QB.head=a;QB.web=true}};
+  QB.webh=h;window.addEventListener('deviceorientationabsolute',h);window.addEventListener('deviceorientation',h);
+}
+function qbStop(){
+  try{if(QB.sub&&QB.sub.remove)QB.sub.remove()}catch(e){}QB.sub=null;
+  if(CMP)try{CMP.stop()}catch(e){}
+  if(QB.webh){window.removeEventListener('deviceorientationabsolute',QB.webh);window.removeEventListener('deviceorientation',QB.webh);QB.webh=null}
+}
+function qbFrame(){
+  if(!QB.on)return;
+  const q=qiblaFrom(QB.lat,QB.lon).bearing;
+  if(QB.head!=null){
+    QB.shown=QB.shown==null?QB.head:(QB.shown+wrap180(QB.head-QB.shown)*0.18+360)%360;
+    const g=$('#qrot');if(g)g.setAttribute('transform','rotate('+(-QB.shown).toFixed(1)+' 150 150)');
+    const d=wrap180(q-QB.shown),al=Math.abs(d)<=3;
+    if(al&&!QB.aligned){try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
+    QB.aligned=al;$('#qbdial').classList.toggle('ok',al);
+    const st=$('#qbst');
+    st.innerHTML=al?'<b>✓ You are facing the Qibla</b>':'Turn <b>'+(d>0?'right':'left')+' '+Math.round(Math.abs(d))+'°</b>';
+    $('#qbtip').textContent=QB.acc===0||QB.acc===1?'The compass needs calibrating: move your phone in a figure 8 a few times.':QB.tilt>35?'Hold your phone flat, screen facing up.':'Keep away from metal, magnets and speakers for the best reading.';
+  }
+  QB.raf=requestAnimationFrame(qbFrame);
+}
+function qbText(){
+  const q=qiblaFrom(QB.lat,QB.lon);
+  $('#qbinfo').innerHTML='Qibla is <b>'+Math.round(q.bearing)+'°</b> from true north ('+compass16(q.bearing)+') · Makkah is '+Math.round(q.km).toLocaleString()+' km away'
+    +'<br><span class="mu">From '+esc(QB.src)+(QB.decl!=null?' · compass corrected by '+Math.abs(QB.decl).toFixed(0)+'° '+(QB.decl<0?'west':'east')+' for magnetic north':'')+'</span>';
+  if(QB.head==null)$('#qbst').innerHTML=QB.nosensor?'This phone has no compass. Face <b>'+Math.round(q.bearing)+'°</b> from north ('+compass16(q.bearing)+'), using the sun or a landmark.':CMP?'Starting the compass…':'Open this in the app on your phone to use the compass.';
+}
+$('#qbtn').onclick=qbOpen;
+$('#qbopen').onclick=qbOpen;
+$('#qbx').onclick=qbClose;
+$('#qbov').onclick=e=>{if(e.target.id==='qbov')qbClose()};
+$('#qbgps').onclick=()=>{
+  if(!navigator.geolocation){$('#qbinfo').textContent='Location isn’t available on this phone.';return}
+  $('#qbgps').disabled=true;$('#qbgps').textContent='Finding you…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    QB.gps=true;QB.lat=p.coords.latitude;QB.lon=p.coords.longitude;QB.src='your current location (±'+Math.round(p.coords.accuracy)+' m)';
+    $('#qbgps').disabled=false;$('#qbgps').textContent='Use my current location';
+    $('#qbdial').innerHTML=qbDial();QB.shown=null;qbText();if(CMP)qbStart();
+  },()=>{$('#qbgps').disabled=false;$('#qbgps').textContent='Use my current location';$('#qbinfo').insertAdjacentHTML('beforeend','<br><span class="mu">Couldn’t get your location. Allow location for Salah Tracker, or use the masjid’s location.</span>')},{enableHighAccuracy:true,timeout:15000,maximumAge:600000});
+};
+document.addEventListener('visibilitychange',()=>{if(!QB.on)return;if(document.hidden)qbStop();else qbStart()});
+
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
   x=(x||'').trim();if(!x)return'';
@@ -1497,7 +1606,7 @@ $('#ps').onclick=async()=>{
 };
 function boot(){
   const ok=S.pub&&!S.edit;
-  $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#pc').hidden=!S.pub;
+  $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#qbtn').hidden=!ok;$('#pc').hidden=!S.pub;
   $('#pd').max=ymd(today0());
   if(!ok){$('#tabs').hidden=true;document.body.classList.remove('has-tabs');document.querySelector('header').classList.remove('compact');clearInterval(cdTimer);$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#rsto').hidden=!!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
   const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
