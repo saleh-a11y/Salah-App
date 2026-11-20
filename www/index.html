@@ -111,7 +111,7 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 #bkm.okm{color:var(--em)}
 /* tabs */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:14;background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -6px 20px rgba(0,0,0,.06);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
-.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .tabs button{border:0;background:none;border-radius:14px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--mu);min-height:52px}
 .tabs button svg{width:24px;height:24px}
 .tabs button.on{color:var(--em);background:color-mix(in srgb,var(--em) 10%,transparent);font-weight:600}
@@ -136,6 +136,32 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .cd-foot{margin-top:10px;font-size:13px;color:#cfe0d6}
 .pr.now{box-shadow:0 0 0 2px var(--gold)}
 #tm{display:block;min-height:18px;color:var(--gold);font-size:13px;text-align:center}
+/* progress */
+:root{--c1:#1f7a4c;--c2:#d19a1e;--c3:#b23a5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c1:#1f7e4c;--c2:#bb8b28;--c3:#d4627f}}
+:root[data-theme="dark"]{--c1:#1f7e4c;--c2:#bb8b28;--c3:#d4627f}
+.stk{text-align:center}.stk b{display:block;font-family:"Marcellus",Georgia,serif;font-size:52px;font-weight:400;line-height:1.05;color:var(--gold)}.stk span{color:var(--mu);font-size:14px}
+.stk2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.stk2>div{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:8px;text-align:center}.stk2 b{display:block;font-size:22px}.stk2 small{font-size:12px}
+.pstk{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.pstk>div{text-align:center;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:6px 2px}.pstk b{display:block;font-size:17px}.pstk .ar{display:block;color:var(--gold);font-size:14px;line-height:1.2}.pstk small{font-size:11px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:4px}
+.wkd{position:relative;text-align:center}.wkd svg{width:100%;max-width:44px;display:block;margin:0 auto}.wkd b{position:absolute;left:0;right:0;top:0;line-height:min(44px,11vw);font-size:14px}.wkd small{font-size:11px}
+.wkd .wr{fill:none;stroke:var(--bd);stroke-width:4}.wkd .wf{fill:none;stroke:var(--c1);stroke-width:4;stroke-linecap:round}.wkd.tdy small{color:var(--gold);font-weight:700}
+.chart{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;height:170px;align-items:end;margin:6px 0 4px;border-bottom:1px solid var(--bd)}
+.mb{height:100%;border:0;background:none;padding:0 0 22px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;border-radius:10px}
+.mb small{position:absolute;bottom:2px;left:0;right:0;font-size:12px;color:var(--mu)}
+.mb.on{background:color-mix(in srgb,var(--gold) 10%,transparent)}.mb.on small{color:var(--tx);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:2px;height:100%;justify-content:flex-end;width:62%;margin:0 auto}
+.stack i{display:block;min-height:3px}.stack i:first-child{border-radius:4px 4px 0 0}
+.s1{background:var(--c1)}.s2{background:var(--c2)}.s3{background:var(--c3)}.s0{background:var(--bd);height:3px}
+.leg2{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--mu);margin:8px 0 2px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+#pdet{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:14px;margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:12px}#pdet b{width:100%}
+.pb{display:grid;grid-template-columns:62px 1fr 54px;gap:8px;align-items:center;margin:7px 0;font-size:14px}.pv{text-align:right;color:var(--mu);font-variant-numeric:tabular-nums}
+.bar{display:block;height:8px;border-radius:4px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--c1);border-radius:4px}
+.bar.big{height:10px;margin-top:6px}
+#qrem{font-family:"Marcellus",Georgia,serif;font-size:40px;color:var(--gold);line-height:1.1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chips button{padding:9px 12px;border-radius:20px;min-height:44px}
+#qmsg{min-height:18px;margin:6px 0 0;color:var(--gold);font-size:13px}
 .lnk{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;font:inherit;cursor:pointer}
 #bksum{margin:0 0 8px;line-height:1.6}
 .fld{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--bd)}
@@ -217,6 +243,25 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="msg"></p>
 </details>
 </div>
+<div class="pane" id="p_prog" hidden>
+<div class="card"><h2 class="serif">Streaks</h2><div id="pstreak"></div><p class="mu" style="margin:12px 0 4px;font-size:13px">Last 7 days</p><div class="wk" id="pweek"></div></div>
+<div class="card"><h2 class="serif">Monthly</h2><p class="mu" style="margin:0;font-size:13px">Tap a month for details.</p>
+<div class="chart" id="pchart" role="group" aria-label="Prayers per month"></div>
+<div class="leg2"><span><i class="sw s1"></i>Prayed</span><span><i class="sw s2"></i>Late</span><span><i class="sw s3"></i>Missed</span></div>
+<div id="pdet"></div>
+<p class="mu" style="margin:14px 0 2px;font-size:13px">Each prayer that month</p><div id="pper"></div></div>
+<div class="card"><h2 class="serif">Qada plan</h2>
+<p class="mu" style="margin:0;font-size:13px">Still to make up</p><div id="qrem">0</div>
+<p class="mu" style="margin:10px 0 6px;font-size:14px">Daily target</p>
+<div class="seg" id="qtgt" role="group" aria-label="Daily make-up target"><button data-t="1">1</button><button data-t="3">3</button><button data-t="5">5</button><button data-t="10">10</button><button data-t="15">15</button></div>
+<p id="qtoday" style="margin:12px 0 0;font-size:14px"></p>
+<p id="qfin" style="margin:8px 0 0;font-size:14px"></p>
+<p id="qpace" class="mu" style="margin:4px 0 0;font-size:13px"></p>
+<p class="mu" style="margin:14px 0 0;font-size:14px">Made up a prayer just now? Tap it:</p>
+<div class="chips" id="qlog"><button data-q="0">+ Fajr</button><button data-q="1">+ Dhuhr</button><button data-q="2">+ Asr</button><button data-q="3">+ Maghrib</button><button data-q="4">+ Isha</button><button class="pri" data-q="all">+ All 5</button></div>
+<div class="row" style="margin-top:8px"><button id="qundo" disabled>Undo last</button></div>
+<p id="qmsg"></p></div>
+</div>
 <div class="pane" id="p_more" hidden>
 <div class="card" id="ncard">
 <h2 class="serif">Prayer notifications</h2>
@@ -248,6 +293,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <nav class="tabs" id="tabs" hidden aria-label="Sections"><div class="in">
 <button data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a7 7 0 1 0 8.5 9.2A6 6 0 1 1 12 3z"/><path d="M5 21h14"/></svg>Today</button>
 <button data-tab="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14.5l2 2 4-4"/></svg>Tracker</button>
+<button data-tab="prog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="7" rx="1"/><rect x="10.5" y="6" width="3" height="12" rx="1"/><rect x="15.5" y="9" width="3" height="9" rx="1"/></svg>Progress</button>
 <button data-tab="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>More</button>
 </div></nav>
 <input type="file" id="bkf" hidden>
@@ -266,7 +312,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0],qt:5,ql:{},asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -342,7 +388,7 @@ function renderCal(){
   }
   $('#grid').innerHTML=h;
 }
-const all=()=>{renderStats();renderCal()};
+const all=()=>{renderStats();renderCal();if(typeof renderProgress==='function')try{renderProgress()}catch(e){}};
 
 /* day sheet */
 function renderSheet(){
@@ -623,6 +669,7 @@ $('#bkok').onclick=async()=>{
     for(const k of['asr','board','bname','btown','loc'])clean[k]=typeof st[k]==='string'?st[k]:(k==='asr'?'hanafi':k==='loc'?'jhb':'');
     clean.asr=clean.asr==='shafii'?'shafii':'hanafi';clean.board=boardURL(clean.board);
     for(const k of['blat','blon'])clean[k]=typeof st[k]==='number'?st[k]:null;
+    clean.qt=[1,3,5,10,15].includes(st.qt)?st.qt:5;clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
     for(const [y,v] of Object.entries(years))await save('y'+y,v);
     if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false}));
@@ -635,14 +682,15 @@ $('#bkok').onclick=async()=>{
 };
 
 /* ---- tabs ---- */
-let TAB='today';try{const t=localStorage.getItem('salah_tab');if(/^(today|track|more)$/.test(t||''))TAB=t}catch(e){}
+let TAB='today';try{const t=localStorage.getItem('salah_tab');if(/^(today|track|prog|more)$/.test(t||''))TAB=t}catch(e){}
 function showTab(t,keep){
-  TAB=t;['today','track','more'].forEach(k=>{$('#p_'+k).hidden=k!==t});
+  TAB=t;['today','track','prog','more'].forEach(k=>{$('#p_'+k).hidden=k!==t});
   document.querySelectorAll('#tabs button').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});
   document.querySelector('header').classList.toggle('compact',t!=='today');
   try{localStorage.setItem('salah_tab',t)}catch(e){}
   if(!keep)window.scrollTo(0,0);
   if(t==='today'){cdKey='';renderCountdown();renderToday()}
+  if(t==='prog'){PSEL=null;renderProgress()}
 }
 $('#tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
 $('#mset').onclick=()=>$('#gear').click();
@@ -716,6 +764,90 @@ $('#tl').onclick=e=>{
   if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
   else setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
   TM=MS;MS='';renderToday();all();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
+};
+
+/* ---- Progress tab: streaks, monthly chart, per-prayer, qada plan ---- */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+function streaks(){
+  const t0=today0(),pd=parse(S.pub),full=d=>getMask(d)===31,clean=d=>getMask(d)===31&&!getLate(d);
+  const run=(ok,from)=>{let n=0;for(let d=from;d>=pd&&ok(d);d=addDays(d,-1))n++;return n};
+  const startFull=full(t0)?t0:addDays(t0,-1),startClean=clean(t0)?t0:addDays(t0,-1);
+  let best=0,cur=0;for(let d=new Date(pd);d<=t0;d=addDays(d,1)){if(full(d)){cur++;if(cur>best)best=cur}else if(d<t0)cur=0}
+  const per=P.map((_,i)=>{const b=1<<i,okd=d=>!!(getMask(d)&b);return run(okd,okd(t0)?t0:addDays(t0,-1))});
+  return{cur:run(full,startFull),clean:run(clean,startClean),best,per};
+}
+function monthStats(y,m){
+  const t0=today0(),pd=parse(S.pub),o={y,m,ok:0,late:0,miss:0,days:0,per:[0,0,0,0,0]};
+  for(let d=new Date(y,m,1);d.getMonth()===m&&d<=t0;d=addDays(d,1)){
+    if(d<pd)continue;o.days++;const k=getMask(d),L=getLate(d);
+    for(let i=0;i<5;i++){if(k>>i&1){o.per[i]++;if(L>>i&1)o.late++;else o.ok++}else if(d<t0)o.miss++}
+  }
+  return o;
+}
+let PSEL=null;
+const qlToday=()=>(S.ql&&S.ql[ymd(today0())])||0;
+function logQada(n){
+  S.ql=S.ql||{};const k=ymd(today0());S.ql[k]=Math.max(0,(S.ql[k]||0)+n);
+  const keys=Object.keys(S.ql).sort();while(keys.length>400)delete S.ql[keys.shift()];
+}
+function remaining(){
+  const s=stats();return P.reduce((a,_,i)=>a+Math.max(0,s.n-s.per[i]-S.q[i]),0);
+}
+const plural=(n,w)=>n.toLocaleString()+' '+w+(n===1?'':'s');
+function finishText(rem,perDay){
+  if(rem<=0)return 'Nothing left to make up, alḥamdulillāh.';
+  if(!(perDay>0))return '';
+  const days=Math.ceil(rem/perDay),end=addDays(today0(),days),y=Math.floor(days/365),mo=Math.floor((days%365)/30.4);
+  return 'About '+(y?plural(y,'year')+(mo?' '+plural(mo,'month'):''):mo?plural(mo,'month'):plural(days,'day'))+' · '+MONTHS[end.getMonth()]+' '+end.getFullYear();
+}
+let qUndo=[];
+function renderProgress(){
+  if(!$('#p_prog')||$('#p_prog').hidden||!S.pub)return;
+  // streaks
+  const st=streaks();
+  $('#pstreak').innerHTML='<div class="stk"><b>'+st.cur.toLocaleString()+'</b><span>'+(st.cur===1?'day':'days')+' in a row with all 5</span></div>'
+    +'<div class="stk2"><div><b>'+st.clean.toLocaleString()+'</b><small>with none late</small></div><div><b>'+st.best.toLocaleString()+'</b><small>best ever</small></div></div>'
+    +'<div class="pstk">'+P.map((p,i)=>'<div><b>'+st.per[i]+'</b><span class="ar">'+AR[i]+'</span><small>'+p+'</small></div>').join('')+'</div>';
+  // last 7 days
+  const t0=today0();let wk='';
+  for(let k=6;k>=0;k--){const d=addDays(t0,-k),c=d<parse(S.pub)?null:pc(getMask(d));
+    wk+='<div class="wkd'+(k===0?' tdy':'')+'" title="'+(c==null?'':c+' of 5')+'"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="wr"/>'+(c?'<circle cx="18" cy="18" r="15" class="wf" stroke-dasharray="'+(94.2*c/5).toFixed(1)+' 94.2" transform="rotate(-90 18 18)"/>':'')+'</svg><b>'+(c==null?'–':c)+'</b><small>'+'SMTWTFS'[d.getDay()]+'</small></div>'}
+  $('#pweek').innerHTML=wk;
+  // monthly chart (last 6 months)
+  const ms=[];for(let k=5;k>=0;k--){const d=new Date(t0.getFullYear(),t0.getMonth()-k,1);ms.push(monthStats(d.getFullYear(),d.getMonth()))}
+  const max=Math.max(1,...ms.map(o=>o.ok+o.late+o.miss));
+  if(PSEL==null||PSEL>=ms.length)PSEL=ms.length-1;
+  $('#pchart').innerHTML=ms.map((o,j)=>{const tot=o.ok+o.late+o.miss,h=v=>(v/max*100).toFixed(2)+'%';
+    return '<button class="mb'+(j===PSEL?' on':'')+'" data-mj="'+j+'" aria-label="'+MONTHS[o.m]+' '+o.y+': '+o.ok+' prayed, '+o.late+' late, '+o.miss+' missed"><span class="stack">'
+      +(o.miss?'<i class="s3" style="height:'+h(o.miss)+'"></i>':'')+(o.late?'<i class="s2" style="height:'+h(o.late)+'"></i>':'')+(o.ok?'<i class="s1" style="height:'+h(o.ok)+'"></i>':'')
+      +(tot?'':'<i class="s0"></i>')+'</span><small>'+MONTHS[o.m]+'</small></button>'}).join('');
+  const o=ms[PSEL],tot=o.ok+o.late+o.miss;
+  $('#pdet').innerHTML='<b>'+['January','February','March','April','May','June','July','August','September','October','November','December'][o.m]+' '+o.y+'</b>'
+    +(tot?'<span><i class="sw s1"></i>'+o.ok+' prayed</span><span><i class="sw s2"></i>'+o.late+' late</span><span><i class="sw s3"></i>'+o.miss+' missed</span><span class="mu">'+Math.round((o.ok+o.late)/Math.max(1,tot)*100)+'% prayed</span>':'<span class="mu">Before your starting date</span>');
+  // per prayer in the selected month
+  const dd=Math.max(1,o.days);
+  $('#pper').innerHTML=o.days?P.map((p,i)=>'<div class="pb"><span class="pn">'+p+'</span><span class="bar"><i style="width:'+(o.per[i]/dd*100).toFixed(1)+'%"></i></span><span class="pv">'+o.per[i]+'/'+o.days+'</span></div>').join(''):'';
+  // qada plan
+  const rem=remaining(),tgt=S.qt||5,done=qlToday();
+  $('#qrem').textContent=rem.toLocaleString();
+  document.querySelectorAll('#qtgt button').forEach(b=>b.classList.toggle('on',+b.dataset.t===tgt));
+  $('#qtoday').innerHTML='Today: <b>'+done+'</b> of '+tgt+' made up'+(done>=tgt?' ✓':'')+'<span class="bar big"><i style="width:'+Math.min(100,done/tgt*100).toFixed(1)+'%"></i></span>';
+  $('#qfin').textContent=finishText(rem,tgt)?'At '+tgt+' a day: '+finishText(rem,tgt):finishText(rem,tgt);
+  let last30=0,act=0;for(let k=0;k<30;k++){const v=(S.ql||{})[ymd(addDays(t0,-k))]||0;last30+=v;if(v)act++}
+  $('#qpace').textContent=last30?'Your pace over the last 30 days: '+(last30/30).toFixed(1)+' a day'+(rem>0?' · '+finishText(rem,last30/30):''):'Log make-up prayers here to see your own pace.';
+  $('#qundo').disabled=!qUndo.length;
+}
+$('#pchart').onclick=e=>{const b=e.target.closest('[data-mj]');if(!b)return;PSEL=+b.dataset.mj;renderProgress()};
+$('#qtgt').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;S.qt=+b.dataset.t;renderProgress();saveSettings()};
+$('#qlog').onclick=e=>{
+  const b=e.target.closest('[data-q]');if(!b)return;const v=b.dataset.q,idx=v==='all'?[0,1,2,3,4]:[+v];
+  idx.forEach(i=>S.q[i]++);logQada(idx.length);qUndo.push(idx);if(qUndo.length>50)qUndo.shift();
+  $('#qmsg').textContent='Logged: '+(v==='all'?'one of each prayer':P[+v]);renderStats();renderProgress();sq=sq.then(saveSettings);
+};
+$('#qundo').onclick=()=>{
+  const idx=qUndo.pop();if(!idx)return;idx.forEach(i=>S.q[i]=Math.max(0,S.q[i]-1));logQada(-idx.length);
+  $('#qmsg').textContent='Undone.';renderStats();renderProgress();sq=sq.then(saveSettings);
 };
 
 /* ---- live board: read in the background when the app opens ---- */
@@ -804,14 +936,14 @@ function tick(i){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-const setDoc=()=>({pub:S.pub,q:S.q,ts:S.ts,asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+const setDoc=()=>({pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,ts:S.ts,asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
 async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
   const n=Math.floor(+$('#qn').value);
   if(!(n>0)){$('#qm').textContent='Enter a number of 1 or more.';return}
   const v=$('#qp').value,idx=v==='all'?[0,1,2,3,4]:[+v];
-  idx.forEach(i=>S.q[i]=Math.max(0,S.q[i]+sign*n));
+  idx.forEach(i=>{const b=S.q[i];S.q[i]=Math.max(0,S.q[i]+sign*n);logQada(S.q[i]-b)});
   renderStats();sq=sq.then(saveSettings);return sq;
 }
 $('#qa').onclick=()=>qada(1);$('#qu').onclick=()=>qada(-1);
@@ -829,7 +961,7 @@ async function resetAll(){
       else try{localStorage.removeItem('salah_'+k)}catch(e){}
     }
   }catch(e){stat('Couldn’t reset, please try again');return}
-  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
+  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null,qt:5,ql:{}});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
   stat('Reset done');boot();
 }
 let rt;
@@ -907,6 +1039,8 @@ function boot(){
   const st=await load('settings');if(st&&st.pub)S.pub=st.pub;
   if(st&&Array.isArray(st.q)&&st.q.length===5)S.q=st.q.map(x=>Math.max(0,+x||0));
   if(st&&typeof st.ts==='string')S.ts=st.ts;
+  if(st&&[1,3,5,10,15].includes(st.qt))S.qt=st.qt;
+  if(st&&st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)S.ql[k]=Math.floor(+v);
   if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
   else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon'])if(typeof st[k]==='number')S[k]=st[k]}
   applyLoc();resetMasjid();
