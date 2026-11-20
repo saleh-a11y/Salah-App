@@ -10,5 +10,9 @@
       "smallIcon": "ic_stat_salah",
       "iconColor": "#1F7A4C"
     }
-  }
+  },
+  "android": {
+    "backgroundColor": "#0a4634"
+  },
+  "backgroundColor": "#0a4634"
 }
