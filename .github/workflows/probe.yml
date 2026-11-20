@@ -6,15 +6,21 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: fetch
+      - name: render
         run: |
-          UA="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36"
-          curl -sSL -A "$UA" "https://masjidboardlive.com/boards/script.js?1791452611000" -o /tmp/s; wc -c /tmp/s
-          python3 - <<'PY'
-          import re
-          s=open('/tmp/s',encoding='utf8',errors='replace').read()
-          seen=0
-          for m in re.finditer(r'islamicDateAdjust|islamic-umalqura|islamic-civil|ummalqura|umalqura|islamicDate\b',s):
-              a=max(0,m.start()-500);print('---',m.group(0),m.start());print(s[a:m.start()+900]);seen+=1
-              if seen>6:break
-          PY
+          mkdir r && cd r && npm init -y >/dev/null && npm i playwright@1.49.1 >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
+          cat > r.js <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{const b=await chromium.launch();
+          for(const id of ['lakefield-ansaar','boksburg-islamic-institute']){
+            for(const t of [null,'2026-11-20T17:00:00Z','2026-12-09T18:00:00Z','2026-12-10T08:00:00Z']){
+              const c=await b.newContext({timezoneId:'Africa/Johannesburg'});const p=await c.newPage();
+              if(t)await p.clock.install({time:new Date(t)});
+              try{await p.goto('https://masjidboardlive.com/boards/?id='+id,{waitUntil:'load',timeout:45000});await p.waitForTimeout(6000);if(t)await p.clock.runFor(3000);
+                const r=await p.evaluate(()=>({isl:(document.getElementById('islamicDate')||{}).innerText,today:(document.getElementById('todaysDate')||{}).innerText,adj:typeof data!=='undefined'?data.islamicDateAdjust:null,f30:typeof data!=='undefined'?data.forceDate30:null,sunset:typeof data!=='undefined'?data.sunset:null}));
+                console.log(id,t||'now',JSON.stringify(r));}catch(e){console.log(id,t,'ERR',e.message.slice(0,200))}
+              await c.close();}
+          }
+          await b.close();})();
+          JS
+          node r.js
