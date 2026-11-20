@@ -104,6 +104,12 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 .tg input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--em);flex:none}
 .tg span{flex:1}.tg small{display:block;font-size:13px}
 #nst{margin:4px 0 6px}
+.bkdue{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;margin-bottom:14px;border-radius:18px;background:var(--card);border:1px solid var(--gold);box-shadow:var(--shadow)}
+.bkdue span{flex:1;font-size:14px}.bkdue b{display:block;font-weight:600}
+.bkdue button{padding:8px 10px}
+#bkm.okm{color:var(--em)}
+.lnk{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;font:inherit;cursor:pointer}
+#bksum{margin:0 0 8px;line-height:1.6}
 .fld{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--bd)}
 .fld>b{display:block;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:16px;margin-bottom:6px}
 .seg{display:flex;gap:6px}.seg button{flex:1;padding:10px 8px}.seg button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}
@@ -139,10 +145,12 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <select id="loc"></select></div>
 <div class="row" style="margin-top:16px"><button class="pri" id="ps">Save &amp; start</button><button id="pc" hidden>Cancel</button></div>
 <small id="ph"></small>
+<p id="rsto" class="mu" style="margin:14px 0 0" hidden>Moving from another phone? <button type="button" class="lnk" id="bkr2">Restore a backup</button></p>
 <div id="rs" hidden style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bd)"><p class="mu">Start from scratch: erases your start date, every tick and your make-up counts. This cannot be undone.</p><button id="rb">Reset all data</button></div>
 </section>
 
 <section id="app" hidden>
+<div class="bkdue" id="bkdue" hidden><span><b>Back up your prayers</b><i id="bkdt" style="font-style:normal" class="mu"></i></span><button id="bkdl">Later</button><button class="pri" id="bkdb">Back up</button></div>
 <div class="card hero-card">
 <div class="mu">Still to make up</div>
 <div id="miss" class="big">0</div>
@@ -185,10 +193,21 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
 </div>
 
+<div class="card" id="bkcard">
+<h2 class="serif">Backup</h2>
+<p class="mu" style="margin:0 0 6px">Your prayers are saved only on this phone. Save a backup to Google Drive, WhatsApp or email so you can restore it on a new phone.</p>
+<p id="bkst" style="margin:0 0 10px;font-size:14px"></p>
+<div class="row"><button class="pri" id="bkb">Back up now</button><button id="bkr">Restore</button></div>
+<p id="bkm" class="mu" style="margin:8px 0 0"></p>
+</div>
+
 <details class="card"><summary>Masjid times</summary><div id="mj"></div></details>
 <small id="foot"></small>
 </section>
 </div>
+
+<input type="file" id="bkf" hidden>
+<div class="ov" id="bkov" hidden><div class="sheet"><h3>Restore this backup?</h3><p id="bksum"></p><p class="mu" style="margin:0 0 12px">This replaces everything currently in the app on this phone.</p><div class="row"><button id="bkc">Cancel</button><button class="pri" id="bkok">Restore</button></div></div></div>
 
 <div class="upd" id="upd" hidden><span><b>New version available</b><i id="umsg" style="font-style:normal">Tap Update to download and install it.</i></span><button id="ul">Later</button><button class="go" id="ug">Update</button></div>
 
@@ -433,6 +452,8 @@ function planNotifs(){
       if(NP.end&&!(m>>i&1))add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.');
     }
   }
+  let lb=0;try{lb=+localStorage.getItem('salah_lastbk')||0}catch(e){}
+  if(lb){const d=new Date(lb+7*864e5),due=new Date(d.getFullYear(),d.getMonth(),d.getDate(),19,0);if(due.getTime()>now+30000)out.push({id:900,title:'Time to back up',body:'It’s been a week since your last Salah Tracker backup. Open the app and tap Back up now.',schedule:{at:due,allowWhileIdle:true}})}
   return out.sort((a,b)=>a.schedule.at-b.schedule.at);
 }
 async function scheduleNotifs(){
@@ -466,6 +487,90 @@ $('#non').onclick=async()=>{
 $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(e){};scheduleNotifs()};
 ['pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
+
+/* ---- backup and restore: one JSON file the person keeps in Drive, WhatsApp, email… ---- */
+const NATIVE=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin;
+const FSP=NATIVE?Capacitor.registerPlugin('Filesystem'):null,SHP=NATIVE?Capacitor.registerPlugin('Share'):null;
+const DAY=864e5,lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const YRE=/^[0-9a-v]{366}$/;
+const tickCount=yrs=>Object.values(yrs).reduce((a,o)=>a+(o&&o.m?[...o.m].reduce((b,c)=>b+pc(parseInt(c,32)||0),0):0),0);
+async function backupData(){
+  if(D.size)await flush();
+  const years={};
+  for(const y of Object.keys(S.yrs))if(S.yrs[y])years[y]={m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)};
+  if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||''))years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)}}catch(e){}}}
+  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme')};
+}
+function markBackup(){lsSet('salah_lastbk',String(Date.now()));renderBackup();if(typeof queueNotifs==='function')queueNotifs()}
+let bkBusy=false;
+async function backupNow(){
+  if(bkBusy)return;bkBusy=true;const m=$('#bkm');m.className='mu';m.textContent='Preparing your backup…';
+  try{
+    const data=await backupData(),name='salah-tracker-backup-'+ymd(today0())+'.json',text=JSON.stringify(data);
+    if(FSP&&SHP){
+      const w=await FSP.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});
+      try{await SHP.share({title:'Salah Tracker backup',files:[w.uri],dialogTitle:'Save your backup to…'})}
+      catch(e){if(/cancel/i.test(String(e&&e.message||e))){m.textContent='Backup not saved. Tap Back up now and choose Google Drive, WhatsApp or email.';return}throw e}
+    }else{
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
+    }
+    markBackup();m.className='okm';m.textContent='✓ Backup saved ('+tickCount(data.years).toLocaleString()+' prayers). Keep that file somewhere safe.';
+  }catch(e){m.textContent='Couldn’t make the backup. Please try again.'}
+  finally{bkBusy=false}
+}
+function renderBackup(){
+  const last=+lsGet('salah_lastbk')||0,now=Date.now(),days=last?Math.floor((now-last)/DAY):null;
+  $('#bkst').textContent=last?'Last backup: '+fmt(new Date(last))+(days>0?' ('+days+(days===1?' day':' days')+' ago)':' (today)'):'No backup yet.';
+  const has=Object.values(S.yrs).some(x=>x&&/[^0]/.test(x)),snooze=+lsGet('salah_bksnooze')||0;
+  const due=!!S.pub&&has&&(!last||now-last>7*DAY)&&snooze<now;
+  $('#bkdue').hidden=!due;
+  if(due)$('#bkdt').textContent=last?'Your last backup was '+days+' days ago.':'Nothing is backed up yet. It takes a few seconds.';
+}
+$('#bkb').onclick=backupNow;$('#bkdb').onclick=backupNow;
+$('#bkdl').onclick=()=>{lsSet('salah_bksnooze',String(Date.now()+3*DAY));renderBackup()};
+/* restore: pick the file, check it, confirm, replace, reload */
+let pending=null;
+const pickBackup=()=>{$('#bkf').value='';$('#bkf').click()};
+$('#bkr').onclick=pickBackup;$('#bkr2').onclick=pickBackup;
+function checkBackup(o){
+  if(!o||o.app!=='salah-tracker'||typeof o.format!=='number'||o.format>1)return null;
+  const st=o.settings;if(!st||!/^\d{4}-\d{2}-\d{2}$/.test(st.pub||''))return null;
+  const years={};for(const [y,v] of Object.entries(o.years||{}))if(/^\d{4}$/.test(y)&&v&&YRE.test(v.m||''))years[y]={m:v.m,l:YRE.test(v.l||'')?v.l:'0'.repeat(366)};
+  return{o,years};
+}
+const showMsg=t=>{if(S.pub&&!S.edit){$('#bkm').className='mu';$('#bkm').textContent=t}else $('#ph').textContent=t};
+$('#bkf').onchange=async()=>{
+  const f=$('#bkf').files&&$('#bkf').files[0];if(!f)return;
+  let c=null;try{if(f.size<5e6)c=checkBackup(JSON.parse(await f.text()))}catch(e){}
+  if(!c){showMsg('That file isn’t a Salah Tracker backup. Choose the file named salah-tracker-backup-….json.');return}
+  pending=c;const st=c.o.settings,cr=new Date(c.o.created);
+  const lines=['Saved on '+(isNaN(cr)?'an unknown date':fmt(cr)),'Starting date '+fmt(parse(st.pub)),tickCount(c.years).toLocaleString()+' prayers ticked',(st.asr==='shafii'?"Shāfi'i":'Hanafi')+' Asr'+(st.bname?' · '+st.bname:'')];
+  $('#bksum').textContent='';lines.forEach((t,i)=>{if(i)$('#bksum').appendChild(document.createElement('br'));$('#bksum').appendChild(document.createTextNode(t))});
+  $('#bkov').hidden=false;
+};
+$('#bkc').onclick=()=>{pending=null;$('#bkov').hidden=true};
+$('#bkov').onclick=e=>{if(e.target.id==='bkov'){pending=null;$('#bkov').hidden=true}};
+$('#bkok').onclick=async()=>{
+  if(!pending)return;const {o,years}=pending;pending=null;$('#bkok').disabled=true;$('#bkok').textContent='Restoring…';
+  try{
+    clearTimeout(T);D.clear();
+    const old=new Set(Object.keys(S.yrs));
+    if(!ref)for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(/^salah_y\d{4}$/.test(k||''))old.add(k.slice(7))}
+    for(const y of old)if(!years[y]){if(ref){const r=ref('y'+y);if(typeof r.delete==='function')await r.delete();else await r.set({})}else try{localStorage.removeItem('salah_y'+y)}catch(e){}}
+    const st=o.settings,clean={pub:st.pub,q:Array.isArray(st.q)&&st.q.length===5?st.q.map(x=>Math.max(0,+x||0)):[0,0,0,0,0],ts:/^\d{4}-\d{2}-\d{2}$/.test(st.ts||'')?st.ts:ymd(today0())};
+    for(const k of['asr','board','bname','btown','loc'])clean[k]=typeof st[k]==='string'?st[k]:(k==='asr'?'hanafi':k==='loc'?'jhb':'');
+    clean.asr=clean.asr==='shafii'?'shafii':'hanafi';clean.board=boardURL(clean.board);
+    for(const k of['blat','blon'])clean[k]=typeof st[k]==='number'?st[k]:null;
+    await save('settings',clean);
+    for(const [y,v] of Object.entries(years))await save('y'+y,v);
+    if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false}));
+    if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
+    try{localStorage.removeItem('salah_board')}catch(e){}
+    const cr=Date.parse(o.created);if(cr)lsSet('salah_lastbk',String(Math.min(cr,Date.now())));
+    if(!ref&&!(await load('settings')||{}).pub)throw new Error('not saved');
+    $('#bkok').textContent='Restored ✓';setTimeout(()=>location.reload(),400);
+  }catch(e){$('#bkok').disabled=false;$('#bkok').textContent='Restore';$('#bkov').hidden=true;showMsg('Couldn’t restore that backup. Please try again.')}
+};
 
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
@@ -646,13 +751,13 @@ function boot(){
   const ok=S.pub&&!S.edit;
   $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#pc').hidden=!S.pub;
   $('#pd').max=ymd(today0());
-  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
+  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#rsto').hidden=!!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
   const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
   V={y:t.getFullYear(),m:t.getMonth()};clamp();
   $('#bp').innerHTML='<option value="all">All 5 prayers</option>'+P.map((p,i)=>'<option value="'+i+'">'+p+' only</option>').join('');
   $('#qp').innerHTML=$('#bp').innerHTML;$('#bf').value=S.pub;$('#bt').value=y<parse(S.pub)?S.pub:ymd(y);
   renderMasjid();$('#foot').textContent=ref?'Saved privately to your account.':'Saved on this device only.';
-  all();
+  all();renderBackup();
 }
 (async()=>{
   stat('Loading…');await initStore();
