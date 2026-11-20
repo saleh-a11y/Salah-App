@@ -6,13 +6,20 @@ Q={'rawdah':['Green Dome Prophet\'s Mosque Medina','Al-Masjid an-Nabawi green do
    'nabawi':['Prophet\'s Mosque Medina night','Masjid Nabawi night umbrellas'],
    'alhambra':['Alhambra Court of the Myrtles','Alhambra Patio de los Arrayanes'],
    'iznik':['Sultan Ahmed Mosque exterior','Blue Mosque Istanbul'],
-   'isfahan':['Shah Mosque Isfahan','Sheikh Lotfollah Mosque'],
-   'mughal':['Taj Mahal','Taj Mahal sunrise']}
+   'isfahan':['Shah Mosque Isfahan Naqsh-e Jahan','Sheikh Lotfollah Mosque dome','Imam Mosque Isfahan'],
+   'mughal':['Taj Mahal reflection','Taj Mahal Agra','Taj Mahal sunset']}
 OK=re.compile(r'^(cc0|public domain|pd|cc by(-sa)? ?[1-4]\.0|cc by-sa [1-4]\.0|cc by [1-4]\.0)',re.I)
-def get(u):return urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=60).read()
+import time
+def get(u):
+    time.sleep(1.5)
+    return urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=60).read()
 os.makedirs('cand',exist_ok=True)
 meta={}
+ONLY=os.environ.get('ONLY','').split(',') if os.environ.get('ONLY') else None
+try:meta=json.load(open('cand/meta.json'))
+except Exception:pass
 for k,qs in Q.items():
+    if ONLY and k not in ONLY:continue
     seen=[];items=[]
     for q in qs:
         u='https://commons.wikimedia.org/w/api.php?'+urllib.parse.urlencode(dict(action='query',generator='search',gsrnamespace=6,gsrsearch=q+' filetype:bitmap',gsrlimit=14,prop='imageinfo',iiprop='url|extmetadata|size|mime',iiurlwidth=640,format='json'))
