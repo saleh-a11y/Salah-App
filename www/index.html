@@ -178,6 +178,14 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .dk-more p{font-size:14px;margin:0 0 10px;line-height:1.55}.dk-tr{font-style:italic}.dk-s{font-size:12px}
 .dk-done{margin:0 14px 12px;font-size:13px;padding:6px 12px;min-height:36px}
 .dk-head{position:sticky;top:0;z-index:5}
+.msw{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none}.msw::-webkit-scrollbar{display:none}
+.msw button{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:0;border-radius:16px;padding:8px 14px;min-height:48px;text-align:left;max-width:70vw}
+.msw button b{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.msw button small{font-size:12px;color:var(--mu)}
+.msw button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}.msw button.on small{color:#d6e8dc}
+.msw button.add{color:var(--gold);border-style:dashed;justify-content:center}
+.bl{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
+.bl span{flex:1;min-width:0}.bl b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bl small{font-size:12px;color:var(--mu);overflow-wrap:anywhere}
+.bl button{padding:6px 10px;font-size:13px;min-height:36px}
 #dktoday{display:grid;grid-template-columns:1fr 1fr;gap:8px}#dktoday button{min-height:46px}#dktoday button.ok{background:var(--ok);border-color:color-mix(in srgb,var(--em) 50%,var(--bd))}
 .lnk{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;font:inherit;cursor:pointer}
 #bksum{margin:0 0 8px;line-height:1.6}
@@ -206,9 +214,10 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="fld"><b>Asr time</b>
 <div class="seg" role="group" aria-label="Asr method"><button type="button" id="a_h" data-asr="hanafi">Hanafi</button><button type="button" id="a_s" data-asr="shafii">Shāfi'i</button></div>
 <small class="mu">Hanafi Asr starts later in the afternoon than Shāfi'i.</small></div>
-<div class="fld"><b>Your masjid board <span class="mu" style="font-size:13px">(optional)</span></b>
-<p class="mu" style="margin:0 0 6px">Paste your masjid's masjidboardlive.com link to use its jamā'ah times and reminders.</p>
-<div class="brow"><input type="url" id="bu" placeholder="masjidboardlive.com/boards/?id=…" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" id="bc">Check</button></div>
+<div class="fld"><b>Your masjids <span class="mu" style="font-size:13px">(optional)</span></b>
+<p class="mu" style="margin:0 0 6px">Add the masjidboardlive.com boards of the masjids you pray at. You can switch between them on the Today page.</p>
+<div id="blist"></div>
+<div class="brow"><input type="url" id="bu" placeholder="Paste a board link to add it" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" id="bc">Add</button></div>
 <small id="bmsg" class="mu"></small>
 <a href="https://masjidboardlive.com/findmasjid" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;color:var(--gold);font-size:14px">Find your masjid's board ↗</a></div>
 <div class="fld"><b>Your area</b>
@@ -223,6 +232,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <section id="app" hidden>
 <div class="pane" id="p_today">
 <div class="bkdue" id="bkdue" hidden><span><b>Back up your prayers</b><i id="bkdt" style="font-style:normal" class="mu"></i></span><button id="bkdl">Later</button><button class="pri" id="bkdb">Back up</button></div>
+<div class="msw" id="msw" role="group" aria-label="Masjid"></div>
 <div class="card cd-card" id="cdcard" aria-live="polite"></div>
 <div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><div id="tl"></div><small id="tm"></small></div>
 <div class="card"><h2 class="serif">Adhkār today</h2><div id="dktoday"></div></div>
@@ -340,7 +350,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0],qt:5,ql:{},asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0],qt:5,ql:{},boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -484,14 +494,34 @@ function resetMasjid(){
   MASJID.url=S.board;
 }
 function applyLoc(){
-  const c=CITIES.find(x=>x[0]===S.loc);
-  if(S.loc==='board'&&S.blat!=null){LAT=S.blat;LON=S.blon}else if(c){LAT=c[2];LON=c[3]}else{LAT=LAKE.lat;LON=LAKE.lon}
+  const c=CITIES.find(x=>x[0]===S.loc),j=CITIES[0];
+  if(S.loc==='board'&&S.blat!=null){LAT=S.blat;LON=S.blon}else if(c){LAT=c[2];LON=c[3]}else if(S.loc==='board'&&S.board===LAKE.url){LAT=LAKE.lat;LON=LAKE.lon}else{LAT=j[2];LON=j[3]}
 }
+function cleanBoards(a){
+  const out=[];if(!Array.isArray(a))return out;
+  for(const b of a){if(!b||typeof b.url!=='string')continue;const u=boardURL(b.url);if(!u||out.some(x=>x.url===u))continue;
+    out.push({url:u,name:typeof b.name==='string'?b.name.slice(0,80):'',town:typeof b.town==='string'?b.town.slice(0,60):'',lat:typeof b.lat==='number'&&Math.abs(b.lat)<=90?b.lat:null,lon:typeof b.lon==='number'&&Math.abs(b.lon)<=180?b.lon:null});if(out.length>=8)break}
+  return out;
+}
+function switchMasjid(url){
+  const b=S.boards.find(x=>x.url===url);if(!b||url===S.board)return;
+  Object.assign(S,{board:b.url,bname:b.name,btown:b.town,blat:b.lat,blon:b.lon});
+  applyLoc();LIVE=null;resetMasjid();loadBoardCache();pulled=0;
+  renderMasjid();renderSwitch();cdKey='';refreshViews();renderNotif();pullBoard();queueNotifs();saveSettings();
+}
+function renderSwitch(){
+  const el=$('#msw');if(!el)return;
+  el.innerHTML=S.boards.map(b=>'<button data-mu="'+esc(b.url)+'" class="'+(b.url===S.board?'on':'')+'" aria-pressed="'+(b.url===S.board)+'"><b>'+esc(b.name||'Masjid board')+'</b><small>'+esc(b.town||'')+'</small></button>').join('')
+    +'<button class="add" id="madd">'+(S.boards.length?'+ Add':'+ Add your masjid')+'</button>';
+}
+$('#msw').onclick=e=>{const b=e.target.closest('[data-mu]');if(b)return switchMasjid(b.dataset.mu);if(e.target.closest('#madd')){S.edit=true;boot();setTimeout(()=>{try{$('#bu').scrollIntoView({block:'center'});$('#bu').focus()}catch(x){}},50)}};
+function boardCache(){try{const c=JSON.parse(localStorage.getItem('salah_board'));if(c&&c.board&&c.t)return{[c.board]:c};return c&&typeof c==='object'?c:{}}catch(e){return{}}}
 const bLabel=()=>S.bname?(S.bname+(S.btown?', '+S.btown:'')):'your masjid';
+const bShort=u=>{try{return new URL(u).search.replace(/^\?(id=)?/,'')||new URL(u).host}catch(e){return u}};
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function renderMasjid(){
   const M=MASJID;
-  if(!S.board){$('#mj').innerHTML='<p class="mu">No masjid board chosen. Add one in settings (⚙︎) to see its jamā\'ah times here and get jamā\'ah reminders.</p>';return}
+  if(!S.board){$('#mj').innerHTML='<p class="mu">No masjid added. Tap “+ Add your masjid” above to see its jamā\'ah times here and get jamā\'ah reminders.</p>';return}
   if(!M.rows.length){$('#mj').innerHTML='<small>'+esc(bLabel())+'. '+(M.status||'Times will appear once the board has been read.')+'</small><br><a href="'+esc(M.url)+'" target="_blank" rel="noopener">Open the live board ↗</a>';return}
   $('#mj').innerHTML='<small>'+esc(bLabel())+'. '+(M.status||'Saved times from '+fmt(parse(M.asOf))+'.')+'</small>'
     +'<table><tr><th></th><th>Adhān</th><th>Iqāmah</th></tr>'+M.rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>').join('')+'</table>'
@@ -710,6 +740,7 @@ $('#bkok').onclick=async()=>{
     for(const k of['asr','board','bname','btown','loc'])clean[k]=typeof st[k]==='string'?st[k]:(k==='asr'?'hanafi':k==='loc'?'jhb':'');
     clean.asr=clean.asr==='shafii'?'shafii':'hanafi';clean.board=boardURL(clean.board);
     for(const k of['blat','blon'])clean[k]=typeof st[k]==='number'?st[k]:null;
+    clean.boards=cleanBoards(st.boards);if(clean.board&&!clean.boards.some(b=>b.url===clean.board))clean.boards.unshift({url:clean.board,name:clean.bname,town:clean.btown,lat:clean.blat,lon:clean.blon});
     clean.qt=[1,3,5,10,15].includes(st.qt)?st.qt:5;clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
     for(const [y,v] of Object.entries(years))await save('y'+y,v);
@@ -997,19 +1028,21 @@ function applyBoard(R){
   const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
   const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
   Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+hm((new Date()-today0())/6e4)+'.'});
-  try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m,board:S.board,asr:S.asr}))}catch(e){}
+  try{const c=boardCache();c[S.board]={date:d,t:R.t,m,asr:S.asr};for(const k of Object.keys(c))if(!S.boards.some(b=>b.url===k))delete c[k];localStorage.setItem('salah_board',JSON.stringify(c))}catch(e){}
   renderMasjid();refreshViews();queueNotifs();
 }
 function loadBoardCache(){
-  try{const c=JSON.parse(localStorage.getItem('salah_board'));
-    if(c&&c.t&&c.m&&c.board===S.board&&(c.asr||'hanafi')===S.asr){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
+  try{const c=boardCache()[S.board];
+    if(c&&c.t&&c.m&&(c.asr||'hanafi')===S.asr){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
 }
 let pulled=0;
 async function pullBoard(){
   if(!S.board||Date.now()-pulled<6e5)return;pulled=Date.now();
   try{
     const html=await getBoard(),R=parseRows(boardRows(html)),c=sunCalc(today0()),bm=boardMeta(html);
-    if(bm.name&&!S.bname){S.bname=bm.name;S.btown=bm.town;saveSettings()}
+    const be=S.boards.find(x=>x.url===S.board);
+    if(bm.name&&!S.bname){S.bname=bm.name;S.btown=bm.town;if(be){be.name=bm.name;be.town=bm.town}saveSettings();renderSwitch()}
+    if(be&&be.lat==null&&bm.lat!=null){be.lat=S.blat=bm.lat;be.lon=S.blon=bm.lon;applyLoc();saveSettings()}
     if(!R.ok||['fj','sr','zw','as','ss','is'].some(k=>Math.abs(R.t[k]-c[k])>20))throw new Error('unreadable');
     applyBoard(R);
   }catch(e){
@@ -1034,7 +1067,7 @@ function tick(i){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-const setDoc=()=>({pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,ts:S.ts,asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+const setDoc=()=>({pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
 async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
@@ -1059,7 +1092,7 @@ async function resetAll(){
       else try{localStorage.removeItem('salah_'+k)}catch(e){}
     }
   }catch(e){stat('Couldn’t reset, please try again');return}
-  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null,qt:5,ql:{}});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
+  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0];S.ts=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null,qt:5,ql:{},boards:[]});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
   stat('Reset done');boot();
 }
 let rt;
@@ -1073,35 +1106,43 @@ $('#th').onclick=()=>{const c=document.documentElement.dataset.theme||(matchMedi
 try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
 /* setup screen: Asr method, masjid board and area */
 let F={};
+function fActive(){return F.boards.find(b=>b.url===F.board)||null}
+function renderBList(){
+  $('#blist').innerHTML=F.boards.map(b=>'<div class="bl"><span><b>'+esc(b.name||'Masjid board')+(b.town?' · '+esc(b.town):'')+'</b><small>'+esc(bShort(b.url))+(b.url===F.board?' · showing now':'')+'</small></span><button type="button" data-rm="'+esc(b.url)+'" aria-label="Remove '+esc(b.name||'this board')+'">Remove</button></div>').join('');
+}
+$('#blist').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;F.boards=F.boards.filter(x=>x.url!==b.dataset.rm);if(F.board===b.dataset.rm){const a=F.boards[0];F.board=a?a.url:''}renderBList();fillLoc();$('#bmsg').textContent='';};
 function fillLoc(){
-  const o=(F.blat!=null?'<option value="board">'+esc((F.bname||'Masjid board')+' (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
-  $('#loc').innerHTML=o;$('#loc').value=F.loc==='board'&&F.blat==null?'jhb':F.loc;if(!$('#loc').value)$('#loc').value='jhb';
+  const A=fActive(),anyLoc=F.boards.some(b=>b.lat!=null);
+  const o=(anyLoc?'<option value="board">'+esc('The masjid’s location (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $('#loc').innerHTML=o;$('#loc').value=F.loc==='board'&&!anyLoc?'jhb':F.loc;if(!$('#loc').value)$('#loc').value='jhb';
 }
 function fillSetup(){
-  F={asr:S.asr,board:S.board,bname:S.bname,btown:S.btown,blat:S.blat,blon:S.blon,loc:S.loc,checked:S.board};
-  $('#bu').value=S.board;$('#bmsg').textContent=S.board?(S.bname?'Current board: '+bLabel():''):'';$('#bmsg').className='mu';
-  setAsr(S.asr);fillLoc();
+  F={asr:S.asr,board:S.board,boards:JSON.parse(JSON.stringify(S.boards)),loc:S.loc};
+  $('#bu').value='';$('#bmsg').textContent='';$('#bmsg').className='mu';
+  setAsr(S.asr);renderBList();fillLoc();
 }
 function setAsr(a){F.asr=a;$('#a_h').classList.toggle('on',a==='hanafi');$('#a_s').classList.toggle('on',a==='shafii');$('#a_h').setAttribute('aria-pressed',a==='hanafi');$('#a_s').setAttribute('aria-pressed',a==='shafii')}
 $('#a_h').onclick=()=>setAsr('hanafi');$('#a_s').onclick=()=>setAsr('shafii');
-$('#bu').oninput=()=>{F.checked=null;$('#bmsg').textContent='';$('#bmsg').className='mu'};
+$('#bu').oninput=()=>{$('#bmsg').textContent='';$('#bmsg').className='mu'};
 async function checkBoard(){
   const url=boardURL($('#bu').value),m=$('#bmsg');
-  if(!$('#bu').value.trim()){Object.assign(F,{board:'',bname:'',btown:'',blat:null,blon:null,checked:''});if(F.loc==='board')F.loc='jhb';fillLoc();m.textContent='';return true}
+  if(!$('#bu').value.trim())return true;
+  if(F.boards.some(b=>b.url===url)){m.className='mu';m.textContent='That masjid is already in your list.';$('#bu').value='';return true}
+  if(F.boards.length>=8){m.className='mu';m.textContent='You can save up to 8 masjids. Remove one first.';return false}
   if(!url){m.className='mu';m.textContent='That doesn’t look like a link. Paste the board’s address.';return false}
   m.className='mu';m.textContent='Checking the board…';
   try{
     const html=await getBoard(url),R=parseRows(boardRows(html)),bm=boardMeta(html);
     if(!R.rows.length&&!R.ok)throw new Error('unreadable');
-    Object.assign(F,{board:url,bname:bm.name,btown:bm.town,blat:bm.lat,blon:bm.lon,checked:url});
-    if(bm.lat!=null)F.loc='board';
-    fillLoc();m.className='okm';
+    F.boards.push({url,name:bm.name,town:bm.town,lat:bm.lat,lon:bm.lon});if(!F.board)F.board=url;
+    if(bm.lat!=null&&F.boards.length===1)F.loc='board';
+    $('#bu').value='';renderBList();fillLoc();m.className='okm';
     const fj=(R.rows.find(r=>/^fajr/i.test(r[0]))||[])[2];
     m.textContent='✓ '+(bm.name?bm.name+(bm.town?', '+bm.town:''):'Board found')+(fj?' · Fajr jamā’ah '+fj:'')+(bm.lat==null?' · no map location, so choose your area below':'');
     return true;
   }catch(e){
-    Object.assign(F,{board:url,bname:'',btown:'',blat:null,blon:null,checked:url});if(F.loc==='board')F.loc='jhb';fillLoc();
-    m.className='mu';m.textContent='Couldn’t read that board right now. It will be saved and tried again when the app opens. Check the link if this keeps happening.';
+    F.boards.push({url,name:'',town:'',lat:null,lon:null});if(!F.board)F.board=url;$('#bu').value='';renderBList();fillLoc();
+    m.className='mu';m.textContent='Added, but couldn’t read that board right now. It will be tried again when the app opens. Check the link if this keeps happening.';
     return true;
   }
 }
@@ -1110,13 +1151,14 @@ $('#loc').onchange=()=>{F.loc=$('#loc').value};
 $('#ps').onclick=async()=>{
   const v=$('#pd').value;
   if(!v||parse(v)>today0()){$('#ph').textContent='Please choose a date that is today or earlier.';return}
-  if(boardURL($('#bu').value)!==(F.checked||'')||(!$('#bu').value.trim()&&F.board)){if(!(await checkBoard()))return}
-  const changed=F.board!==S.board||F.asr!==S.asr;
-  Object.assign(S,{pub:v,asr:F.asr,board:F.board,bname:F.bname,btown:F.btown,blat:F.blat,blon:F.blon,loc:$('#loc').value||'jhb',edit:false});
+  if($('#bu').value.trim()){if(!(await checkBoard()))return}
+  if(!fActive()){const a=F.boards[0];F.board=a?a.url:''}
+  const A=fActive()||{url:'',name:'',town:'',lat:null,lon:null},asrCh=F.asr!==S.asr,changed=A.url!==S.board||asrCh;
+  Object.assign(S,{pub:v,asr:F.asr,boards:F.boards,board:A.url,bname:A.name,btown:A.town,blat:A.lat,blon:A.lon,loc:$('#loc').value||'jhb',edit:false});
   if(!S.ts)S.ts=ymd(today0());stat('Saving…');
   try{await save('settings',setDoc());await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
   applyLoc();
-  if(changed){LIVE=null;resetMasjid();try{localStorage.removeItem('salah_board')}catch(e){}pulled=0}
+  if(changed){LIVE=null;resetMasjid();if(asrCh)try{localStorage.removeItem('salah_board')}catch(e){};loadBoardCache();pulled=0}
   boot();pullBoard();queueNotifs();
 };
 function boot(){
@@ -1130,6 +1172,7 @@ function boot(){
   $('#qp').innerHTML=$('#bp').innerHTML;$('#bf').value=S.pub;$('#bt').value=y<parse(S.pub)?S.pub:ymd(y);
   renderMasjid();$('#foot').textContent=(ref?'Saved privately to your account.':'Saved on this device only.')+(/^\d+$/.test(BUILD)?' · Version 1.'+BUILD:'');
   all();renderBackup();
+  renderSwitch();
   $('#tabs').hidden=false;document.body.classList.add('has-tabs');showTab(TAB,true);startCountdown();
 }
 (async()=>{
@@ -1141,6 +1184,8 @@ function boot(){
   if(st&&st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)S.ql[k]=Math.floor(+v);
   if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
   else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon'])if(typeof st[k]==='number')S[k]=st[k]}
+  S.boards=cleanBoards(st&&st.boards);
+  if(S.board&&!S.boards.some(b=>b.url===S.board))S.boards.unshift({url:S.board,name:S.bname,town:S.btown,lat:S.blat,lon:S.blon});
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
