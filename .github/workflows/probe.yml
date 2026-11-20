@@ -10,6 +10,4 @@ jobs:
         run: |
           UA="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36"
           curl -sSL -A "$UA" "https://masjidboardlive.com/boards/script.js?1791452611000" -o /tmp/s; wc -c /tmp/s
-          grep -n -i -E 'islamic|hijri|adjust|umalqura|moon|kuwaiti|toLocaleDateString' /tmp/s | cut -c1-300 | head -60
-          echo "=========== context"
-          for n in $(grep -n -i -E 'islamicDateAdjust|function [a-zA-Z]*[Ii]slamic|function [a-zA-Z]*[Hh]ijri' /tmp/s | cut -d: -f1 | head -6); do echo "--- line $n"; sed -n "$((n-3)),$((n+45))p" /tmp/s | cut -c1-220; done
+          grep -o -i -E '.{0,700}(islamicDateAdjust|islamicDate=|islamic-umalqura|islamic-civil|ummalqura|umalqura).{0,900}' /tmp/s | head -8
