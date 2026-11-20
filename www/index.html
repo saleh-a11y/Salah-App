@@ -109,6 +109,33 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 .bkdue span{flex:1;font-size:14px}.bkdue b{display:block;font-weight:600}
 .bkdue button{padding:8px 10px}
 #bkm.okm{color:var(--em)}
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:14;background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -6px 20px rgba(0,0,0,.06);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tabs button{border:0;background:none;border-radius:14px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--mu);min-height:52px}
+.tabs button svg{width:24px;height:24px}
+.tabs button.on{color:var(--em);background:color-mix(in srgb,var(--em) 10%,transparent);font-weight:600}
+:root[data-theme="dark"] .tabs button.on{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs button.on{color:var(--gold)}}
+body.has-tabs .wrap{padding-bottom:96px}
+body.has-tabs .upd{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+header.compact{padding-bottom:40px}header.compact .sky{display:none}
+/* countdown */
+.cd-card{text-align:center;color:#f6efdc;background:linear-gradient(170deg,var(--em) 0%,var(--em2) 100%);border-color:color-mix(in srgb,var(--gold) 55%,var(--em2));padding:18px 14px 16px}
+.cd-card .lbl{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--gold2)}
+.cd-name{font-family:"Marcellus",Georgia,serif;font-size:34px;line-height:1.1;margin:4px 0 2px;color:#fbf4e2}
+.cd-name .ar{font-size:24px;color:var(--gold2);margin-left:8px}
+.cd-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.cd-row.one{grid-template-columns:1fr}
+.cd-box{border:1px solid rgba(230,201,131,.35);border-radius:16px;padding:10px 6px;background:rgba(255,255,255,.05)}
+.cd-box.live{border-color:var(--gold2);background:rgba(230,201,131,.12)}
+.cd-box small{display:block;color:#d9e5dc;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.cd-t{display:block;font-size:15px;color:#fbf4e2;margin-top:2px}
+.cd-c{display:block;font-family:"Marcellus",Georgia,serif;font-size:28px;letter-spacing:.04em;color:var(--gold2);font-variant-numeric:tabular-nums;margin-top:2px}
+.cd-c.done{font-size:16px;color:#bcd4c6;font-family:inherit;letter-spacing:0;padding:6px 0}
+.cd-foot{margin-top:10px;font-size:13px;color:#cfe0d6}
+.pr.now{box-shadow:0 0 0 2px var(--gold)}
+#tm{display:block;min-height:18px;color:var(--gold);font-size:13px;text-align:center}
 .lnk{background:none;border:0;padding:0;color:var(--gold);text-decoration:underline;font:inherit;cursor:pointer}
 #bksum{margin:0 0 8px;line-height:1.6}
 .fld{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--bd)}
@@ -151,7 +178,13 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 </section>
 
 <section id="app" hidden>
+<div class="pane" id="p_today">
 <div class="bkdue" id="bkdue" hidden><span><b>Back up your prayers</b><i id="bkdt" style="font-style:normal" class="mu"></i></span><button id="bkdl">Later</button><button class="pri" id="bkdb">Back up</button></div>
+<div class="card cd-card" id="cdcard" aria-live="polite"></div>
+<div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><div id="tl"></div><small id="tm"></small></div>
+<div class="card"><h2 class="serif">Masjid times</h2><div id="mj"></div></div>
+</div>
+<div class="pane" id="p_track" hidden>
 <div class="card hero-card">
 <div class="mu">Still to make up</div>
 <div id="miss" class="big">0</div>
@@ -183,15 +216,19 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <div class="row"><button class="pri" id="b1">Mark prayed</button><button id="b0">Clear</button></div>
 <p id="msg"></p>
 </details>
+</div>
+<div class="pane" id="p_more" hidden>
 <div class="card" id="ncard">
 <h2 class="serif">Prayer notifications</h2>
 <p id="nst" class="mu"></p>
 <div id="nopts">
+<label class="tg"><input type="checkbox" id="n_adh"><span>Adhān at prayer time<small class="mu" id="n_adh_s">Plays the adhān when each prayer is called</small></span></label>
 <label class="tg"><input type="checkbox" id="n_pre"><span>15 minutes before each prayer time starts<small class="mu">e.g. "Asr in 15 minutes"</small></span></label>
 <label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu" id="n_jam_s">Your masjid's iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
 <label class="tg"><input type="checkbox" id="n_end"><span>10 minutes before a prayer's time ends<small class="mu">Only if you haven't ticked it yet</small></span></label>
 </div>
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
+<div class="row" style="margin-top:8px"><button id="nadt" hidden>Test the adhān (in 5 seconds)</button></div>
 </div>
 
 <div class="card" id="bkcard">
@@ -202,11 +239,17 @@ td+td,th+th{text-align:right;font-variant-numeric:tabular-nums}
 <p id="bkm" class="mu" style="margin:8px 0 0"></p>
 </div>
 
-<details class="card"><summary>Masjid times</summary><div id="mj"></div></details>
+<div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
 <small id="foot"></small>
+</div>
 </section>
 </div>
 
+<nav class="tabs" id="tabs" hidden aria-label="Sections"><div class="in">
+<button data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a7 7 0 1 0 8.5 9.2A6 6 0 1 1 12 3z"/><path d="M5 21h14"/></svg>Today</button>
+<button data-tab="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14.5l2 2 4-4"/></svg>Tracker</button>
+<button data-tab="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>More</button>
+</div></nav>
 <input type="file" id="bkf" hidden>
 <div class="ov" id="bkov" hidden><div class="sheet"><h3>Restore this backup?</h3><p id="bksum"></p><p class="mu" style="margin:0 0 12px">This replaces everything currently in the app on this phone.</p><div class="row"><button id="bkc">Cancel</button><button class="pri" id="bkok">Restore</button></div></div></div>
 
@@ -321,7 +364,7 @@ $('#ov').onclick=e=>{
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.i));
   else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr')setMask(sel,0);else for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i)}
   else return;
-  renderSheet();all();
+  renderSheet();all();renderToday();
 };
 
 /* nav + bulk */
@@ -437,7 +480,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdat
 
 /* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
 const LN=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?(Capacitor.registerPlugin?Capacitor.registerPlugin('LocalNotifications'):Capacitor.Plugins.LocalNotifications):null;
-let NP={on:false,pre:true,jam:true,end:true},NT;
+let NP={on:false,adh:true,pre:true,jam:true,end:true},NT;
+const ADHAN_CH={id:'adhan1',name:'Adhān',description:'Plays the adhān at each prayer time',importance:5,visibility:1,sound:'adhan.mp3',vibration:true};
 try{const o=JSON.parse(localStorage.getItem('salah_notif'));if(o)NP=Object.assign(NP,o)}catch(e){}
 const saveNP=()=>{try{localStorage.setItem('salah_notif',JSON.stringify(NP))}catch(e){}};
 function jamaah(i,fri){
@@ -453,7 +497,8 @@ function planNotifs(){
     const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+k),W=win(d),fri=d.getDay()===5,m=getMask(d);
     const at=min=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(min));
     for(let i=0;i<5;i++){
-      const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body)=>{if(t.getTime()>now+30000)out.push({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}})};
+      const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body,x)=>{if(t.getTime()>now+30000)out.push(Object.assign({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}},x||{}))};
+      if(NP.adh){const ba=boardAdhan(i,fri),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1'})}
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
       if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
       if(NP.end&&!(m>>i&1))add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.');
@@ -467,9 +512,10 @@ async function scheduleNotifs(){
   if(!LN)return;
   try{
     const pend=await LN.getPending();
-    if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    const old=pend&&pend.notifications?pend.notifications.filter(n=>n.id!==999):[];if(old.length)await LN.cancel({notifications:old.map(n=>({id:n.id}))});
     if(!NP.on||!S.pub)return renderNotif();
     if((await LN.checkPermissions()).display!=='granted'){NP.on=false;saveNP();return renderNotif()}
+    try{await LN.createChannel(ADHAN_CH)}catch(e){}
     const list=planNotifs();
     if(list.length)await LN.schedule({notifications:list});
     renderNotif(list[0]);
@@ -478,8 +524,9 @@ async function scheduleNotifs(){
 const queueNotifs=()=>{clearTimeout(NT);NT=setTimeout(scheduleNotifs,1500)};
 async function renderNotif(next){
   const st=$('#nst');
-  if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;return}
-  ['pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});
+  if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
+  ['adh','pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
+  $('#n_adh_s').textContent=S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts';
   if(!S.board){$('#n_jam').disabled=true;$('#n_jam_s').textContent='Needs a masjid board · add one in settings (⚙︎)'}else $('#n_jam_s').textContent=(S.bname||'Your masjid')+' iqāmah times · Jumu\'ah khutbah on Fridays';
   $('#non').hidden=NP.on;
   let exact=true;try{exact=(await LN.checkExactNotificationSetting()).exact_alarm==='granted'}catch(e){}
@@ -492,7 +539,15 @@ $('#non').onclick=async()=>{
   NP.on=true;saveNP();await scheduleNotifs();
 };
 $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(e){};scheduleNotifs()};
-['pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
+['adh','pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
+$('#nadt').onclick=async()=>{
+  if(!LN)return;
+  try{
+    await LN.createChannel(ADHAN_CH);
+    await LN.schedule({notifications:[{id:999,title:'Adhān test',body:'This is how the adhān will sound at prayer time.',schedule:{at:new Date(Date.now()+5000),allowWhileIdle:true},channelId:'adhan1'}]});
+    $('#nst').textContent='Test adhān in 5 seconds…';setTimeout(()=>renderNotif(),8000);
+  }catch(e){$('#nst').textContent='Couldn’t play the test. Check notifications are allowed.'}
+};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
 
 /* ---- backup and restore: one JSON file the person keeps in Drive, WhatsApp, email… ---- */
@@ -579,6 +634,90 @@ $('#bkok').onclick=async()=>{
   }catch(e){$('#bkok').disabled=false;$('#bkok').textContent='Restore';$('#bkov').hidden=true;showMsg('Couldn’t restore that backup. Please try again.')}
 };
 
+/* ---- tabs ---- */
+let TAB='today';try{const t=localStorage.getItem('salah_tab');if(/^(today|track|more)$/.test(t||''))TAB=t}catch(e){}
+function showTab(t,keep){
+  TAB=t;['today','track','more'].forEach(k=>{$('#p_'+k).hidden=k!==t});
+  document.querySelectorAll('#tabs button').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});
+  document.querySelector('header').classList.toggle('compact',t!=='today');
+  try{localStorage.setItem('salah_tab',t)}catch(e){}
+  if(!keep)window.scrollTo(0,0);
+  if(t==='today'){cdKey='';renderCountdown();renderToday()}
+}
+$('#tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
+$('#mset').onclick=()=>$('#gear').click();
+$('#mth').onclick=()=>$('#th').click();
+
+/* ---- countdown to the next adhān and jamā'ah ---- */
+function boardAdhan(i,fri){
+  const M=MASJID;if(!S.board||!M.rows||!M.rows.length)return null;
+  if(fri&&i===1&&M.jumuah&&tm(M.jumuah[0])!=null)return tm(M.jumuah[0]);
+  const re=[/^fajr/i,/^(dhuhr|zuhr)/i,/^asr/i,/^maghrib/i,/^(esha|isha)/i][i],r=M.rows.find(x=>re.test(x[0]));
+  return r&&tm(r[1])!=null?tm(r[1]):null;
+}
+const atMin=(d,m)=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(m));
+function dayPrayers(d){
+  const W=win(d),fri=d.getDay()===5;
+  return P.map((p,i)=>{
+    const ba=boardAdhan(i,fri),j=S.board?jamaah(i,fri):null;
+    return{i,d,name:j&&/Jumu/.test(j.label)?"Jumu'ah":p,start:atMin(d,W[i][0]),end:atMin(d,W[i][1]),adhan:ba!=null?atMin(d,ba):null,jam:j?atMin(d,j.t):null};
+  });
+}
+function nextPrayer(now){
+  const t0=today0();
+  for(let k=0;k<2;k++){const d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+k);
+    for(const x of dayPrayers(d)){const last=x.jam||x.adhan||x.start;if(last>now)return x}}
+  return null;
+}
+const cdf=ms=>{let s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;return pad(h)+':'+pad(m)+':'+pad(s)};
+const clock=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+let cdKey='',cdTimer=null;
+function renderCountdown(){
+  const el=$('#cdcard');if(!el||$('#p_today').hidden||!S.pub)return;
+  const now=new Date(),x=nextPrayer(now);if(!x){el.innerHTML='';return}
+  const boxes=[];
+  if(x.adhan||x.jam){
+    if(x.adhan)boxes.push({k:'a',label:'Adhān',at:x.adhan});
+    if(x.jam)boxes.push({k:'j',label:x.name==="Jumu'ah"?'Khutbah':"Jamā'ah",at:x.jam});
+  }else boxes.push({k:'s',label:'Time starts',at:x.start});
+  const live=boxes.find(b=>b.at>now);
+  const key=x.i+'|'+x.d.getTime()+'|'+(live?live.k:'')+'|'+boxes.map(b=>b.at.getTime()).join();
+  if(key!==cdKey){
+    cdKey=key;
+    const cur=dayPrayers(today0()).find(y=>y.start<=now&&now<y.end&&y.i!==x.i);
+    el.innerHTML='<div class="lbl">Next prayer'+(x.d>today0()?' · tomorrow':'')+'</div><div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
+      +'<div class="cd-row'+(boxes.length===1?' one':'')+'">'+boxes.map(b=>'<div class="cd-box'+(b===live?' live':'')+'"><small>'+b.label+'</small><span class="cd-t">'+clock(b.at)+'</span><span class="cd-c'+(b.at>now?'':' done')+'" data-k="'+b.k+'">'+(b.at>now?'':'✓ called')+'</span></div>').join('')+'</div>'
+      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?'':' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(cur?'<br>'+esc(P[cur.i])+' time ends at '+clock(cur.end):'')+'</div>';
+    renderToday();
+  }
+  boxes.forEach(b=>{const c=el.querySelector('.cd-c[data-k="'+b.k+'"]');if(c&&b.at>now)c.textContent=cdf(b.at-now)});
+}
+function startCountdown(){clearInterval(cdTimer);cdKey='';renderCountdown();cdTimer=setInterval(renderCountdown,1000)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(cdTimer);else if(S.pub&&!S.edit)startCountdown()});
+
+/* ---- today's prayers, ticked straight from the Today tab ---- */
+let TM='',TMT=null;
+function renderToday(){
+  if(!$('#tl')||!S.pub)return;
+  const d=today0(),m=getMask(d),L=getLate(d),now=new Date(),xs=dayPrayers(d),nx=nextPrayer(now);
+  $('#tdate').textContent=d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('#tl').innerHTML=xs.map(x=>{
+    const i=x.i,on=m>>i&1,lt=L>>i&1;let st;
+    if(on)st=lt?'Late':'Prayed';else if(now<x.start)st='Starts '+clock(x.start);else if(now<=x.end)st='Now';else st='Missed';
+    const times=x.adhan||x.jam?(x.adhan?'Adhān '+clock(x.adhan):'')+(x.adhan&&x.jam?' · ':'')+(x.jam?(x.name==="Jumu'ah"?'Khutbah ':"Jamā'ah ")+clock(x.jam):''):clock(x.start)+' – '+clock(x.end);
+    const isNext=nx&&nx.i===i&&+nx.d===+d;
+    return '<div class="prow"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button>':'')+'</div>';
+  }).join('');
+  $('#tm').textContent=TM;
+}
+$('#tl').onclick=e=>{
+  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]');if(!p&&!l)return;
+  sel=today0();MS='';
+  if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  else setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
+  TM=MS;MS='';renderToday();all();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
+};
+
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
   x=(x||'').trim();if(!x)return'';
@@ -623,11 +762,11 @@ async function getBoard(url){
   url=url||S.board;if(!url)throw new Error('none');
   return httpGet(url);
 }
-function refreshViews(){if(S.pub&&!S.edit){all();if(!$('#ov').hidden)renderSheet()}}
+function refreshViews(){if(S.pub&&!S.edit){all();cdKey='';renderCountdown();renderToday();if(!$('#ov').hidden)renderSheet()}}
 function applyBoard(R){
   const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
   const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
-  Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'.'});
+  Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+hm((new Date()-today0())/6e4)+'.'});
   try{localStorage.setItem('salah_board',JSON.stringify({date:d,t:R.t,m,board:S.board,asr:S.asr}))}catch(e){}
   renderMasjid();refreshViews();queueNotifs();
 }
@@ -754,13 +893,14 @@ function boot(){
   const ok=S.pub&&!S.edit;
   $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#pc').hidden=!S.pub;
   $('#pd').max=ymd(today0());
-  if(!ok){$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#rsto').hidden=!!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
+  if(!ok){$('#tabs').hidden=true;document.body.classList.remove('has-tabs');document.querySelector('header').classList.remove('compact');clearInterval(cdTimer);$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#rsto').hidden=!!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
   const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
   V={y:t.getFullYear(),m:t.getMonth()};clamp();
   $('#bp').innerHTML='<option value="all">All 5 prayers</option>'+P.map((p,i)=>'<option value="'+i+'">'+p+' only</option>').join('');
   $('#qp').innerHTML=$('#bp').innerHTML;$('#bf').value=S.pub;$('#bt').value=y<parse(S.pub)?S.pub:ymd(y);
   renderMasjid();$('#foot').textContent=(ref?'Saved privately to your account.':'Saved on this device only.')+(/^\d+$/.test(BUILD)?' · Version 1.'+BUILD:'');
   all();renderBackup();
+  $('#tabs').hidden=false;document.body.classList.add('has-tabs');showTab(TAB,true);startCountdown();
 }
 (async()=>{
   stat('Loading…');await initStore();
