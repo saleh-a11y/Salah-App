@@ -5,6 +5,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.app.NotificationManager;
+import android.app.NotificationChannel;
+import android.media.AudioManager;
+import android.net.Uri;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.os.Build;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -53,10 +59,57 @@ public class AdhanPlayer extends Plugin {
 
     @PluginMethod
     public void status(PluginCall call) {
+        Context c = getContext();
         JSObject r = new JSObject();
-        r.put("exact", canExact(getContext()));
+        r.put("exact", canExact(c));
         r.put("playing", AdhanService.playing);
+        try {
+            SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            JSONArray a = new JSONArray(p.getString("items", "[]"));
+            long now = System.currentTimeMillis(), best = Long.MAX_VALUE; JSONObject next = null; int future = 0;
+            for (int k = 0; k < a.length(); k++) { JSONObject o = a.getJSONObject(k); long at = o.optLong("at"); if (at > now) { future++; if (at < best) { best = at; next = o; } } }
+            r.put("scheduled", future);
+            if (next != null) r.put("next", new JSObject(next.toString()));
+            r.put("log", new JSArray(p.getString("log", "[]")));
+        } catch (Exception ignored) {}
+        AudioManager am = (AudioManager) c.getSystemService(Context.AUDIO_SERVICE);
+        if (am != null) {
+            r.put("ringer", am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL ? "sound" : am.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE ? "vibrate" : "silent");
+            r.put("alarmVol", am.getStreamVolume(AudioManager.STREAM_ALARM));
+            r.put("alarmMax", am.getStreamMaxVolume(AudioManager.STREAM_ALARM));
+        }
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            r.put("notifications", nm.areNotificationsEnabled());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel ch = nm.getNotificationChannel(AdhanService.CH_PLAY);
+                r.put("channelOff", ch != null && ch.getImportance() == NotificationManager.IMPORTANCE_NONE);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) c.getSystemService(Context.POWER_SERVICE);
+            r.put("batteryFree", pm != null && pm.isIgnoringBatteryOptimizations(c.getPackageName()));
+        } else r.put("batteryFree", true);
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void openBattery(PluginCall call) {
+        Context c = getContext();
+        try {
+            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + c.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+        } catch (Exception e) {
+            try { Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); c.startActivity(i); } catch (Exception ignored) {}
+        }
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void clearLog(PluginCall call) {
+        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove("log").apply();
+        call.resolve();
     }
 
     static boolean canExact(Context c) {

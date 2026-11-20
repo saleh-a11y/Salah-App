@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
 import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
@@ -17,6 +19,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import androidx.core.app.NotificationCompat;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /** Plays the full adhān recording as an alarm sound, with a Stop button on the notification. */
 public class AdhanService extends Service {
@@ -36,6 +40,7 @@ public class AdhanService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+            if (playing) log(this, noteId - 7000, title, "stopped with the Stop button");
             finish(true);
             return START_NOT_STICKY;
         }
@@ -50,6 +55,7 @@ public class AdhanService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) startForeground(noteId, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
             else startForeground(noteId, n);
         } catch (Exception e) {
+            log(this, noteId - 7000, title, "player blocked: " + e.getClass().getSimpleName() + " " + e.getMessage());
             plainNotice(this, noteId - 7000, title, body, true);
             stopSelf();
             return START_NOT_STICKY;
@@ -57,6 +63,7 @@ public class AdhanService extends Service {
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
         // phone on silent or vibrate: show the notification quietly, don't play
         if (am != null && am.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
+            log(this, noteId - 7000, title, am.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE ? "quiet: phone on vibrate" : "quiet: phone on silent");
             finish(false);
             return START_NOT_STICKY;
         }
@@ -65,30 +72,47 @@ public class AdhanService extends Service {
     }
 
     private void play() {
+        // first as an alarm (plays at alarm volume), then as normal media if that fails
+        if (tryPlay(AudioAttributes.USAGE_ALARM, AudioManager.STREAM_ALARM)) return;
+        if (tryPlay(AudioAttributes.USAGE_MEDIA, AudioManager.STREAM_MUSIC)) return;
+        // could not play the recording at all: fall back to the phone's notification sound
+        plainNotice(this, noteId - 7000, title, body, true);
+        finish(true);
+    }
+
+    private boolean tryPlay(int usage, int stream) {
         stopPlayer();
-        AudioAttributes aa = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build();
+        String how = usage == AudioAttributes.USAGE_ALARM ? "alarm" : "media";
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (am != null && am.getStreamVolume(stream) == 0) {
+                log(this, noteId - 7000, title, how + " volume is off");
+                return false;
+            }
+            AudioAttributes aa = new AudioAttributes.Builder().setUsage(usage).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && am != null) {
                 focus = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                         .setAudioAttributes(aa)
-                        .setOnAudioFocusChangeListener(ch -> { if (ch == AudioManager.AUDIOFOCUS_LOSS) finish(false); })
+                        .setOnAudioFocusChangeListener(ch -> { if (ch == AudioManager.AUDIOFOCUS_LOSS) { log(this, noteId - 7000, title, "stopped: another app took the sound"); finish(false); } })
                         .build();
                 am.requestAudioFocus(focus);
             }
             mp = new MediaPlayer();
             mp.setAudioAttributes(aa);
             mp.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-            mp.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.adhan));
-            mp.setOnCompletionListener(m -> finish(false));
-            mp.setOnErrorListener((m, w, x) -> { finish(false); return true; });
+            AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.adhan);
+            mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            afd.close();
+            mp.setOnCompletionListener(m -> { log(this, noteId - 7000, title, "played in full"); finish(false); });
+            mp.setOnErrorListener((m, w, x) -> { log(this, noteId - 7000, title, "player error " + w + "/" + x); finish(false); return true; });
             mp.prepare();
             mp.start();
             playing = true;
+            log(this, noteId - 7000, title, "playing (" + how + " volume " + (am == null ? "?" : am.getStreamVolume(stream) + "/" + am.getStreamMaxVolume(stream)) + ")");
+            return true;
         } catch (Exception e) {
-            finish(false);
+            log(this, noteId - 7000, title, how + " failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
+            stopPlayer();
+            return false;
         }
     }
 
@@ -174,4 +198,17 @@ public class AdhanService extends Service {
     }
 
     private static String orDefault(String s, String d) { return s == null || s.isEmpty() ? d : s; }
+
+    /** Keeps the last 12 adhān events so the app can show what happened at each prayer time. */
+    static synchronized void log(Context c, int id, String title, String what) {
+        try {
+            SharedPreferences p = c.getSharedPreferences(AdhanPlayer.PREFS, Context.MODE_PRIVATE);
+            JSONArray a = new JSONArray(p.getString("log", "[]")), b = new JSONArray();
+            JSONObject o = new JSONObject();
+            o.put("t", System.currentTimeMillis()); o.put("id", id); o.put("title", title == null ? "" : title); o.put("what", what);
+            b.put(o);
+            for (int i = 0; i < a.length() && b.length() < 12; i++) b.put(a.get(i));
+            p.edit().putString("log", b.toString()).apply();
+        } catch (Exception ignored) {}
+    }
 }

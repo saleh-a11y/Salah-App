@@ -275,6 +275,10 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .skb .skp{position:absolute;left:10px;top:30px;display:flex;gap:4px;padding:4px 6px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}.skb .skp u{width:12px;height:12px;border-radius:50%}
 .skb b{padding:12px 10px 0;font-weight:600;font-size:14px}.skb small{padding:0 10px;font-size:11px;color:var(--mu);line-height:1.3}
 .skb.on{outline:2.5px solid var(--gold);outline-offset:1px}.skb.on b::after{content:" ✓";color:var(--gold)}
+.nchk{margin-top:12px;padding:12px;border-radius:14px;background:var(--bg);font-size:14px}
+.nchk h4{margin:0 0 6px;font-size:14px;font-weight:600}.nchk p{margin:4px 0}.nchk .w{color:#b0473a}.nchk .g{color:var(--em)}
+.nchk ul{margin:6px 0 0;padding:0;list-style:none}.nchk li{display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--bd);font-size:13px}.nchk li:first-child{border-top:0}
+.nchk li time{flex:none;width:92px;color:var(--mu)}.nchk button{margin-top:6px;width:100%}
 .brow2{display:flex;gap:6px;margin:6px 0 4px}.brow2 button{flex:1}
 .hbtns button svg{display:block;margin:auto}
 .qbsheet{text-align:center}
@@ -514,6 +518,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 </div>
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
 <div class="row" style="margin-top:8px"><button id="nadt" hidden>Test the adhān (in 5 seconds)</button></div>
+<div id="nchk" class="nchk" hidden></div>
 </div>
 
 <div class="card" id="bkcard">
@@ -873,6 +878,7 @@ async function renderNotif(next){
   $('#non').hidden=NP.on;
   let exact=true;try{exact=(await LN.checkExactNotificationSetting()).exact_alarm==='granted'}catch(e){}
   $('#nex').hidden=!NP.on||exact;
+  try{renderAdhanCheck()}catch(e){}
   if(!NP.on){st.textContent='Off. Turn them on to get reminders for each prayer.';return}
   st.textContent=(next?'On · next: '+next.title.replace(/ in \d+ minutes| ends in \d+ minutes/,'')+' at '+hm((new Date(next.schedule.at)-today0())/6e4):'On')+(exact?'':' · Times may be a few minutes late until you allow exact timing.');
 }
@@ -884,7 +890,7 @@ $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(
 ['adh','pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
 $('#nadt').onclick=async()=>{
   if(!LN)return;
-  if(AP){try{await AP.test({delay:5000});$('#nst').textContent='Test adhān in 5 seconds. Lock your phone now to hear it the way it will play at prayer time. Tap “Stop adhān” on the notification to stop it.';setTimeout(()=>renderNotif(),20000);return}catch(e){}}
+  if(AP){try{await AP.test({delay:5000});$('#nst').textContent='Test adhān in 5 seconds. Lock your phone now to hear it the way it will play at prayer time. Tap “Stop adhān” on the notification to stop it.';setTimeout(()=>renderNotif(),20000);setTimeout(()=>renderAdhanCheck(),9000);return}catch(e){}}
   try{
     await LN.createChannel(ADHAN_CH);
     await LN.schedule({notifications:[{id:999,title:'Adhān test',body:'This is how the adhān will sound at prayer time.',schedule:{at:new Date(Date.now()+5000),allowWhileIdle:true},channelId:'adhan1'}]});
@@ -1603,6 +1609,43 @@ $('#skg').onclick=e=>{const b=e.target.closest('.skb');if(!b)return;const k=b.da
   try{const c=getComputedStyle(document.documentElement).getPropertyValue('--sky1').trim();const m=document.querySelector('meta[name="theme-color"]');if(m&&c)m.content=c}catch(x){}};
 renderSkins();
 
+
+/* ---- adhān check: what the phone did at each adhān, and anything that would stop it ---- */
+function adhanWhat(w){
+  if(/^played in full/.test(w))return'✓ Played in full';
+  if(/^playing/.test(w))return'▶ Started playing'+(/\(([^)]*)\)/.exec(w)?' ('+/\(([^)]*)\)/.exec(w)[1].replace('alarm volume','alarm volume')+')':'');
+  if(/^alarm went off/.test(w))return'Prayer time reached';
+  if(/vibrate/.test(w))return'Stayed quiet: phone on vibrate';
+  if(/silent/.test(w))return'Stayed quiet: phone on silent';
+  if(/volume is off/.test(w))return'⚠ '+(/^alarm/.test(w)?'Alarm':'Media')+' volume was off';
+  if(/Stop button/.test(w))return'Stopped with the Stop button';
+  if(/another app/.test(w))return'Stopped: another app took the sound (call or music)';
+  if(/refused|blocked/.test(w))return'⚠ The phone blocked the adhān player: '+w.replace(/^[^:]*:\s*/,'');
+  return'⚠ '+w;
+}
+async function renderAdhanCheck(){
+  const box=$('#nchk');if(!box)return;
+  if(!AP||!NP.on||!NP.adh){box.hidden=true;return}
+  let st;try{st=await AP.status()}catch(e){box.hidden=true;return}
+  const warn=[];
+  if(st.notifications===false)warn.push('Notifications for Salah Tracker are switched off in your phone’s settings.');
+  if(st.channelOff)warn.push('The “Adhān” notification category is switched off in your phone’s settings.');
+  if(st.ringer==='vibrate')warn.push('Your phone is on vibrate, so the adhān stays quiet.');
+  if(st.ringer==='silent')warn.push('Your phone is on silent, so the adhān stays quiet.');
+  if(st.alarmVol===0)warn.push('Your alarm volume is off. The adhān plays at alarm volume, so turn it up.');
+  else if(st.alarmMax&&st.alarmVol<st.alarmMax*0.3)warn.push('Your alarm volume is low ('+st.alarmVol+' of '+st.alarmMax+'). The adhān plays at alarm volume.');
+  if(st.exact===false)warn.push('Exact timing isn’t allowed, so the adhān may be late.');
+  const n=st.next,when=n?new Date(n.at):null;
+  const nx=n?'Next adhān: <b>'+esc((n.title||'').replace(/ adhān.*$/i,''))+'</b> at '+when.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})+(dnOf(when)!==dnOf(new Date())?' tomorrow':'')+' <span class="g">✓ set</span>':'<span class="w">No adhān is set yet. Keep “Adhān” on and open the app once.</span>';
+  const log=(st.log||[]).slice(0,6);
+  box.innerHTML='<h4>Adhān check</h4><p>'+nx+'</p>'
+   +warn.map(w=>'<p class="w">⚠ '+esc(w)+'</p>').join('')
+   +(st.batteryFree===false?'<p class="w">⚠ Battery saving can delay or block the adhān.</p><button id="nbat">Let the adhān run in the background</button>':'')
+   +(log.length?'<h4 style="margin-top:10px">What happened recently</h4><ul>'+log.map(e=>{const d=new Date(e.t);return '<li><time>'+d.toLocaleDateString(undefined,{weekday:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})+'</time><span>'+esc((e.title||'').replace(/ adhān.*$/i,'').replace(/^Adhān test$/,'Test'))+(e.title?': ':'')+esc(adhanWhat(e.what||''))+'</span></li>'}).join('')+'</ul>':'<p class="mu" style="font-size:13px">Nothing recorded yet. After the next adhān (or the test), this shows whether it played.</p>');
+  box.hidden=false;
+  const b=$('#nbat');if(b)b.onclick=async()=>{try{await AP.openBattery()}catch(e){}};
+}
+
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
   x=(x||'').trim();if(!x)return'';
@@ -1821,7 +1864,7 @@ function boot(){
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
   stat('');checkUpdate(true);loadBoardCache();boot();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri()}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri();if(TAB==='more')try{renderAdhanCheck()}catch(e){}}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>
 </body>

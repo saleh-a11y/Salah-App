@@ -15,6 +15,7 @@ public class AdhanReceiver extends BroadcastReceiver {
             AdhanPlayer.schedule(c);
             return;
         }
+        AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "alarm went off");
         Intent s = new Intent(c, AdhanService.class)
                 .putExtra("id", intent.getIntExtra("id", 0))
                 .putExtra("title", intent.getStringExtra("title"))
@@ -23,6 +24,7 @@ public class AdhanReceiver extends BroadcastReceiver {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) c.startForegroundService(s);
             else c.startService(s);
         } catch (Exception e) {
+            AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "phone refused to start the player: " + e.getClass().getSimpleName());
             // the phone refused to start the player: still show the adhān notification with the phone's own sound
             AdhanService.plainNotice(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), intent.getStringExtra("body"), true);
         }
