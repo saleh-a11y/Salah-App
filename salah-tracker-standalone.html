@@ -206,6 +206,8 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .bl{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
 .bl span{flex:1;min-width:0}.bl b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bl small{font-size:12px;color:var(--mu);overflow-wrap:anywhere}
 .bl button{padding:6px 10px;font-size:13px;min-height:36px}
+.bl.prim{border-color:color-mix(in srgb,var(--gold) 55%,var(--bd))}.pstar{font-style:normal;color:var(--gold)}
+.hjb{margin:8px 0 0;font-size:13px}.hjb.no{color:var(--gold)}
 .fmsheet{max-height:86vh;display:flex;flex-direction:column}
 .fmtop{position:relative;display:flex;align-items:center;gap:8px;margin-bottom:8px}.fmtop h3{flex:1;margin:0!important;text-align:left!important}
 .fmtop button{width:40px;height:40px;padding:0;border-radius:50%;flex:none;font-size:18px}
@@ -1125,6 +1127,25 @@ const dateOfDn=n=>{const u=new Date(n*864e5);return new Date(u.getUTCFullYear(),
 /* tabular (Kuwaiti) Islamic calendar: only used to estimate months Jamiat hasn't declared yet */
 function tabStartDn(y,m){return Math.floor((11*y+3)/30)+354*y+30*m-Math.floor((m-1)/2)+1948440-385-2440588}
 const tabLen=(y,m)=>m%2===1||(m===12&&(11*y+14)%30<11)?30:29;
+/* time of new moon (conjunction) nearest to a day number, Meeus ch. 49 (accurate to a few minutes) */
+function newMoonJDE(k){
+  const T=k/1236.85,R=Math.PI/180;
+  let J=2451550.09766+29.530588861*k+0.00015437*T*T-0.00000015*T*T*T+0.00000000073*T*T*T*T;
+  const E=1-0.002516*T-0.0000074*T*T;
+  const M=(2.5534+29.1053567*k-0.0000014*T*T)*R,Mp=(201.5643+385.81693528*k+0.0107582*T*T+0.00001238*T*T*T)*R;
+  const F=(160.7108+390.67050284*k-0.0016118*T*T-0.00000227*T*T*T)*R,O=(124.7746-1.56375588*k+0.0020672*T*T)*R;
+  J+=-0.40720*Math.sin(Mp)+0.17241*E*Math.sin(M)+0.01608*Math.sin(2*Mp)+0.01039*Math.sin(2*F)+0.00739*E*Math.sin(Mp-M)
+    -0.00514*E*Math.sin(Mp+M)+0.00208*E*E*Math.sin(2*M)-0.00111*Math.sin(Mp-2*F)-0.00057*Math.sin(Mp+2*F)
+    +0.00056*E*Math.sin(2*Mp+M)-0.00042*Math.sin(3*Mp)+0.00042*E*Math.sin(M+2*F)+0.00038*E*Math.sin(M-2*F)
+    -0.00024*E*Math.sin(2*Mp-M)-0.00017*Math.sin(O)-0.00007*Math.sin(Mp+2*M);
+  return J;
+}
+/* new moon (as unix-day number with fraction) at or before a given moment */
+function conjBefore(t){let k=Math.floor((t+2440587.5-2451550.09766)/29.530588861)+1,j;while((j=newMoonJDE(k)-2440587.5)>t)k--;return j}
+/* Johannesburg sunset, roughly (UTC): 15:25 in June, 17:05 in late December */
+function jhbSunset(dn){const d=dateOfDn(dn),doy=Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(d.getFullYear(),0,0))/864e5);return dn+(16.25+0.83*Math.cos(2*Math.PI*(doy-358)/365))/24}
+/* expected length of a month that started on day s: the crescent is usually seen in SA on the 29th evening once it is about 20 hours old */
+function estLen(s){const ss=jhbSunset(s+28),age=(ss-conjBefore(ss))*24;return age>=20?29:30}
 let JM={at:0,recs:{},ok:false,err:''};
 function jmLoad(){
   const recs={};for(const r of JM_SEED)recs[r[0]*12+r[1]-1]={k:r[0]*12+r[1]-1,s:dnStr(r[2]),len:r[3],by:r[4]};
@@ -1168,7 +1189,7 @@ function hStart(k){
   const first=ks[0],last=ks[ks.length-1];
   if(k>last){
     let s=R[last].s,src='e';
-    for(let i=last;i<k;i++){const len=R[i]&&R[i].len?R[i].len:tabLen(Math.floor(i/12),i%12+1);s+=len}
+    for(let i=last;i<k;i++){const len=R[i]&&R[i].len?R[i].len:estLen(s);s+=len}
     if(k===last+1&&R[last].len)src='j';
     /* never earlier than 29 days after the last start that is known */
     return{s,src};
@@ -1211,11 +1232,11 @@ function renderHijriAll(){try{renderHijriToday()}catch(e){}if(typeof TAB!=='unde
 function renderHijriToday(){
   const el=$('#hjt');if(!el)return;const h=hijriOf(new Date());if(!h){el.textContent='';return}
   const ev=hEventsOn(h);
-  el.innerHTML='<span class="ar">'+h.d+' '+HMA[h.m-1]+' '+h.y+'</span> · '+esc(hFmt(h))+(h.src==='j'?'':' <i class="hx">(expected)</i>')+(ev.length?' · <b>'+esc(ev[0])+'</b>':'');
+  el.innerHTML='<span class="ar">'+h.d+' '+HMA[h.m-1]+' '+h.y+'</span> · '+esc(hFmt(h))+(h.src==='j'?'':' <i class="hx">(expected)</i>')+(ev.length?' · <b>'+esc(ev[0])+'</b>':'')+(()=>{const n=boardHijriNote();return n&&!n.same?'<br><span class="hjb no">'+n.html+'</span>':''})();
 }
 function hBadge(src){return src==='j'?'<span class="hb ok">✓ Jamiatul Ulama SA</span>':src==='e'?'<span class="hb ex">Expected · awaiting moon sighting</span>':'<span class="hb ca">Calculated</span>'}
 function renderHijri(){
-  const box=$('#hjbox');if(!box)return;
+  const box=$('#hjhero');if(!box)return;
   const tn=dnOf(new Date()),h=hijriOf(tn);if(!h)return;
   if(!HV)HV=h.k;
   const mg=afterMaghrib(),hn=mg?hijriOf(tn+1):null;
@@ -1229,7 +1250,7 @@ function renderHijri(){
   }else if(JM.recs[h.k+1]){const n=JM.recs[h.k+1];ms=HM[(h.k+1)%12]+' '+Math.floor((h.k+1)/12)+' begins '+dateOfDn(n.s).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})+(n.by==='moonsighting'?' · the moon was sighted':n.by==='no_moon'?' · the moon wasn’t sighted, so '+HM[h.m-1]+' has 30 days':'')+'.'}
   $('#hjhero').innerHTML='<div class="hjd"><b class="ar">'+h.d+'</b><span><span class="ar hjm">'+HMA[h.m-1]+' '+h.y+'</span><span>'+esc(HM[h.m-1])+' '+h.y+'</span></span></div>'
     +'<p class="mu" style="margin:6px 0 0">'+new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(hn?' · from Maghrib tonight it is the '+ord(hn.d)+(hn.d===1?' of '+HM[hn.m-1]:'')+(hn.src==='j'?'':' (expected)'):'')+'</p>'
-    +'<p style="margin:8px 0 0">'+hBadge(h.src)+'</p>'+(ms?'<p class="hjms">'+esc(ms)+'</p>':'');
+    +'<p style="margin:8px 0 0">'+hBadge(h.src)+'</p>'+(()=>{const n=boardHijriNote();return n?'<p class="hjb'+(n.same?'':' no')+'">'+n.html+'</p>':''})()+(ms?'<p class="hjms">'+esc(ms)+'</p>':'');
   /* month grid */
   const st=hStart(HV),nx=hStart(HV+1),len=nx.s-st.s,y=Math.floor(HV/12),m=HV%12+1;
   $('#hjt2').innerHTML='<span>'+esc(HM[m-1])+' '+y+'</span><span class="ar">'+HMA[m-1]+'</span>';
@@ -1251,11 +1272,40 @@ function renderHijri(){
 $('#hjp').onclick=()=>{HV--;renderHijri()};
 $('#hjn').onclick=()=>{HV++;renderHijri()};
 $('#hjtoday').onclick=()=>{HV=null;renderHijri()};
-$('#hjr').onclick=async()=>{$('#hjr').disabled=true;$('#hjsrc').textContent='Checking Jamiatul Ulama’s calendar…';await jmRefresh(true);$('#hjr').disabled=false};
+$('#hjr').onclick=async()=>{$('#hjr').disabled=true;$('#hjsrc').textContent='Checking Jamiatul Ulama’s calendar…';await Promise.all([jmRefresh(true),checkBoardHijri(true)]);$('#hjr').disabled=false};
 $('#hjg').onclick=e=>{const b=e.target.closest('.hc');if(!b)return;const dn=+b.dataset.dn,hh=hijriOf(dn),ev=hEventsOn(hh),gd=dateOfDn(dn);
   document.querySelectorAll('#hjg .hc.sel').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
   $('#hjsel').innerHTML='<b>'+esc(hFmt(hh))+'</b> · '+gd.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(ev.length?'<br>'+ev.map(esc).join(' · '):'')+'<br>'+hBadge(hh.src)};
 jmLoad();
+
+
+/* ---- does the primary masjid's board show the same Islamic date as Jamiat? ----
+   masjidboardlive works its date out from the Umm al-Qurā calendar plus the masjid's own "adjust" setting
+   (and moves to the next date at sunset); it doesn't take the moon sighting itself, so Jamiat's date always decides. */
+let BH=null;try{BH=JSON.parse(localStorage.getItem('salah_bhij'))}catch(e){}
+function uqDate(dn){
+  try{const f=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric',timeZone:'UTC'});
+    const ps=f.formatToParts(new Date(dn*864e5+432e5)),g=t=>+((ps.find(x=>x.type===t)||{}).value);
+    const r={d:g('day'),m:g('month'),y:g('year')};return r.d>=1&&r.d<=30&&r.m>=1&&r.m<=12&&r.y>1400?r:null}catch(e){return null}
+}
+async function checkBoardHijri(force){
+  const P=S.boards&&S.boards[0];if(!P)return;
+  const today=dnOf(new Date());
+  if(!force&&BH&&BH.url===P.url&&BH.day===today)return;
+  try{
+    const html=await getBoard(P.url),m=/islamicDateAdjust\s*["']?\s*:\s*["'](-?\d{1,2})["']/.exec(html);
+    if(!m)throw new Error('no date setting');
+    BH={url:P.url,name:P.name||'Your masjid',day:today,adj:+m[1],at:Date.now()};
+    try{localStorage.setItem('salah_bhij',JSON.stringify(BH))}catch(e){}
+  }catch(e){return}
+  renderHijriAll();
+}
+function boardHijriNote(){
+  const P=S.boards&&S.boards[0];if(!BH||!P||BH.url!==P.url)return null;
+  const today=dnOf(new Date()),b=uqDate(today+BH.adj),j=hijriOf(today);if(!b||!j)return null;
+  const same=b.d===j.d&&b.m===j.m&&b.y===j.y,nm=esc(P.name||BH.name);
+  return{same,html:same?'✓ '+nm+'’s board shows the same date':nm+'’s board shows <b>'+b.d+' '+esc(HM[b.m-1])+' '+b.y+'</b>. '+(j.src==='j'?'Jamiatul Ulama’s date is used; the masjid may not have updated its board yet.':'Jamiat hasn’t announced yet, so the app shows the expected date until they do.')};
+}
 
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
@@ -1386,9 +1436,10 @@ try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.da
 let F={};
 function fActive(){return F.boards.find(b=>b.url===F.board)||null}
 function renderBList(){
-  $('#blist').innerHTML=F.boards.map(b=>'<div class="bl"><span><b>'+esc(b.name||'Masjid board')+(b.town?' · '+esc(b.town):'')+'</b><small>'+esc(bShort(b.url))+(b.url===F.board?' · showing now':'')+'</small></span><button type="button" data-rm="'+esc(b.url)+'" aria-label="Remove '+esc(b.name||'this board')+'">Remove</button></div>').join('');
+  $('#blist').innerHTML=F.boards.map((b,i)=>'<div class="bl'+(i===0?' prim':'')+'"><span><b>'+(i===0?'<i class="pstar" aria-hidden="true">★</i> ':'')+esc(b.name||'Masjid board')+(b.town?' · '+esc(b.town):'')+'</b><small>'+(i===0?'Primary · opens first and checks the Islamic date':esc(bShort(b.url)))+(b.url===F.board&&F.boards.length>1?' · showing now':'')+'</small></span>'+(i>0?'<button type="button" data-pr="'+esc(b.url)+'" aria-label="Make '+esc(b.name||'this board')+' primary">Make primary</button>':'')+'<button type="button" data-rm="'+esc(b.url)+'" aria-label="Remove '+esc(b.name||'this board')+'">Remove</button></div>').join('')
+    +(F.boards.length>1?'<small class="mu" style="display:block;margin:2px 0 6px">The ★ primary masjid opens first each time and its board is checked against Jamiat’s Islamic date.</small>':'');
 }
-$('#blist').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;F.boards=F.boards.filter(x=>x.url!==b.dataset.rm);if(F.board===b.dataset.rm){const a=F.boards[0];F.board=a?a.url:''}renderBList();fillLoc();$('#bmsg').textContent='';};
+$('#blist').onclick=e=>{const pr=e.target.closest('[data-pr]');if(pr){const i=F.boards.findIndex(b=>b.url===pr.dataset.pr);if(i>0){F.boards.unshift(F.boards.splice(i,1)[0]);renderBList()}return}const b=e.target.closest('[data-rm]');if(!b)return;F.boards=F.boards.filter(x=>x.url!==b.dataset.rm);if(F.board===b.dataset.rm){const a=F.boards[0];F.board=a?a.url:''}renderBList();fillLoc();$('#bmsg').textContent='';};
 function fillLoc(){
   const A=fActive(),anyLoc=F.boards.some(b=>b.lat!=null);
   const o=(anyLoc?'<option value="board">'+esc('The masjid’s location (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
@@ -1434,6 +1485,7 @@ $('#ps').onclick=async()=>{
   const v=$('#pd').value;
   if(!v||parse(v)>today0()){$('#ph').textContent='Please choose a date that is today or earlier.';return}
   if($('#bu').value.trim()){if(!(await checkBoard()))return}
+  if(F.boards[0]&&(!S.boards[0]||S.boards[0].url!==F.boards[0].url))F.board=F.boards[0].url; /* a new primary masjid shows straight away */
   if(!fActive()){const a=F.boards[0];F.board=a?a.url:''}
   const A=fActive()||{url:'',name:'',town:'',lat:null,lon:null},asrCh=F.asr!==S.asr,changed=A.url!==S.board||asrCh;
   Object.assign(S,{pub:v,asr:F.asr,boards:F.boards,board:A.url,bname:A.name,btown:A.town,blat:A.lat,blon:A.lon,loc:$('#loc').value||'jhb',edit:false});
@@ -1441,7 +1493,7 @@ $('#ps').onclick=async()=>{
   try{await save('settings',setDoc());await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
   applyLoc();
   if(changed){LIVE=null;resetMasjid();if(asrCh)try{localStorage.removeItem('salah_board')}catch(e){};loadBoardCache();pulled=0}
-  boot();pullBoard();queueNotifs();
+  boot();pullBoard();queueNotifs();try{checkBoardHijri()}catch(e){}
 };
 function boot(){
   const ok=S.pub&&!S.edit;
@@ -1468,11 +1520,12 @@ function boot(){
   else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon'])if(typeof st[k]==='number')S[k]=st[k]}
   S.boards=cleanBoards(st&&st.boards);
   if(S.board&&!S.boards.some(b=>b.url===S.board))S.boards.unshift({url:S.board,name:S.bname,town:S.btown,lat:S.blat,lon:S.blon});
+  if(S.boards.length&&S.board!==S.boards[0].url){const P=S.boards[0];Object.assign(S,{board:P.url,bname:P.name,btown:P.town,blat:P.lat,blon:P.lon})}
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');checkUpdate(true);loadBoardCache();boot();pullBoard();renderNotif();queueNotifs();jmRefresh();
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)jmRefresh()});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
+  stat('');checkUpdate(true);loadBoardCache();boot();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri()}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>
 </body>
