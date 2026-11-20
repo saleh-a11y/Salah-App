@@ -279,6 +279,29 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .nchk h4{margin:0 0 6px;font-size:14px;font-weight:600}.nchk p{margin:4px 0}.nchk .w{color:#b0473a}.nchk .g{color:var(--em)}
 .nchk ul{margin:6px 0 0;padding:0;list-style:none}.nchk li{display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--bd);font-size:13px}.nchk li:first-child{border-top:0}
 .nchk li time{flex:none;width:92px;color:var(--mu)}.nchk button{margin-top:6px;width:100%}
+/* 99 names */
+#dkseg{grid-template-columns:repeat(3,1fr)}
+.nm-h{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:1.9;text-align:center;margin:0;color:var(--gold)}
+.nm-hs{font-size:13px;line-height:1.5;margin:6px 0 0}
+#nmq{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px 12px;font:inherit;color:inherit;margin:10px 0 8px}
+.nm-f{grid-template-columns:repeat(3,1fr)}
+.nm-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
+.nm-t{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px 10px;border-radius:16px;background:var(--card);min-height:106px;justify-content:center;box-shadow:var(--shadow)}
+.nm-t i{position:absolute;top:6px;left:8px;font-style:normal;font-size:11px;color:var(--mu)}
+.nm-t b{font-family:"Amiri",serif;font-weight:700;font-size:22px;line-height:1.6;color:var(--tx)}
+.nm-t small{font-size:11.5px;color:var(--gold);line-height:1.2;text-align:center}
+.nm-t.k::after{content:"✓";position:absolute;top:5px;right:8px;font-size:12px;color:#fff;background:var(--em);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.nm-today{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer}
+.nm-today .a{font-family:"Amiri",serif;font-weight:700;font-size:30px;line-height:1.5;color:var(--gold);flex:none;min-width:84px;text-align:center}
+.nm-today .b{flex:1;min-width:0}.nm-today .b small{display:block;color:var(--mu);font-size:12px}.nm-today .b strong{display:block;font-size:16px}.nm-today .b span{display:block;font-size:14px}
+.nm-sheet{text-align:center}#nmd-n{flex:1;text-align:left;font-size:13px}
+.nm-big{font-family:"Amiri",serif;font-weight:700;font-size:52px;line-height:1.7;color:var(--gold);margin:6px 0 0}
+.nm-tr{font-size:22px;font-family:"Marcellus",serif;margin:0}
+.nm-en{font-size:17px;margin:6px 0 14px}
+.nm-hide{filter:blur(7px);user-select:none}
+.nm-nav{display:flex;gap:8px;margin-top:10px}.nm-nav button{flex:1}
+.nm-k{width:100%}.nm-k.on{background:var(--em);color:#fff;border-color:var(--em)}
+.nm-q2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .brow2{display:flex;gap:6px;margin:6px 0 4px}.brow2 button{flex:1}
 .hbtns button svg{display:block;margin:auto}
 .qbsheet{text-align:center}
@@ -434,6 +457,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="card cd-card" id="cdcard" aria-live="polite"></div>
 <div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><p id="hjt"></p><div id="tl"></div><small id="tm"></small></div>
 <div class="card"><h2 class="serif">Adhkār today</h2><div id="dktoday"></div></div>
+<button class="card nm-today" id="nmtoday" aria-label="Name of Allah of the day"></button>
 <div class="card"><h2 class="serif">Masjid times</h2><div id="mj"></div></div>
 </div>
 <div class="pane" id="p_track" hidden>
@@ -489,11 +513,22 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="qmsg"></p></div>
 </div>
 <div class="pane" id="p_dhikr" hidden>
-<div class="card dk-head"><div class="seg" id="dkseg" role="group" aria-label="Morning or evening"><button data-s="m">☀ Morning</button><button data-s="e">☾ Evening</button></div>
-<p id="dkst" style="margin:10px 0 0;font-size:14px"></p><span class="bar big"><i id="dkbar"></i></span>
-<p class="mu" style="margin:8px 0 0;font-size:12px">Tap a dhikr each time you say it. <button class="lnk" id="dkreset" style="font-size:12px">Start again</button></p></div>
+<div class="card dk-head"><div class="seg" id="dkseg" role="group" aria-label="Morning, evening or the 99 Names"><button data-s="m">☀ Morning</button><button data-s="e">☾ Evening</button><button data-s="n">99 Names</button></div>
+<div id="dkhead"><p id="dkst" style="margin:10px 0 0;font-size:14px"></p><span class="bar big"><i id="dkbar"></i></span>
+<p class="mu" style="margin:8px 0 0;font-size:12px">Tap a dhikr each time you say it. <button class="lnk" id="dkreset" style="font-size:12px">Start again</button></p></div></div>
 <div id="dklist"></div>
-<p class="mu" style="font-size:11px;text-align:center;margin:4px 8px 0">From Ḥiṣn al-Muslim (Morning-And-Evening-Adhkar-DB, MIT licence). Quran text from quranenc.com via quran-json (CC BY 4.0). Fonts: Amiri and Amiri Quran (SIL OFL).</p>
+<div id="nmbox" hidden>
+<div class="card nm-hd"><p class="nm-h" lang="ar" dir="rtl">وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا</p>
+<p class="nm-hs">“To Allah belong the most beautiful names, so call upon Him by them.” <span class="mu">Al-A‘rāf 7:180</span></p>
+<p class="nm-hs">The Prophet ﷺ said: “Allah has ninety-nine names, one hundred less one. Whoever learns them by heart will enter Paradise.” <span class="mu">Al-Bukhārī 2736, Muslim 2677</span></p>
+<p id="nmst" style="margin:10px 0 0;font-size:14px"></p><span class="bar big"><i id="nmbar"></i></span>
+<div class="row" style="margin-top:10px"><button class="pri" id="nmprac">Practise</button><button id="nmday">Today’s Name</button></div>
+<input type="search" id="nmq" placeholder="Search a name or meaning" autocomplete="off" aria-label="Search the names">
+<div class="seg nm-f" id="nmf" role="group" aria-label="Show"><button data-f="a">All</button><button data-f="l">Still learning</button><button data-f="k">Memorised</button></div></div>
+<div id="nmg" class="nm-g"></div>
+<p class="mu" style="font-size:11px;text-align:center;margin:8px 8px 0">The 99 Names as narrated in Jāmi‘ at-Tirmidhī 3507. Arabic from the Islamic Network (AlAdhan) list, checked and corrected; meanings are brief renderings.</p>
+</div>
+<p class="mu" id="dkcred" style="font-size:11px;text-align:center;margin:4px 8px 0">From Ḥiṣn al-Muslim (Morning-And-Evening-Adhkar-DB, MIT licence). Quran text from quranenc.com via quran-json (CC BY 4.0). Fonts: Amiri and Amiri Quran (SIL OFL).</p>
 </div>
 <div class="pane" id="p_cal" hidden>
 <div class="card" id="hjhero"></div>
@@ -558,6 +593,10 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="qbtip" class="mu"></p>
 <div class="row"><button id="qbgps">Use my current location</button></div>
 </div></div>
+<div class="ov" id="nmov" hidden><div class="sheet nm-sheet" role="dialog" aria-labelledby="nmd-n">
+<div class="fmtop"><span id="nmd-n" class="mu"></span><button id="nmx" aria-label="Close">✕</button></div>
+<div id="nmd"></div></div></div>
+<script type="application/json" id="names-data">[[1,"الرَّحْمَنُ","Ar-Raḥmān","The Most Compassionate"],[2,"الرَّحِيمُ","Ar-Raḥīm","The Most Merciful"],[3,"الْمَلِكُ","Al-Malik","The King, the Sovereign"],[4,"الْقُدُّوسُ","Al-Quddūs","The Most Holy, the Pure"],[5,"السَّلَامُ","As-Salām","The Source of Peace"],[6,"الْمُؤْمِنُ","Al-Mu’min","The Giver of Security and Faith"],[7,"الْمُهَيْمِنُ","Al-Muhaymin","The Guardian, the Overseer"],[8,"الْعَزِيزُ","Al-‘Azīz","The Almighty"],[9,"الْجَبَّارُ","Al-Jabbār","The Compeller, the Restorer"],[10,"الْمُتَكَبِّرُ","Al-Mutakabbir","The Supreme in Greatness"],[11,"الْخَالِقُ","Al-Khāliq","The Creator"],[12,"الْبَارِئُ","Al-Bāri’","The Maker, the Evolver"],[13,"الْمُصَوِّرُ","Al-Muṣawwir","The Fashioner of Forms"],[14,"الْغَفَّارُ","Al-Ghaffār","The Ever-Forgiving"],[15,"الْقَهَّارُ","Al-Qahhār","The All-Prevailing"],[16,"الْوَهَّابُ","Al-Wahhāb","The Bestower"],[17,"الرَّزَّاقُ","Ar-Razzāq","The Provider"],[18,"الْفَتَّاحُ","Al-Fattāḥ","The Opener, the Judge"],[19,"الْعَلِيمُ","Al-‘Alīm","The All-Knowing"],[20,"الْقَابِضُ","Al-Qābiḍ","The Withholder"],[21,"الْبَاسِطُ","Al-Bāsiṭ","The Extender"],[22,"الْخَافِضُ","Al-Khāfiḍ","The Abaser"],[23,"الرَّافِعُ","Ar-Rāfi‘","The Exalter"],[24,"الْمُعِزُّ","Al-Mu‘izz","The Giver of Honour"],[25,"الْمُذِلُّ","Al-Mudhill","The Giver of Disgrace"],[26,"السَّمِيعُ","As-Samī‘","The All-Hearing"],[27,"الْبَصِيرُ","Al-Baṣīr","The All-Seeing"],[28,"الْحَكَمُ","Al-Ḥakam","The Judge"],[29,"الْعَدْلُ","Al-‘Adl","The Utterly Just"],[30,"اللَّطِيفُ","Al-Laṭīf","The Subtle, the Most Gentle"],[31,"الْخَبِيرُ","Al-Khabīr","The All-Aware"],[32,"الْحَلِيمُ","Al-Ḥalīm","The Forbearing"],[33,"الْعَظِيمُ","Al-‘Aẓīm","The Magnificent"],[34,"الْغَفُورُ","Al-Ghafūr","The All-Forgiving"],[35,"الشَّكُورُ","Ash-Shakūr","The Most Appreciative"],[36,"الْعَلِيُّ","Al-‘Aliyy","The Most High"],[37,"الْكَبِيرُ","Al-Kabīr","The Most Great"],[38,"الْحَفِيظُ","Al-Ḥafīẓ","The Preserver"],[39,"الْمُقِيتُ","Al-Muqīt","The Nourisher, the Sustainer"],[40,"الْحَسِيبُ","Al-Ḥasīb","The Reckoner"],[41,"الْجَلِيلُ","Al-Jalīl","The Majestic"],[42,"الْكَرِيمُ","Al-Karīm","The Most Generous"],[43,"الرَّقِيبُ","Ar-Raqīb","The Ever-Watchful"],[44,"الْمُجِيبُ","Al-Mujīb","The Answerer of Prayers"],[45,"الْوَاسِعُ","Al-Wāsi‘","The All-Encompassing"],[46,"الْحَكِيمُ","Al-Ḥakīm","The All-Wise"],[47,"الْوَدُودُ","Al-Wadūd","The Most Loving"],[48,"الْمَجِيدُ","Al-Majīd","The Most Glorious"],[49,"الْبَاعِثُ","Al-Bā‘ith","The Resurrector"],[50,"الشَّهِيدُ","Ash-Shahīd","The Witness"],[51,"الْحَقُّ","Al-Ḥaqq","The Truth"],[52,"الْوَكِيلُ","Al-Wakīl","The Trustee, the Disposer of Affairs"],[53,"الْقَوِيُّ","Al-Qawiyy","The All-Strong"],[54,"الْمَتِينُ","Al-Matīn","The Firm, the Steadfast"],[55,"الْوَلِيُّ","Al-Waliyy","The Protecting Friend"],[56,"الْحَمِيدُ","Al-Ḥamīd","The Praiseworthy"],[57,"الْمُحْصِي","Al-Muḥṣī","The One who counts all things"],[58,"الْمُبْدِئُ","Al-Mubdi’","The Originator"],[59,"الْمُعِيدُ","Al-Mu‘īd","The Restorer"],[60,"الْمُحْيِي","Al-Muḥyī","The Giver of Life"],[61,"الْمُمِيتُ","Al-Mumīt","The Bringer of Death"],[62,"الْحَيُّ","Al-Ḥayy","The Ever-Living"],[63,"الْقَيُّومُ","Al-Qayyūm","The Self-Sustaining, Sustainer of all"],[64,"الْوَاجِدُ","Al-Wājid","The Finder, the Self-Sufficient"],[65,"الْمَاجِدُ","Al-Mājid","The Illustrious"],[66,"الْوَاحِدُ","Al-Wāḥid","The One"],[67,"الْأَحَدُ","Al-Aḥad","The Unique, the Only One"],[68,"الصَّمَدُ","Aṣ-Ṣamad","The Eternal Refuge"],[69,"الْقَادِرُ","Al-Qādir","The All-Capable"],[70,"الْمُقْتَدِرُ","Al-Muqtadir","The All-Powerful"],[71,"الْمُقَدِّمُ","Al-Muqaddim","The Expediter"],[72,"الْمُؤَخِّرُ","Al-Mu’akhkhir","The Delayer"],[73,"الْأَوَّلُ","Al-Awwal","The First"],[74,"الآخِرُ","Al-Ākhir","The Last"],[75,"الظَّاهِرُ","Aẓ-Ẓāhir","The Manifest"],[76,"الْبَاطِنُ","Al-Bāṭin","The Hidden"],[77,"الْوَالِي","Al-Wālī","The Governor, the Patron"],[78,"الْمُتَعَالِي","Al-Muta‘ālī","The Most Exalted"],[79,"الْبَرُّ","Al-Barr","The Source of All Goodness"],[80,"التَّوَابُ","At-Tawwāb","The Ever-Accepting of Repentance"],[81,"الْمُنْتَقِمُ","Al-Muntaqim","The Avenger"],[82,"الْعَفُوُّ","Al-‘Afuww","The Pardoner"],[83,"الرَّؤُوفُ","Ar-Ra’ūf","The Most Kind"],[84,"مَالِكُ الْمُلْكِ","Mālik al-Mulk","Owner of All Sovereignty"],[85,"ذُو الْجَلَالِ وَالْإِكْرَامِ","Dhul-Jalāli wal-Ikrām","Lord of Majesty and Generosity"],[86,"الْمُقْسِطُ","Al-Muqsiṭ","The Equitable"],[87,"الْجَامِعُ","Al-Jāmi‘","The Gatherer"],[88,"الْغَنِيُّ","Al-Ghaniyy","The Self-Sufficient"],[89,"الْمُغْنِي","Al-Mughnī","The Enricher"],[90,"الْمَانِعُ","Al-Māni‘","The Preventer"],[91,"الضَّارُّ","Aḍ-Ḍārr","The One who allows harm"],[92,"النَّافِعُ","An-Nāfi‘","The One who brings benefit"],[93,"النُّورُ","An-Nūr","The Light"],[94,"الْهَادِي","Al-Hādī","The Guide"],[95,"الْبَدِيعُ","Al-Badī‘","The Incomparable Originator"],[96,"الْبَاقِي","Al-Bāqī","The Everlasting"],[97,"الْوَارِثُ","Al-Wārith","The Inheritor"],[98,"الرَّشِيدُ","Ar-Rashīd","The Guide to the Right Path"],[99,"الصَّبُورُ","Aṣ-Ṣabūr","The Most Patient"]]</script>
 <input type="file" id="bkf" hidden>
 <div class="ov" id="bkov" hidden><div class="sheet"><h3>Restore this backup?</h3><p id="bksum"></p><p class="mu" style="margin:0 0 12px">This replaces everything currently in the app on this phone.</p><div class="row"><button id="bkc">Cancel</button><button class="pri" id="bkok">Restore</button></div></div></div>
 
@@ -911,7 +950,7 @@ async function backupData(){
   for(const y of Object.keys(S.yrs))if(S.yrs[y])years[y]={m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)};
   if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||''))years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)}}catch(e){}}}
   let dhikr={};try{dhikr=JSON.parse(lsGet('salah_dhikr_h'))||{}}catch(e){}
-  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),skin:lsGet('salah_skin'),dhikr};
+  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),skin:lsGet('salah_skin'),dhikr,names:lsGet('salah_names')};
 }
 function markBackup(){lsSet('salah_lastbk',String(Date.now()));renderBackup();if(typeof queueNotifs==='function')queueNotifs()}
 let bkBusy=false;
@@ -980,6 +1019,7 @@ $('#bkok').onclick=async()=>{
     if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false}));
     if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
     if(/^(rawdah|kiswah|nabawi|alhambra|iznik|isfahan|mughal)$/.test(o.skin||''))lsSet('salah_skin',o.skin);
+    if(/^[01]{99}$/.test(o.names||''))lsSet('salah_names',o.names);
     if(o.dhikr&&typeof o.dhikr==='object'){const h={};for(const [k,v] of Object.entries(o.dhikr))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&/^(me|m|e)$/.test(v))h[k]=v;lsSet('salah_dhikr_h',JSON.stringify(h))}
     try{localStorage.removeItem('salah_board')}catch(e){}
     const cr=Date.parse(o.created);if(cr)lsSet('salah_lastbk',String(Math.min(cr,Date.now())));
@@ -1057,6 +1097,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterv
 let TM='',TMT=null;
 function renderToday(){
   if(!$('#tl')||!S.pub)return;
+  try{renderNameToday()}catch(e){}
   try{renderHijriToday()}catch(e){}
   try{renderDhikrToday()}catch(e){}
   const d=today0(),m=getMask(d),L=getLate(d),now=new Date(),xs=dayPrayers(d),nx=nextPrayer(now);
@@ -1183,6 +1224,8 @@ const dkLeft=(s,x)=>{const v=DKST[s][x.o];return v==null?x.n:v};
 function dkDefault(){const now=new Date(),dz=dayPrayers(today0())[1].start;return now<dz?'m':'e'}
 function renderDhikr(){
   if(!$('#dklist'))return;dkLoad();if(!DKS)DKS=dkDefault();
+  const nm=DKS==='n';$('#dkhead').hidden=nm;$('#dklist').hidden=nm;$('#dkcred').hidden=nm;$('#nmbox').hidden=!nm;
+  if(nm){document.querySelectorAll('#dkseg button').forEach(b=>{const on=b.dataset.s==='n';b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});renderNames();return}
   const s=DKS,xs=dkItems(s),done=xs.filter(x=>dkLeft(s,x)===0).length;
   document.querySelectorAll('#dkseg button').forEach(b=>{const on=b.dataset.s===s;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
   $('#dkst').textContent=(done===xs.length?'✓ All '+xs.length+' done — may Allah accept.':done+' of '+xs.length+' done');
@@ -1645,6 +1688,72 @@ async function renderAdhanCheck(){
   box.hidden=false;
   const b=$('#nbat');if(b)b.onclick=async()=>{try{await AP.openBattery()}catch(e){}};
 }
+
+
+/* ---- the 99 Names of Allah ---- */
+const NM=JSON.parse(document.getElementById('names-data').textContent); // [no, arabic, transliteration, meaning]
+let NMK=(()=>{try{const v=localStorage.getItem('salah_names');if(/^[01]{99}$/.test(v||''))return v.split('').map(Number)}catch(e){}return new Array(99).fill(0)})();
+let NMF='a',NMQ=null; // filter, practice state
+function nmSave(){try{localStorage.setItem('salah_names',NMK.join(''))}catch(e){}}
+const nmToday=()=>((dnOf(new Date())%99)+99)%99;
+function renderNames(){
+  const k=NMK.reduce((a,b)=>a+b,0);
+  $('#nmst').textContent=k===99?'✓ All 99 memorised — mā shā’ Allāh!':'Memorised '+k+' of 99';
+  $('#nmbar').style.width=(k/99*100).toFixed(1)+'%';
+  document.querySelectorAll('#nmf button').forEach(b=>b.classList.toggle('on',b.dataset.f===NMF));
+  const q=$('#nmq').value.trim().toLowerCase().replace(/[-‘’'ʿ]/g,''),norm=t=>t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[-‘’'ʿ]/g,'');
+  const xs=NM.filter((n,i)=>(NMF==='a'||(NMF==='k')===!!NMK[i])&&(!q||norm(n[2]).includes(norm(q))||norm(n[3]).includes(norm(q))||String(n[0])===q||n[1].includes($('#nmq').value.trim())));
+  $('#nmg').innerHTML=xs.length?xs.map(n=>'<button class="nm-t'+(NMK[n[0]-1]?' k':'')+'" data-n="'+n[0]+'"><i>'+n[0]+'</i><b lang="ar" dir="rtl">'+esc(n[1])+'</b><small>'+esc(n[2])+'</small></button>').join('')
+    :'<p class="mu" style="grid-column:1/-1;text-align:center;padding:14px 0">'+(NMF==='k'&&!q?'None marked as memorised yet. Tap a Name, then “I know this one”.':'Nothing matches.')+'</p>';
+}
+function renderNameToday(){
+  const el=$('#nmtoday');if(!el)return;const n=NM[nmToday()];
+  el.innerHTML='<span class="a" lang="ar" dir="rtl">'+esc(n[1])+'</span><span class="b"><small>Name of Allah for today · '+n[0]+' of 99</small><strong>'+esc(n[2])+'</strong><span>'+esc(n[3])+'</span></span>';
+}
+function nmOpen(no,quiz){
+  NMQ=quiz||null;$('#nmov').hidden=false;nmShow(no);
+}
+function nmShow(no){
+  const n=NM[no-1],k=!!NMK[no-1],Q=NMQ;
+  $('#nmd-n').textContent=Q?'Practice · '+(Q.i+1)+' of '+Q.list.length:'Name '+no+' of 99';
+  $('#nmd').innerHTML='<p class="nm-big" lang="ar" dir="rtl">'+esc(n[1])+'</p>'
+    +'<p class="nm-tr'+(Q&&!Q.shown?' nm-hide':'')+'">'+esc(n[2])+'</p><p class="nm-en'+(Q&&!Q.shown?' nm-hide':'')+'">'+esc(n[3])+'</p>'
+    +(Q?(Q.shown?'<div class="nm-q2"><button data-q="0">Still learning</button><button class="pri" data-q="1">✓ I knew it</button></div>':'<button class="pri" style="width:100%" data-q="show">Show the meaning</button>')
+       :'<button class="nm-k'+(k?' on':'')+'" data-k="'+no+'">'+(k?'✓ Memorised':'I know this one')+'</button><div class="nm-nav"><button data-go="'+(no===1?99:no-1)+'" aria-label="Previous name">‹ '+(no===1?99:no-1)+'</button><button data-go="'+(no===99?1:no+1)+'" aria-label="Next name">'+(no===99?1:no+1)+' ›</button></div>');
+  $('#nmd').dataset.no=no;
+}
+function nmPractice(){
+  let list=NM.map((n,i)=>i+1).filter(no=>!NMK[no-1]);
+  if(!list.length)list=NM.map((n,i)=>i+1);
+  for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]]}
+  list=list.slice(0,10);
+  nmOpen(list[0],{list,i:0,shown:false,right:0});
+}
+$('#nmd').onclick=e=>{
+  const no=+$('#nmd').dataset.no,Q=NMQ,b=e.target.closest('button');if(!b)return;
+  if(b.dataset.go){nmShow(+b.dataset.go);return}
+  if(b.dataset.k){NMK[no-1]=NMK[no-1]?0:1;nmSave();nmShow(no);renderNames();return}
+  if(!Q)return;
+  if(b.dataset.q==='show'){Q.shown=true;nmShow(no);return}
+  if(b.dataset.q==='1'){NMK[no-1]=1;Q.right++;nmSave()}
+  if(b.dataset.q==='0'||b.dataset.q==='1'){
+    Q.i++;Q.shown=false;
+    if(Q.i<Q.list.length){nmShow(Q.list[Q.i]);return}
+    const k=NMK.reduce((a,c)=>a+c,0);
+    $('#nmd-n').textContent='Practice done';
+    $('#nmd').innerHTML='<p class="nm-big" style="font-size:40px">'+Q.right+' / '+Q.list.length+'</p><p class="nm-en">You knew '+Q.right+' of these '+Q.list.length+'. Memorised in total: '+k+' of 99.</p><div class="nm-q2"><button data-close="1">Done</button><button class="pri" data-again="1">Practise again</button></div>';
+    $('#nmd').dataset.no='';renderNames();
+  }
+};
+$('#nmov').addEventListener('click',e=>{if(e.target.closest('[data-again]')){nmPractice();return}if(e.target.id==='nmov'||e.target.closest('[data-close]'))$('#nmov').hidden=true});
+$('#nmx').onclick=()=>{$('#nmov').hidden=true};
+$('#nmg').onclick=e=>{const b=e.target.closest('[data-n]');if(b)nmOpen(+b.dataset.n)};
+$('#nmf').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;NMF=b.dataset.f;renderNames()};
+$('#nmq').oninput=renderNames;
+$('#nmprac').onclick=nmPractice;
+$('#nmday').onclick=()=>nmOpen(nmToday()+1);
+$('#nmtoday').onclick=()=>{showTab('dhikr');DKS='n';renderDhikr();nmOpen(nmToday()+1)};
+renderNameToday();
 
 /* ---- live board: read in the background when the app opens ---- */
 function boardURL(x){
