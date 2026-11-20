@@ -1,0 +1,20 @@
+name: probe
+on:
+  push:
+    branches: [probe]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fetch
+        run: |
+          UA="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36"
+          for id in lakefield-ansaar boksburg-islamic-institute; do
+            echo "=========== board $id"
+            curl -sSL -A "$UA" "https://masjidboardlive.com/boards/?id=$id" -o /tmp/b; wc -c /tmp/b
+            sed -e 's/<script[^>]*>/\n<SCRIPT>/g' /tmp/b | grep -n -i -E 'hijri|islamic|jumad|rajab|1448|1447|date_adjust|moon|ummalqura|islamic-umalqura|hdate|hijridate' | cut -c1-400 | head -40
+            echo "--- scripts"; grep -oE '<script[^>]*src="[^"]*"' /tmp/b
+            echo "--- visible text"; sed -e 's/<[^>]*>/ /g' /tmp/b | tr -s ' \n' ' ' | head -c 1500; echo
+          done
+          echo "=========== api"
+          curl -sS -X POST -d 'type=masjid&search=Lakefield&countryName=South Africa&provinceName=Gauteng&cityName=Lakefield' https://masjidboardlive.com/findmasjid/assets/php/live_page.php | head -c 3000; echo
