@@ -22,6 +22,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(Compass.class);
         registerPlugin(Launch.class);
         registerPlugin(Review.class);
+        registerPlugin(Lock.class);
         super.onCreate(savedInstanceState);
     }
 }
