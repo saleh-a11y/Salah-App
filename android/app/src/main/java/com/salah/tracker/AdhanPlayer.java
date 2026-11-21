@@ -187,9 +187,9 @@ public class AdhanPlayer extends Plugin {
                 long at = o.optLong("at");
                 if (at <= now) continue;
                 String kind = o.optString("kind", "adhan"), d = o.optString("d", null);
-                int p = o.optInt("p", -1);
-                if (!kind.equals("adhan") && Ticks.has(c, d, p)) continue;
-                setAlarm(c, at, alarmIntent(c, o.optInt("id"), o.optString("title"), o.optString("body"), kind, d, p));
+                int pr = o.optInt("p", -1);
+                if (!kind.equals("adhan") && Ticks.has(c, d, pr)) continue;
+                setAlarm(c, at, alarmIntent(c, o.optInt("id"), o.optString("title"), o.optString("body"), kind, d, pr));
             }
         } catch (Exception ignored) {}
     }
