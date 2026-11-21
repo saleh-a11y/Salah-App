@@ -13,7 +13,7 @@
             android:textColor="#FFFFFFFF" android:textSize="30sp" android:fontFamily="sans-serif-light" android:text="--:--" />
         <TextView android:id="@+id/w_label" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginStart="8dp" android:layout_marginBottom="5dp" android:textColor="#FFCFE0D6" android:textSize="12sp" android:maxLines="1" />
-        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
         <Chronometer android:id="@+id/w_cd" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginBottom="5dp" android:textColor="#FFE6C983" android:textSize="15sp" />
     </LinearLayout>
