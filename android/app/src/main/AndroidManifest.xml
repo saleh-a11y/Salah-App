@@ -49,6 +49,7 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".Ticks" android:exported="false" />
         <service android:name=".AdhanService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
     </application>
 

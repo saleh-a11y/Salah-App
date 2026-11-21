@@ -366,6 +366,8 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 #qzm{color:var(--gold);font-size:14px;min-height:18px;margin:10px 0 0}
 .fz-n{text-align:center;margin-bottom:8px}.fz-n b{display:block;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:44px;color:var(--gold);line-height:1.05}.fz-n span{color:var(--mu);font-size:14px}
 #fzb input[type=number]{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit}
+
+.relg{margin-top:10px;border-top:1px solid var(--bd);padding-top:8px}.relg summary{display:flex;align-items:center;cursor:pointer;font-size:14px;padding:6px 0;font-weight:600}.relg ol{padding-left:20px;margin:6px 0;font-size:14px;line-height:1.5}.relg li{margin:4px 0}
 </style>
 </head>
 <body>
@@ -429,6 +431,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="row"><button class="pri" id="qa">Add</button><button id="qu">Take off</button></div>
 <p id="qm" class="mu" style="margin:10px 0 0"></p></details>
 <details class="qz-det"><summary>History</summary><ul class="qz-hist" id="qhist"></ul></details>
+<div class="row" style="margin-top:12px"><button id="qzpdf">Save a qaḍā report (PDF)</button></div><p id="qzpm" class="mu" style="margin:6px 0 0;font-size:13px"></p>
 </div>
 
 <div class="card">
@@ -505,6 +508,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p id="bkst" style="margin:0 0 10px;font-size:14px"></p>
 <div class="row"><button class="pri" id="bkb">Back up now</button><button id="bkr">Restore</button></div>
 <p id="bkm" class="mu" style="margin:8px 0 0"></p>
+<p class="mu" style="margin:10px 0 0;font-size:12px">Your qaḍā count is stored as a history of every change, so it is never lost. If “Back up to Google” is on in your phone’s settings, Android also keeps a copy of the app’s data.</p>
 </div>
 
 <div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
@@ -583,7 +587,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={pub:null,yrs:{},yl:{},yj:{},yx:{},ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -605,7 +609,7 @@ const stat=t=>$('#stat').textContent=t;
 function dirty(y){D.add(y);stat('Saving…');clearTimeout(T);T=setTimeout(flush,500);if(typeof queueNotifs==='function')queueNotifs()}
 async function flush(){
   const ys=[...D];D.clear();
-  try{for(const y of ys)await save('y'+y,{m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)});stat('Saved ✓')}
+  try{for(const y of ys)await save('y'+y,yearDoc(y));stat('Saved ✓')}
   catch(e){ys.forEach(y=>D.add(y));stat('Couldn’t save')}
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&D.size)flush()});
@@ -613,16 +617,24 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&D.size)flu
 /* data: each year is a 366-char string, one base-32 digit per day (bit 0 Fajr … bit 4 Isha) */
 function getMask(d){const s=S.yrs[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
 function getLate(d){const s=S.yl[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+/* extra per-day strings: j = prayed in jamā'ah, x = excused (travel, illness, ḥayḍ…) */
+function getJam(d){const s=S.yj[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+function getEx(d){const s=S.yx[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+function setBits(o,d,v){const y=d.getFullYear(),i=doy(d),s=o[y]||'0'.repeat(366);o[y]=s.slice(0,i)+v.toString(32)+s.slice(i+1);dirty(y)}
+const setJam=(d,v)=>setBits(S.yj,d,v&getMask(d)),setEx=(d,v)=>setBits(S.yx,d,v);
+const yearDoc=y=>{const o={m:S.yrs[y]||'0'.repeat(366),l:S.yl[y]||'0'.repeat(366)};if(S.yj[y])o.j=S.yj[y];if(S.yx[y])o.x=S.yx[y];return o};
 function setMask(d,m,l){
   const y=d.getFullYear(),i=doy(d),s=S.yrs[y]||'0'.repeat(366),t=S.yl[y]||'0'.repeat(366);
   l=(l===undefined?getLate(d):l)&m;
   S.yrs[y]=s.slice(0,i)+m.toString(32)+s.slice(i+1);
-  S.yl[y]=t.slice(0,i)+l.toString(32)+t.slice(i+1);dirty(y);
+  S.yl[y]=t.slice(0,i)+l.toString(32)+t.slice(i+1);
+  if(S.yj[y]){const j=S.yj[y];S.yj[y]=j.slice(0,i)+((parseInt(j[i],32)||0)&m).toString(32)+j.slice(i+1)}
+  dirty(y);
 }
 async function loadYears(){
   const a=parse(S.pub).getFullYear(),b=new Date().getFullYear(),ys=[];
   for(let y=a;y<=b;y++)if(!(y in S.yrs))ys.push(y);
-  await Promise.all(ys.map(async y=>{const o=await load('y'+y);S.yrs[y]=o&&typeof o.m==='string'?o.m:null;S.yl[y]=o&&typeof o.l==='string'?o.l:null}));
+  await Promise.all(ys.map(async y=>{const o=await load('y'+y);S.yrs[y]=o&&typeof o.m==='string'?o.m:null;S.yl[y]=o&&typeof o.l==='string'?o.l:null;S.yj[y]=o&&YRE.test(o.j||'')?o.j:null;S.yx[y]=o&&YRE.test(o.x||'')?o.x:null}));
 }
 
 /* stats: every past day since puberty counts 5 prayers; unticked = missed */
@@ -845,10 +857,11 @@ function planNotifs(){
     const at=min=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(min));
     for(let i=0;i<5;i++){
       const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body,x)=>{if(t.getTime()>now+30000)out.push(Object.assign({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}},x||{}))};
-      if(NP.adh){const ba=boardAdhan(i,fri),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1'})}
+      const dd=ymd(d);
+      if(NP.adh){const ba=boardAdhan(i,fri),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i})}
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
       if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
-      if(NP.end&&!(m>>i&1))add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.');
+      if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
     }
   }
   let lb=0;try{lb=+localStorage.getItem('salah_lastbk')||0}catch(e){}
@@ -863,16 +876,33 @@ async function scheduleNotifs(){
     const setAdhan=async items=>{if(!AP)return false;try{await AP.setSchedule({items});return true}catch(e){return false}};
     if(!NP.on||!S.pub){await setAdhan([]);return renderNotif()}
     if((await LN.checkPermissions()).display!=='granted'){NP.on=false;saveNP();await setAdhan([]);return renderNotif()}
-    const list=planNotifs(),adh=list.filter(isAdhan);
+    const list=planNotifs(),isNat=n=>isAdhan(n)||n.id%10===3&&n.id<900,adh=list.filter(isNat);
     /* the adhān is played by the app's own alarm player (full recording, works with the app closed); plain notifications as a fallback */
-    const native=await setAdhan(adh.map(n=>({id:n.id,at:new Date(n.schedule.at).getTime(),title:n.title,body:n.body})));
+    try{if(AP)await AP.setDone({done:doneList()})}catch(e){}
+    const native=await setAdhan(adh.map(n=>({id:n.id,at:new Date(n.schedule.at).getTime(),title:n.title,body:n.body,kind:isAdhan(n)?'adhan':'end',d:n.d,p:n.p})));
     if(native){try{await LN.deleteChannel({id:'adhan1'})}catch(e){}}else{try{await LN.createChannel(ADHAN_CH)}catch(e){}}
-    const rest=native?list.filter(n=>!isAdhan(n)):list;
+    const rest=(native?list.filter(n=>!isNat(n)):list).map(n=>{const o=Object.assign({},n);delete o.d;delete o.p;return o});
     if(rest.length)await LN.schedule({notifications:rest});
     renderNotif(list[0]);
   }catch(e){$('#nst').textContent='Couldn’t set up notifications. Open the app again to retry.'}
 }
 const queueNotifs=()=>{clearTimeout(NT);NT=setTimeout(scheduleNotifs,1500)};
+/* prayers already ticked (last 2 days to the next 2), so the phone skips their reminders */
+function doneList(){const o=[],t=today0();for(let k=-2;k<3;k++){const d=addDays(t,k),m=getMask(d)|getEx(d);for(let i=0;i<5;i++)if(m>>i&1)o.push(ymd(d)+':'+i)}return o}
+/* ticks made with the notification buttons while the app was closed */
+async function takeTicks(){
+  if(!AP||!S.pub)return 0;let r;try{r=await AP.takeTicks()}catch(e){return 0}
+  const ts=(r&&r.ticks)||[];let n=0;
+  for(const x of ts){
+    if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x.d)||!(x.p>=0&&x.p<5))continue;const d=parse(x.d);if(d<parse(S.pub)||d>today0())continue;
+    const b=1<<x.p,W=win(d),at=new Date(+x.t||Date.now()),mins=(at-d)/6e4,late=mins>W[x.p][1];
+    if(!(getMask(d)&b))setMask(d,getMask(d)|b,late?getLate(d)|b:getLate(d)&~b);
+    setJam(d,x.j?getJam(d)|b:getJam(d)&~b);n++;
+  }
+  if(n){all();if(typeof renderToday==='function')renderToday();TM=n===1?'Ticked from your notification ✓':n+' prayers ticked from your notifications ✓'}
+  return n;
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)takeTicks()});
 async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
@@ -912,8 +942,8 @@ const tickCount=yrs=>Object.values(yrs).reduce((a,o)=>a+(o&&o.m?[...o.m].reduce(
 async function backupData(){
   if(D.size)await flush();
   const years={};
-  for(const y of Object.keys(S.yrs))if(S.yrs[y])years[y]={m:S.yrs[y],l:S.yl[y]||'0'.repeat(366)};
-  if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||''))years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)}}catch(e){}}}
+  for(const y of Object.keys(S.yrs))if(S.yrs[y]||S.yx[y])years[y]=yearDoc(y);
+  if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||'')){years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)};if(YRE.test(o.j||''))years[m[1]].j=o.j;if(YRE.test(o.x||''))years[m[1]].x=o.x}}catch(e){}}}
   let dhikr={};try{dhikr=JSON.parse(lsGet('salah_dhikr_h'))||{}}catch(e){}
   return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),dhikr,names:lsGet('salah_names'),mydk:MY};
 }
@@ -951,7 +981,7 @@ $('#bkr').onclick=pickBackup;$('#bkr2').onclick=pickBackup;
 function checkBackup(o){
   if(!o||o.app!=='salah-tracker'||typeof o.format!=='number'||o.format>1)return null;
   const st=o.settings;if(!st||!/^\d{4}-\d{2}-\d{2}$/.test(st.pub||''))return null;
-  const years={};for(const [y,v] of Object.entries(o.years||{}))if(/^\d{4}$/.test(y)&&v&&YRE.test(v.m||''))years[y]={m:v.m,l:YRE.test(v.l||'')?v.l:'0'.repeat(366)};
+  const years={};for(const [y,v] of Object.entries(o.years||{}))if(/^\d{4}$/.test(y)&&v&&YRE.test(v.m||'')){years[y]={m:v.m,l:YRE.test(v.l||'')?v.l:'0'.repeat(366)};if(YRE.test(v.j||''))years[y].j=v.j;if(YRE.test(v.x||''))years[y].x=v.x}
   return{o,years};
 }
 const showMsg=t=>{if(S.pub&&!S.edit){$('#bkm').className='mu';$('#bkm').textContent=t}else $('#ph').textContent=t};
@@ -1255,6 +1285,43 @@ $('#qzhero').onclick=e=>{
 };
 $('#qzgo').onclick=()=>qzOpen();
 /* add several at once */
+
+/* a qaḍā report as a simple PDF (plain text pages, so it opens anywhere) */
+function pdfDoc(lines){
+  const W=595,H=842,M=50,LH=16,per=Math.floor((H-2*M)/LH),pages=[];for(let i=0;i<lines.length;i+=per)pages.push(lines.slice(i,i+per));
+  const enc=t=>String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[ʿʾ’‘]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/[^\x20-\x7e]/g,'').replace(/[\\()]/g,m=>'\\'+m);
+  const objs=[];const add=s=>{objs.push(s);return objs.length};
+  const cat=add(''),pg=add(''),font=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'),bold=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'),kids=[];
+  pages.forEach(L=>{let st='BT /F1 11 Tf '+M+' '+(H-M)+' Td '+LH+' TL\n';L.forEach(l=>{const b=l.startsWith('#');st+=(b?'/F2 13 Tf ':'/F1 11 Tf ')+'('+enc(b?l.slice(1):l)+') Tj T*\n'});st+='ET';
+    const c=add('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');kids.push(add('<< /Type /Page /Parent '+pg+' 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 '+font+' 0 R /F2 '+bold+' 0 R >> >> /Contents '+c+' 0 R >>'))});
+  objs[cat-1]='<< /Type /Catalog /Pages '+pg+' 0 R >>';objs[pg-1]='<< /Type /Pages /Kids ['+kids.map(k=>k+' 0 R').join(' ')+'] /Count '+kids.length+' >>';
+  let out='%PDF-1.4\n';const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+  const x=out.length;out+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root '+cat+' 0 R >>\nstartxref\n'+x+'\n%%EOF';
+  return out;
+}
+function qzReport(){
+  const C=qzCalc(),Z=S.qz,per=qzPace(),L=['#Salah Tracker - Qada report','Made on '+fmt(new Date()),''];
+  if(Z&&Z.done)L.push('Madhab: '+(Z.mz==='shafii'?"Shafi'i":'Hanafi')+'   Counting from: '+fmt(parse(S.pub)));else L.push('Counting from: '+fmt(parse(S.pub)));
+  if(Z&&Z.ranges.length)L.push('Prayed regularly: '+Z.ranges.map(r=>fmt(parse(r[0]))+' - '+fmt(parse(r[1]))).join(', '));
+  if(Z&&Z.g==='f')L.push('Hayd days a month: '+Z.hd+'   Nifas days: '+Z.nf);
+  if(Z&&Z.mg)L.push('2% added to be on the safe side');
+  L.push('','#Prayers','Prayer          Owed        Made up     Left');
+  C.owed.forEach((o,i)=>L.push(QP[i].padEnd(16)+String(o).padEnd(12)+String(C.made[i]).padEnd(12)+C.rem[i]));
+  L.push('Total'.padEnd(16)+String(C.tot).padEnd(12)+String(C.mt).padEnd(12)+C.rt,'');
+  L.push(Math.round(C.pct)+'% made up.'+(C.rt?' At '+per+' a day: finish around '+monthYear(finishDate(C.rt,per))+'.':''));
+  if(S.fz&&S.fz.set){const o=fzOwed(S.fz);L.push('','#Fasts','Owed '+o+'   Made up '+S.fz.made+'   Left '+Math.max(0,o-S.fz.made))}
+  const ev=(S.qe||[]).slice(-40).reverse();if(ev.length){L.push('','#Latest make-ups');ev.forEach(e=>L.push(new Date(e[0]).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'   '+(e[2]>0?'+':'')+e[2]+' '+QP[e[1]]))}
+  L.push('','An estimate to help you plan, not a ruling. Please confirm with your local alim.');
+  return pdfDoc(L);
+}
+$('#qzpdf').onclick=async()=>{
+  const m=$('#qzpm'),name='qada-report-'+ymd(today0())+'.pdf',pdf=qzReport();m.textContent='';
+  try{
+    if(FSP&&SHP){const w=await FSP.writeFile({path:name,data:btoa(pdf),directory:'CACHE'});try{await SHP.share({title:'Qaḍā report',files:[w.uri],dialogTitle:'Save or send your report'})}catch(e){if(/cancel/i.test(String(e&&e.message||e)))return;throw e}}
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pdf],{type:'application/pdf'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+    m.textContent='✓ Report ready.';
+  }catch(e){m.textContent='Couldn’t make the report. Please try again.'}
+};
 
 /* qaḍā on the Today page */
 function renderQzToday(){
@@ -1880,6 +1947,31 @@ function adhanWhat(w){
   if(/refused|blocked/.test(w))return'⚠ The phone blocked the adhān player: '+w.replace(/^[^:]*:\s*/,'');
   return'⚠ '+w;
 }
+/* phone makers whose battery savers stop alarms: the extra steps for each (from dontkillmyapp.com) */
+const OEM={
+  samsung:['Samsung',['Settings → Apps → Salah Tracker → Battery → choose <b>Unrestricted</b>.','Settings → Battery → Background usage limits → make sure Salah Tracker is <b>not</b> in “Sleeping apps” or “Deep sleeping apps”. Add it to “Never sleeping apps”.','Turn off “Put unused apps to sleep”.']],
+  xiaomi:['Xiaomi / Redmi / POCO',['Settings → Apps → Manage apps → Salah Tracker → <b>Autostart</b> on.','Same page → Battery saver → <b>No restrictions</b>.','Open recent apps, press and hold Salah Tracker and tap the <b>lock</b> icon.']],
+  oppo:['OPPO',['Settings → Apps → Salah Tracker → Battery usage → allow <b>background activity</b> and <b>auto launch</b>.','Lock the app in recent apps (press and hold, tap the lock).']],
+  realme:['realme',['Settings → Apps → Salah Tracker → Battery usage → allow <b>background activity</b> and <b>auto launch</b>.','Lock the app in recent apps.']],
+  oneplus:['OnePlus',['Settings → Apps → Salah Tracker → Battery → <b>Don’t optimise</b> / Unrestricted.','Settings → Battery → Advanced → turn off “Optimise battery use” for Salah Tracker.','Lock the app in recent apps.']],
+  vivo:['vivo',['Settings → Battery → Background power consumption → allow Salah Tracker <b>high background power</b>.','Settings → Apps → Autostart → allow Salah Tracker.']],
+  huawei:['Huawei',['Settings → Battery → App launch → Salah Tracker → switch to <b>Manage manually</b> and turn on all three (auto-launch, secondary launch, run in background).','Lock the app in recent apps.']],
+  honor:['Honor',['Settings → Battery → App launch → Salah Tracker → <b>Manage manually</b>, turn all three on.','Lock the app in recent apps.']],
+  tecno:['Tecno / Infinix',['Phone Master → App launch / Auto-start → allow Salah Tracker.','Settings → Battery → turn off “Power saving” for Salah Tracker.']],
+  infinix:['Infinix',['Phone Master → Auto-start → allow Salah Tracker.','Settings → Battery → turn off power saving for Salah Tracker.']],
+  motorola:['Motorola',['Settings → Apps → Salah Tracker → Battery → <b>Unrestricted</b>.']],
+  google:['Pixel',['Settings → Apps → Salah Tracker → App battery usage → <b>Unrestricted</b>.']],
+};
+function relGuide(st){
+  const mk=(st.maker||'').replace(/[^a-z]/g,''),o=OEM[mk]||OEM[Object.keys(OEM).find(k=>mk.includes(k))];
+  const steps=(o?o[1]:['Settings → Apps → Salah Tracker → Battery → choose <b>Unrestricted</b> (or “Don’t optimise”).','If your phone has an “auto-start” or “app launch” setting, allow Salah Tracker there.']);
+  return '<details class="relg"><summary>Make alerts reliable on '+(o?o[0]:'your phone')+'</summary><ol>'
+    +'<li>Notifications for Salah Tracker are <b>on</b>, and the “Adhān” and “Prayer reminders” categories are allowed.</li>'
+    +steps.map(x=>'<li>'+x+'</li>').join('')
+    +'<li>Don’t swipe Salah Tracker away with “Clear all” in recent apps.</li></ol>'
+    +'<div class="row"><button id="napp">Open app settings</button></div>'
+    +'<p class="mu" style="font-size:12px;margin:8px 0 0">Then use “Test the adhān” and lock your screen to check.</p></details>';
+}
 async function renderAdhanCheck(){
   const box=$('#nchk');if(!box)return;
   if(!AP||!NP.on||!NP.adh){box.hidden=true;return}
@@ -1898,9 +1990,13 @@ async function renderAdhanCheck(){
   box.innerHTML='<h4>Adhān check</h4><p>'+nx+'</p>'
    +warn.map(w=>'<p class="w">⚠ '+esc(w)+'</p>').join('')
    +(st.batteryFree===false?'<p class="w">⚠ Battery saving can delay or block the adhān.</p><button id="nbat">Let the adhān run in the background</button>':'')
+   +(st.exact===false?'<button id="nexa" style="margin-top:6px">Allow exact timing</button>':'')
+   +relGuide(st)
    +(log.length?'<h4 style="margin-top:10px">What happened recently</h4><ul>'+log.map(e=>{const d=new Date(e.t);return '<li><time>'+d.toLocaleDateString(undefined,{weekday:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})+'</time><span>'+esc((e.title||'').replace(/ adhān.*$/i,'').replace(/^Adhān test$/,'Test'))+(e.title?': ':'')+esc(adhanWhat(e.what||''))+'</span></li>'}).join('')+'</ul>':'<p class="mu" style="font-size:13px">Nothing recorded yet. After the next adhān (or the test), this shows whether it played.</p>');
   box.hidden=false;
   const b=$('#nbat');if(b)b.onclick=async()=>{try{await AP.openBattery()}catch(e){}};
+  const ex=$('#nexa');if(ex)ex.onclick=async()=>{try{await AP.openExact()}catch(e){}};
+  const as=$('#napp');if(as)as.onclick=async()=>{try{await AP.openAppSettings()}catch(e){}};
 }
 
 
@@ -2292,7 +2388,7 @@ function boot(){
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');checkUpdate(true);loadBoardCache();boot();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();
+  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri();if(TAB==='more')try{renderAdhanCheck()}catch(e){}}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>

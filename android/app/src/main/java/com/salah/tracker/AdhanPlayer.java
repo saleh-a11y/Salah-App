@@ -45,7 +45,7 @@ public class AdhanPlayer extends Plugin {
     public void test(PluginCall call) {
         Context c = getContext();
         long at = System.currentTimeMillis() + call.getInt("delay", 5000);
-        PendingIntent pi = alarmIntent(c, 999, call.getString("title", "Adhān test"), call.getString("body", "This is how the adhān will sound at prayer time."));
+        PendingIntent pi = alarmIntent(c, 999, call.getString("title", "Adhān test"), call.getString("body", "This is how the adhān will sound at prayer time."), "adhan", null, -1);
         setAlarm(c, at, pi);
         call.resolve();
     }
@@ -63,6 +63,8 @@ public class AdhanPlayer extends Plugin {
         JSObject r = new JSObject();
         r.put("exact", canExact(c));
         r.put("playing", AdhanService.playing);
+        r.put("maker", Build.MANUFACTURER == null ? "" : Build.MANUFACTURER.toLowerCase());
+        r.put("sdk", Build.VERSION.SDK_INT);
         try {
             SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             JSONArray a = new JSONArray(p.getString("items", "[]"));
@@ -106,6 +108,48 @@ public class AdhanPlayer extends Plugin {
         call.resolve();
     }
 
+    /** Ticks made from notification buttons while the app was closed; handed over once. */
+    @PluginMethod
+    public void takeTicks(PluginCall call) {
+        SharedPreferences p = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        JSObject r = new JSObject();
+        try { r.put("ticks", new JSArray(p.getString("ticks", "[]"))); } catch (Exception e) { r.put("ticks", new JSArray()); }
+        p.edit().remove("ticks").apply();
+        call.resolve(r);
+    }
+
+    /** The prayers already ticked in the app, so reminders for them are skipped. */
+    @PluginMethod
+    public void setDone(PluginCall call) {
+        JSArray a = call.getArray("done", new JSArray());
+        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("done", a.toString()).apply();
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void openAppSettings(PluginCall call) {
+        Context c = getContext();
+        try {
+            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + c.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+        } catch (Exception ignored) {}
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void openExact(PluginCall call) {
+        Context c = getContext();
+        try {
+            Intent i = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    ? new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + c.getPackageName()))
+                    : new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + c.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+        } catch (Exception ignored) {}
+        call.resolve();
+    }
+
     @PluginMethod
     public void clearLog(PluginCall call) {
         getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove("log").apply();
@@ -126,7 +170,7 @@ public class AdhanPlayer extends Plugin {
             AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
             for (int k = 0; k < old.length(); k++) {
                 int id = old.getJSONObject(k).optInt("id");
-                am.cancel(alarmIntent(c, id, "", ""));
+                am.cancel(alarmIntent(c, id, "", "", "", null, -1));
             }
         } catch (Exception ignored) {}
         p.edit().putString("items", json).apply();
@@ -142,14 +186,17 @@ public class AdhanPlayer extends Plugin {
                 JSONObject o = a.getJSONObject(k);
                 long at = o.optLong("at");
                 if (at <= now) continue;
-                setAlarm(c, at, alarmIntent(c, o.optInt("id"), o.optString("title"), o.optString("body")));
+                String kind = o.optString("kind", "adhan"), d = o.optString("d", null);
+                int p = o.optInt("p", -1);
+                if (!kind.equals("adhan") && Ticks.has(c, d, p)) continue;
+                setAlarm(c, at, alarmIntent(c, o.optInt("id"), o.optString("title"), o.optString("body"), kind, d, p));
             }
         } catch (Exception ignored) {}
     }
 
-    static PendingIntent alarmIntent(Context c, int id, String title, String body) {
+    static PendingIntent alarmIntent(Context c, int id, String title, String body, String kind, String d, int p) {
         Intent i = new Intent(c, AdhanReceiver.class).setAction("com.salah.tracker.ADHAN." + id);
-        i.putExtra("id", id).putExtra("title", title).putExtra("body", body);
+        i.putExtra("id", id).putExtra("title", title).putExtra("body", body).putExtra("kind", kind).putExtra("d", d).putExtra("p", p);
         return PendingIntent.getBroadcast(c, RC_BASE + id, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 

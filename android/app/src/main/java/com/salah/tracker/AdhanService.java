@@ -33,7 +33,8 @@ public class AdhanService extends Service {
     private AudioManager am;
     private AudioFocusRequest focus;
     private int noteId = 7000;
-    private String title = "Adhān", body = "";
+    private String title = "Adhān", body = "", day = null;
+    private int prayer = -1;
 
     @Override public IBinder onBind(Intent i) { return null; }
 
@@ -48,6 +49,8 @@ public class AdhanService extends Service {
             title = orDefault(intent.getStringExtra("title"), "Adhān");
             body = orDefault(intent.getStringExtra("body"), "");
             noteId = 7000 + intent.getIntExtra("id", 0);
+            day = intent.getStringExtra("d");
+            prayer = intent.getIntExtra("p", -1);
         }
         channels(this);
         Notification n = build(true);
@@ -161,6 +164,7 @@ public class AdhanService extends Service {
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             b.addAction(0, "Stop adhān", stop).setDeleteIntent(stop).setOngoing(true);
         }
+        Ticks.actions(this, b, noteId, day, prayer, !withStop);
         return b.build();
     }
 
@@ -183,6 +187,9 @@ public class AdhanService extends Service {
         nm.createNotificationChannel(quiet);
         NotificationChannel fb = new NotificationChannel(CH_FALLBACK, "Adhān (backup alert)", NotificationManager.IMPORTANCE_HIGH);
         nm.createNotificationChannel(fb);
+        NotificationChannel rm = new NotificationChannel(Ticks.CH_REMIND, "Prayer reminders", NotificationManager.IMPORTANCE_HIGH);
+        rm.setDescription("“Ends in 10 minutes” and “Did you pray?” reminders, with buttons to tick the prayer");
+        nm.createNotificationChannel(rm);
     }
 
     /** A normal notification, used when the player can't start (or as a quiet notice). */

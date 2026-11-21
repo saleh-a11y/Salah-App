@@ -15,11 +15,19 @@ public class AdhanReceiver extends BroadcastReceiver {
             AdhanPlayer.schedule(c);
             return;
         }
+        String kind = intent.getStringExtra("kind"), d = intent.getStringExtra("d");
+        int p = intent.getIntExtra("p", -1);
+        if (kind != null && !kind.equals("adhan")) {
+            // a reminder: skipped if the prayer was ticked in the meantime
+            if (!Ticks.has(c, d, p)) Ticks.remind(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), intent.getStringExtra("body"), d, p);
+            return;
+        }
         AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "alarm went off");
         Intent s = new Intent(c, AdhanService.class)
                 .putExtra("id", intent.getIntExtra("id", 0))
                 .putExtra("title", intent.getStringExtra("title"))
-                .putExtra("body", intent.getStringExtra("body"));
+                .putExtra("body", intent.getStringExtra("body"))
+                .putExtra("d", d).putExtra("p", p);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) c.startForegroundService(s);
             else c.startService(s);
