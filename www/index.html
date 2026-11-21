@@ -371,6 +371,17 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 
 .bchg{border-color:var(--gold)}.bchg b{display:block}.bchg ul{margin:6px 0 10px;padding-left:18px;font-size:14px}
 .kahf{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:12px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 40%,var(--bd));font-size:14px}.kahf button{white-space:nowrap;padding:8px 12px}.kahf button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}
+
+.sbt{display:flex;flex-direction:column;gap:4px}.sbt button{padding:5px 10px;border-radius:12px;font-size:12px;flex:1}.jm.on{background:color-mix(in srgb,var(--gold) 22%,var(--card));border-color:var(--gold)}
+.prow.exd .pr{opacity:.6;border-style:dashed}
+.tdots{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:0 0 12px}.dt{display:flex;flex-direction:column;align-items:center;gap:3px}.dt i{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);display:block}.dt small{font-size:11px;color:var(--mu)}
+.d-j i,i.d-j{background:var(--gold);border-color:var(--gold)}.d-a i,i.d-a{background:var(--em);border-color:var(--em)}.d-l i,i.d-l{background:var(--late);border-color:var(--late)}.d-m i,i.d-m{background:var(--miss);border-color:var(--c3)}.d-x i,i.d-x{border-style:dashed;background:var(--dis)}.d-n i{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
+.dtl{flex-basis:100%;font-size:11px;color:var(--mu);display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}.dtl i{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--bd);margin-left:4px}
+.exb{width:100%;margin-top:10px;border-style:dashed;font-size:14px}.exb.on{background:var(--dis);border-style:solid}
+.snd{margin-top:12px;border-top:1px solid var(--bd);padding-top:6px}.snd summary{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;padding:6px 0}.snd .chips button.on{background:var(--ok);border-color:var(--em)}
+.cd-cur{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(230,201,131,.25);font-size:13px;color:#e8efe9}.cd-cur .r0{fill:none;stroke:rgba(255,255,255,.18);stroke-width:4}.cd-cur .r1{fill:none;stroke:var(--gold2);stroke-width:4;stroke-linecap:round}.cd-cur.warn .r1{stroke:#ff9a8a}.cd-cur.warn b{color:#ffc2b8}
+.msr{display:flex;gap:6px;justify-content:center;margin-top:12px}.ms{padding:4px 10px;border-radius:999px;border:1px solid var(--bd);font-size:12px;color:var(--mu)}.ms.got{border-color:var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.day.exc{background:var(--dis);border-style:dashed}
 </style>
 </head>
 <body>
@@ -396,6 +407,9 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="brow"><input type="url" id="bu" placeholder="masjidboardlive.com/boards/?id=…" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" id="bc">Add</button></div>
 <small id="bmsg" class="mu"></small>
 </div>
+<div class="fld"><b>Getting to the masjid <span class="mu" style="font-size:13px">(optional)</span></b>
+<p class="mu" style="margin:0 0 6px">Minutes it takes you to get there. You’ll get a “Leave now” reminder instead of “jamā'ah in 8 minutes”.</p>
+<input type="number" id="trv" min="0" max="120" inputmode="numeric" placeholder="e.g. 7" style="width:120px;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit"></div>
 <div class="fld"><b>Your area</b>
 <p class="mu" style="margin:0 0 6px">Used to work out prayer times when the board can't be read.</p>
 <select id="loc"></select></div>
@@ -412,7 +426,8 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="card yask" id="yask" hidden aria-live="polite"></div>
 <div class="msw" id="msw" role="group" aria-label="Masjid"></div>
 <div class="card cd-card" id="cdcard" aria-live="polite"></div>
-<div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><p id="hjt"></p><div id="tl"></div><small id="tm"></small><div id="kahf" class="kahf" hidden></div></div>
+<div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><div id="tdots" class="tdots" role="img"></div><p id="hjt"></p><div id="tl"></div><small id="tm"></small><button id="exb" class="exb" hidden></button><div id="kahf" class="kahf" hidden></div>
+<details class="snd"><summary>Sunnah &amp; nafl <span id="snc" class="mu"></span></summary><div id="sn"></div></details></div>
 <div class="card qz-today" id="qzt" hidden></div>
 <div class="card"><h2 class="serif">Adhkār today</h2><div id="dktoday"></div></div>
 <button class="card nm-today" id="nmtoday" aria-label="Name of Allah of the day"></button>
@@ -442,7 +457,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="nav"><button id="pv" aria-label="Previous month">‹</button><select id="ms"></select><select id="ys"></select><button id="nx" aria-label="Next month">›</button></div>
 <div class="wd"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
 <div id="grid" class="grid"></div>
-<div class="leg"><span><i style="background:var(--ok)"></i>All 5</span><span><i style="background:var(--part)"></i>Some</span><span><i style="background:var(--miss)"></i>None</span><span><i style="background:var(--late);border-radius:50%"></i>Late</span></div>
+<div class="leg"><span><i style="background:var(--ok)"></i>All 5</span><span><i style="background:var(--part)"></i>Some</span><span><i style="background:var(--miss)"></i>None</span><span><i style="background:var(--late);border-radius:50%"></i>Late</span><span><i style="background:var(--dis);border:1px dashed var(--mu)"></i>Excused</span></div>
 </div>
 
 <details class="card">
@@ -592,7 +607,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},yj:{},yx:{},ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={pub:null,yrs:{},yl:{},yj:{},yx:{},yn:{},yo:{},trv:0,ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -627,7 +642,11 @@ function getJam(d){const s=S.yj[d.getFullYear()];return s?(parseInt(s[doy(d)],32
 function getEx(d){const s=S.yx[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
 function setBits(o,d,v){const y=d.getFullYear(),i=doy(d),s=o[y]||'0'.repeat(366);o[y]=s.slice(0,i)+v.toString(32)+s.slice(i+1);dirty(y)}
 const setJam=(d,v)=>setBits(S.yj,d,v&getMask(d)),setEx=(d,v)=>setBits(S.yx,d,v);
-const yearDoc=y=>{const o={m:S.yrs[y]||'0'.repeat(366),l:S.yl[y]||'0'.repeat(366)};if(S.yj[y])o.j=S.yj[y];if(S.yx[y])o.x=S.yx[y];return o};
+function getSn(d){const s=S.yn[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+function getNf(d){const s=S.yo[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
+const setSn=(d,v)=>setBits(S.yn,d,v),setNf=(d,v)=>setBits(S.yo,d,v);
+const XK={j:'yj',x:'yx',n:'yn',o:'yo'};
+const yearDoc=y=>{const o={m:S.yrs[y]||'0'.repeat(366),l:S.yl[y]||'0'.repeat(366)};for(const k in XK)if(S[XK[k]][y])o[k]=S[XK[k]][y];return o};
 function setMask(d,m,l){
   const y=d.getFullYear(),i=doy(d),s=S.yrs[y]||'0'.repeat(366),t=S.yl[y]||'0'.repeat(366);
   l=(l===undefined?getLate(d):l)&m;
@@ -639,7 +658,7 @@ function setMask(d,m,l){
 async function loadYears(){
   const a=parse(S.pub).getFullYear(),b=new Date().getFullYear(),ys=[];
   for(let y=a;y<=b;y++)if(!(y in S.yrs))ys.push(y);
-  await Promise.all(ys.map(async y=>{const o=await load('y'+y);S.yrs[y]=o&&typeof o.m==='string'?o.m:null;S.yl[y]=o&&typeof o.l==='string'?o.l:null;S.yj[y]=o&&YRE.test(o.j||'')?o.j:null;S.yx[y]=o&&YRE.test(o.x||'')?o.x:null}));
+  await Promise.all(ys.map(async y=>{const o=await load('y'+y);S.yrs[y]=o&&typeof o.m==='string'?o.m:null;S.yl[y]=o&&typeof o.l==='string'?o.l:null;for(const k in XK)S[XK[k]][y]=o&&YRE.test(o[k]||'')?o[k]:null}));
 }
 
 /* stats: every past day since puberty counts 5 prayers; unticked = missed */
@@ -665,7 +684,7 @@ function renderCal(){
   for(let i=0;i<off;i++)h+='<i></i>';
   for(let d=1;d<=dim;d++){
     const dt=new Date(V.y,V.m,d),dis=dt<pd||dt>t,m=getMask(dt),L=getLate(dt),c=pc(m);
-    let cl=dis?'dis':c==5?'full':c>0?'part':dt<t?'none':'';
+    const xc=pc(getEx(dt)|m);let cl=dis?'dis':c==5?'full':xc==5&&c<5?'exc':c>0?'part':dt<t?'none':'';
     if(+dt==+t)cl+=' today';
     h+='<button class="day '+cl+'" data-d="'+ymd(dt)+'"'+(dis?' disabled':'')+'><span>'+d+'</span><em>'+P.map((_,i)=>'<u'+(m>>i&1?' class="on'+(L>>i&1?' lx':'')+'"':'')+'></u>').join('')+'</em></button>';
   }
@@ -683,14 +702,18 @@ function renderSheet(){
     if(on)s=lt?'Late':(S.ts&&ymd(sel)>=S.ts?'On time':'Prayed');
     else if(past)s='Missed';
     else s=rel<w[0]?'Starts '+hm(w[0]):rel<=w[1]?Math.floor(r/60)+'h '+r%60+'m left':'Time passed';
-    return '<div class="prow"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+' <span class="ar">'+AR[i]+'</span></b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button>':'')+'</div>'}).join('');
+    const jm=getJam(sel)>>i&1,ex=getEx(sel)>>i&1;if(ex&&!on)s='Excused';
+    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+' <span class="ar">'+AR[i]+'</span></b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-j="'+i+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button></span>':'')+'</div>'}).join('')
+    +(isFem()?'<button class="exb'+((getEx(sel)&31)===31?' on':'')+'" data-a="ex">'+((getEx(sel)&31)===31?'✓ Ḥayḍ / nifās day: no salah owed':'Mark as a ḥayḍ / nifās day')+'</button>':'');
   $('#sm').textContent=MS;MS='';
 }
 $('#grid').onclick=e=>{const b=e.target.closest('.day');if(!b||b.disabled)return;sel=parse(b.dataset.d);renderSheet();$('#ov').hidden=false};
 $('#ov').onclick=e=>{
   if(e.target.id==='ov'){$('#ov').hidden=true;return}
-  const p=e.target.closest('.pr'),l=e.target.closest('.lt'),a=e.target.closest('[data-a]');
-  if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  const p=e.target.closest('.pr'),l=e.target.closest('.lt'),a=e.target.closest('[data-a]'),jb=e.target.closest('[data-j]');
+  if(jb)setJam(sel,getJam(sel)^(1<<+jb.dataset.j));
+  else if(a&&a.dataset.a==='ex')setEx(sel,(getEx(sel)&31)===31?0:31);
+  else if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.i));
   else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr')setMask(sel,0);else for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i)}
   else return;
@@ -871,7 +894,7 @@ function planNotifs(){
       const dd=ymd(d);
       if(NP.adh){const ba=boardAdhan(i,fri,d),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i})}
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
-      if(NP.jam){const j=jamaah(i,fri,d);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
+      if(NP.jam){const j=jamaah(i,fri,d);if(j){if(S.trv>0)add(2,at(j.t-S.trv-2),'Leave now for '+j.label,j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid')+' is about '+S.trv+' min away.');else add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}}
       if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
     }
   }
@@ -955,8 +978,8 @@ const tickCount=yrs=>Object.values(yrs).reduce((a,o)=>a+(o&&o.m?[...o.m].reduce(
 async function backupData(){
   if(D.size)await flush();
   const years={};
-  for(const y of Object.keys(S.yrs))if(S.yrs[y]||S.yx[y])years[y]=yearDoc(y);
-  if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||'')){years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)};if(YRE.test(o.j||''))years[m[1]].j=o.j;if(YRE.test(o.x||''))years[m[1]].x=o.x}}catch(e){}}}
+  for(const y of new Set([...Object.keys(S.yrs),...Object.keys(S.yx),...Object.keys(S.yn),...Object.keys(S.yo)]))if(S.yrs[y]||S.yx[y]||S.yn[y]||S.yo[y])years[y]=yearDoc(y);
+  if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||'')){years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)};for(const q in XK)if(YRE.test(o[q]||''))years[m[1]][q]=o[q]}}catch(e){}}}
   let dhikr={};try{dhikr=JSON.parse(lsGet('salah_dhikr_h'))||{}}catch(e){}
   return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),dhikr,names:lsGet('salah_names'),mydk:MY};
 }
@@ -994,7 +1017,7 @@ $('#bkr').onclick=pickBackup;$('#bkr2').onclick=pickBackup;
 function checkBackup(o){
   if(!o||o.app!=='salah-tracker'||typeof o.format!=='number'||o.format>1)return null;
   const st=o.settings;if(!st||!/^\d{4}-\d{2}-\d{2}$/.test(st.pub||''))return null;
-  const years={};for(const [y,v] of Object.entries(o.years||{}))if(/^\d{4}$/.test(y)&&v&&YRE.test(v.m||'')){years[y]={m:v.m,l:YRE.test(v.l||'')?v.l:'0'.repeat(366)};if(YRE.test(v.j||''))years[y].j=v.j;if(YRE.test(v.x||''))years[y].x=v.x}
+  const years={};for(const [y,v] of Object.entries(o.years||{}))if(/^\d{4}$/.test(y)&&v&&YRE.test(v.m||'')){years[y]={m:v.m,l:YRE.test(v.l||'')?v.l:'0'.repeat(366)};for(const q of['j','x','n','o'])if(YRE.test(v[q]||''))years[y][q]=v[q]}
   return{o,years};
 }
 const showMsg=t=>{if(S.pub&&!S.edit){$('#bkm').className='mu';$('#bkm').textContent=t}else $('#ph').textContent=t};
@@ -1093,13 +1116,16 @@ function renderCountdown(){
   const key=x.i+'|'+x.d.getTime()+'|'+(live?live.k:'')+'|'+boxes.map(b=>b.at.getTime()).join();
   if(key!==cdKey){
     cdKey=key;
-    const cur=dayPrayers(today0()).find(y=>y.start<=now&&now<y.end&&y.i!==x.i);
+    const cur=dayPrayers(today0()).concat(dayPrayers(addDays(today0(),-1))).find(y=>y.start<=now&&now<y.end);
     el.innerHTML='<div class="lbl">Next prayer'+(x.d>today0()?' · tomorrow':'')+'</div><div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
       +'<div class="cd-row'+(boxes.length===1?' one':'')+'">'+boxes.map(b=>'<div class="cd-box'+(b===live?' live':'')+'"><small>'+b.label+'</small><span class="cd-t">'+clock(b.at)+'</span><span class="cd-c'+(b.at>now?'':' done')+'" data-k="'+b.k+'">'+(b.at>now?'':'✓ called')+'</span></div>').join('')+'</div>'
-      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(cur?'<br>'+esc(P[cur.i])+' time ends at '+clock(cur.end):'')+'</div>';
+      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(S.trv>0&&x.jam&&x.jam>now?'<br>Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah"):'')+'</div>'+(cur?'<div class="cd-cur" id="cdcur"></div>':'');
     renderToday();
   }
   boxes.forEach(b=>{const c=el.querySelector('.cd-c[data-k="'+b.k+'"]');if(c&&b.at>now)c.textContent=cdf(b.at-now)});
+  const cc=$('#cdcur');if(cc){const cur=dayPrayers(today0()).concat(dayPrayers(addDays(today0(),-1))).find(y=>y.start<=now&&now<y.end);
+    if(cur){const fr=Math.min(1,(now-cur.start)/(cur.end-cur.start)),left=Math.max(0,Math.round((cur.end-now)/6e4)),warn=left<=15,C=2*Math.PI*15,done=getMask(cur.d)>>cur.i&1;
+      cc.className='cd-cur'+(warn&&!done?' warn':'');cc.innerHTML='<svg viewBox="0 0 36 36" width="34" height="34" aria-hidden="true"><circle cx="18" cy="18" r="15" class="r0"/><circle cx="18" cy="18" r="15" class="r1" stroke-dasharray="'+(C*fr).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 18 18)"/></svg><span><b>'+esc(P[cur.i])+' time</b> · '+(left>=60?Math.floor(left/60)+'h '+left%60+'m':left+'m')+' left'+(done?' · ✓ prayed':'')+'</span>'}else cc.remove()}
 }
 function startCountdown(){clearInterval(cdTimer);cdKey='';renderCountdown();cdTimer=setInterval(renderCountdown,1000)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(cdTimer);else if(S.pub&&!S.edit)startCountdown()});
@@ -1119,29 +1145,70 @@ function renderToday(){
     if(on)st=lt?'Late':'Prayed';else if(now<x.start)st='Starts '+clock(x.start);else if(now<=x.end)st='Now';else st='Missed';
     const times=x.adhan||x.jam?(x.adhan?'Adhān '+clock(x.adhan):'')+(x.adhan&&x.jam?' · ':'')+(x.jam?(x.name==="Jumu'ah"?'Khutbah ':"Jamā'ah ")+clock(x.jam):''):clock(x.start)+' – '+clock(x.end);
     const isNext=nx&&nx.i===i&&+nx.d===+d;
-    return '<div class="prow"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button>':'')+'</div>';
+    const jm=getJam(d)>>i&1,ex=getEx(d)>>i&1;if(ex&&!on)st='Excused';
+    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-tj="'+i+'" aria-pressed="'+!!jm+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button></span>':'')+'</div>';
   }).join('');
   $('#tm').textContent=TM;
   try{renderKahf()}catch(e){}
+  try{renderDots();renderSunnah();renderExBtn()}catch(e){}
 }
+function dotState(d,i,now){
+  const b=1<<i;if(getMask(d)&b)return getJam(d)&b?'j':getLate(d)&b?'l':'a';if(getEx(d)&b)return 'x';
+  const W=win(d)[i],mins=(now-d)/6e4;return mins>W[1]?'m':mins>=W[0]?'n':'u';
+}
+const DOTL={j:"in jamā'ah",a:'prayed',l:'late',m:'missed',x:'excused',n:'now',u:'upcoming'};
+function renderDots(){
+  const el=$('#tdots');if(!el)return;const d=today0(),now=new Date();
+  el.innerHTML=P.map((p,i)=>{const s=dotState(d,i,now);return '<span class="dt d-'+s+'" title="'+p+': '+DOTL[s]+'"><i></i><small>'+p.slice(0,1)+'</small></span>'}).join('')
+    +'<span class="dtl"><i class="d-j"></i>Jamā‘ah <i class="d-a"></i>Prayed <i class="d-l"></i>Late <i class="d-m"></i>Missed'+(isFem()?' <i class="d-x"></i>Excused':'')+'</span>';
+  el.setAttribute('aria-label','Today: '+P.map((p,i)=>p+' '+DOTL[dotState(d,i,now)]).join(', '));
+}
+const isFem=()=>!!(S.qz&&S.qz.g==='f');
+function renderExBtn(){
+  const el=$('#exb');if(!el)return;if(!isFem()){el.hidden=true;return}
+  const on=(getEx(today0())&31)===31;el.hidden=false;el.className='exb'+(on?' on':'');el.setAttribute('aria-pressed',on);
+  el.textContent=on?'✓ Ḥayḍ / nifās today: no salah owed':'Ḥayḍ / nifās today?';
+}
+$('#exb').onclick=()=>{const d=today0(),on=(getEx(d)&31)===31;setEx(d,on?0:31);renderToday();all()};
+const SNL=[['Fajr sunnah',0],['Dhuhr sunnah',1],['Maghrib sunnah',2],['Isha sunnah',3],['Witr',4]],NFL=[['Tahajjud',0],['Ishrāq',1],['Ḍuḥā',2],['Awwābīn',4]];
+function renderSunnah(){
+  const el=$('#sn');if(!el)return;const d=today0(),a=getSn(d),b=getNf(d),n=[0,1,2,3,4].reduce((x,i)=>x+(a>>i&1)+(b>>i&1),0);
+  $('#snc').textContent=n?n+' today':'';
+  el.innerHTML='<div class="chips">'+SNL.map(([l,i])=>'<button data-sn="'+i+'" class="'+(a>>i&1?'on':'')+'" aria-pressed="'+!!(a>>i&1)+'">'+(a>>i&1?'✓ ':'')+l+'</button>').join('')+'</div>'
+    +'<div class="chips">'+NFL.map(([l,i])=>'<button data-nf="'+i+'" class="'+(b>>i&1?'on':'')+'" aria-pressed="'+!!(b>>i&1)+'">'+(b>>i&1?'✓ ':'')+l+'</button>').join('')+'</div>';
+}
+$('#sn').onclick=e=>{const a=e.target.closest('[data-sn]'),b=e.target.closest('[data-nf]'),d=today0();
+  if(a)setSn(d,getSn(d)^(1<<+a.dataset.sn));else if(b)setNf(d,getNf(d)^(1<<+b.dataset.nf));else return;renderSunnah();try{renderProgress()}catch(x){}};
 $('#tl').onclick=e=>{
-  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]');if(!p&&!l)return;
+  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]'),jb=e.target.closest('[data-tj]');if(!p&&!l&&!jb)return;
   sel=today0();MS='';
   if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
-  else setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
-  TM=MS;MS='';renderToday();all();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
+  else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
+  else{const i=+jb.dataset.tj;setJam(sel,getJam(sel)^(1<<i))}
+  TM=MS;MS='';renderToday();all();checkMilestone();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
 };
 
 /* ---- Progress tab: streaks, monthly chart, per-prayer, qada plan ---- */
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
 function streaks(){
-  const t0=today0(),pd=parse(S.pub),full=d=>getMask(d)===31,clean=d=>getMask(d)===31&&!getLate(d);
+  const t0=today0(),pd=parse(S.pub),full=d=>((getMask(d)|getEx(d))&31)===31,clean=d=>full(d)&&!getLate(d);
   const run=(ok,from)=>{let n=0;for(let d=from;d>=pd&&ok(d);d=addDays(d,-1))n++;return n};
   const startFull=full(t0)?t0:addDays(t0,-1),startClean=clean(t0)?t0:addDays(t0,-1);
   let best=0,cur=0;for(let d=new Date(pd);d<=t0;d=addDays(d,1)){if(full(d)){cur++;if(cur>best)best=cur}else if(d<t0)cur=0}
-  const per=P.map((_,i)=>{const b=1<<i,okd=d=>!!(getMask(d)&b);return run(okd,okd(t0)?t0:addDays(t0,-1))});
+  const per=P.map((_,i)=>{const b=1<<i,okd=d=>!!((getMask(d)|getEx(d))&b);return run(okd,okd(t0)?t0:addDays(t0,-1))});
   return{cur:run(full,startFull),clean:run(clean,startClean),best,per};
+}
+const MSL=[7,30,40,100,365];
+function msRow(st){
+  const nx=MSL.find(n=>n>st.cur);
+  return '<div class="msr">'+MSL.map(n=>'<span class="ms'+(st.best>=n?' got':'')+'" title="'+n+' days">'+(st.best>=n?'✦ ':'')+n+'</span>').join('')+'</div>'
+    +'<p class="mu" style="margin:6px 0 0;font-size:13px;text-align:center">'+(nx?'Next milestone: '+nx+' days · '+(nx-st.cur)+' to go':'MāshāAllāh, every milestone reached.')+' Ḥayḍ and nifās days never break a streak.</p>';
+}
+function checkMilestone(){
+  if(!S.pub)return;const c=streaks().cur,n=[...MSL].reverse().find(x=>c>=x);if(!n)return;
+  const k=n+':'+ymd(addDays(today0(),-(c-1)));if(lsGet('salah_ms')===k)return;lsSet('salah_ms',k);
+  if(c===n)alertMsg('MāshāAllāh! '+n+' days in a row with all five prayers ✦');
 }
 function monthStats(y,m){
   const t0=today0(),pd=parse(S.pub),o={y,m,ok:0,late:0,miss:0,days:0,per:[0,0,0,0,0]};
@@ -1164,7 +1231,8 @@ function renderProgress(){
   const st=streaks();
   $('#pstreak').innerHTML='<div class="stk"><b>'+st.cur.toLocaleString()+'</b><span>'+(st.cur===1?'day':'days')+' in a row with all 5</span></div>'
     +'<div class="stk2"><div><b>'+st.clean.toLocaleString()+'</b><small>with none late</small></div><div><b>'+st.best.toLocaleString()+'</b><small>best ever</small></div></div>'
-    +'<div class="pstk">'+P.map((p,i)=>'<div><b>'+st.per[i]+'</b><span class="ar">'+AR[i]+'</span><small>'+p+'</small></div>').join('')+'</div>';
+    +'<div class="pstk">'+P.map((p,i)=>'<div><b>'+st.per[i]+'</b><span class="ar">'+AR[i]+'</span><small>'+p+'</small></div>').join('')+'</div>'
+    +msRow(st);
   // last 7 days
   const t0=today0();let wk='';
   for(let k=6;k>=0;k--){const d=addDays(t0,-k),c=d<parse(S.pub)?null:pc(getMask(d));
@@ -1210,15 +1278,15 @@ function balighOf(Z){
 /* every past day from baligh counts each prayer once; ticked days and the stretches you prayed regularly are taken off */
 function qzCalc(Z,pub){
   Z=Z||(qzOn()?S.qz:null);pub=pub||S.pub;
-  const t=today0(),N=Z?qzN(Z):5,c=[0,0,0,0,0,0];let n=0;
+  const t=today0(),N=Z?qzN(Z):5,c=[0,0,0,0,0,0],c2=[0,0,0,0,0,0],ts=S.ts?parse(S.ts):null;let n=0;
   const rg=(Z&&Z.ranges||[]).map(r=>[dnum(parse(r[0])),dnum(parse(r[1]))]);
   if(pub)for(const d=parse(pub);d<t;d.setDate(d.getDate()+1)){
     if(rg.length){const k=dnum(d);if(rg.some(r=>k>=r[0]&&k<=r[1]))continue}
-    n++;const m=getMask(d);if(m===31)continue;
-    for(let i=0;i<5;i++)if(!(m>>i&1))c[i]++;if(!(m>>4&1))c[5]++;
+    n++;const m=getMask(d)|getEx(d);if(m===31)continue;const pre=!ts||d<ts,cc=pre?c:c2;
+    for(let i=0;i<5;i++)if(!(m>>i&1))cc[i]++;if(!(m>>4&1))cc[5]++;
   }
   const f=Z&&Z.g==='f'?Math.max(0,1-Z.hd/30.44):1,nf=Z&&Z.g==='f'?Z.nf:0,mg=Z?1+Z.mg/100:1;
-  const base=c.slice(0,N).map(x=>Math.round(Math.max(0,x-nf)*f*mg));
+  const base=c.slice(0,N).map((x,i)=>Math.round((Math.max(0,x-nf)*f+c2[i])*mg));
   const owed=base.map((x,i)=>Math.max(0,x+(Z?Z.adj[i]:0))),made=S.q.slice(0,N),rem=owed.map((o,i)=>Math.max(0,o-made[i]));
   const tot=owed.reduce((a,b)=>a+b,0),eff=owed.reduce((a,o,i)=>a+Math.min(o,made[i]),0),mt=made.reduce((a,b)=>a+b,0),rt=rem.reduce((a,b)=>a+b,0);
   return{N,base,owed,made,rem,tot,mt,rt,pct:tot?eff/tot*100:0,days:n};
@@ -1366,7 +1434,7 @@ function inPrayedRange(d){const k=dnum(d);return qzOn()&&S.qz.ranges.some(r=>k>=
 function renderYAsk(){
   const el=$('#yask');if(!el)return;const y=addDays(today0(),-1);
   if(!S.pub||y<parse(S.pub)||(S.ts&&y<parse(S.ts))||inPrayedRange(y)||(S.qa||{})[ymd(y)]){el.hidden=true;return}
-  const m=getMask(y),miss=[0,1,2,3,4].filter(i=>!(m>>i&1));if(!miss.length){el.hidden=true;return}
+  const m=getMask(y)|getEx(y),miss=[0,1,2,3,4].filter(i=>!(m>>i&1));if(!miss.length){el.hidden=true;return}
   const names=miss.map(i=>P[i]),list=names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0],one=miss.length===1;
   el.hidden=false;
   el.innerHTML='<b>Yesterday: '+list+' '+(one?'wasn’t':'weren’t')+' ticked</b><p class="mu">Did you pray '+(one?'it':'them')+'? If not, '+(one?'it is':'they are')+' added to your qaḍā.</p>'
@@ -2296,7 +2364,7 @@ function tick(i){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-const setDoc=()=>({pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+const setDoc=()=>({trv:S.trv,pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
 async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
@@ -2349,7 +2417,7 @@ function fillLoc(){
 function fillSetup(){
   F={asr:S.asr,board:S.board,boards:JSON.parse(JSON.stringify(S.boards)),loc:S.loc};
   $('#bu').value='';$('#bmsg').textContent='';$('#bmsg').className='mu';
-  setAsr(S.asr);renderBList();fillLoc();
+  setAsr(S.asr);renderBList();fillLoc();$('#trv').value=S.trv||'';
 }
 function setAsr(a){F.asr=a;$('#a_h').classList.toggle('on',a==='hanafi');$('#a_s').classList.toggle('on',a==='shafii');$('#a_h').setAttribute('aria-pressed',a==='hanafi');$('#a_s').setAttribute('aria-pressed',a==='shafii')}
 $('#a_h').onclick=()=>setAsr('hanafi');$('#a_s').onclick=()=>setAsr('shafii');
@@ -2389,6 +2457,7 @@ $('#ps').onclick=async()=>{
   if(F.boards[0]&&(!S.boards[0]||S.boards[0].url!==F.boards[0].url))F.board=F.boards[0].url; /* a new primary masjid shows straight away */
   if(!fActive()){const a=F.boards[0];F.board=a?a.url:''}
   const A=fActive()||{url:'',name:'',town:'',lat:null,lon:null},asrCh=F.asr!==S.asr,changed=A.url!==S.board||asrCh;
+  S.trv=Math.max(0,Math.min(120,Math.floor(+$('#trv').value||0)));
   Object.assign(S,{pub:v,asr:F.asr,boards:F.boards,board:A.url,bname:A.name,btown:A.town,blat:A.lat,blon:A.lon,loc:$('#loc').value||'jhb',edit:false});
   if(!S.ts)S.ts=ymd(today0());stat('Saving…');
   try{await save('settings',setDoc());await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
@@ -2421,7 +2490,7 @@ function boot(){
 (async()=>{
   stat('Loading…');await initStore();
   const st=await load('settings');if(st&&st.pub)S.pub=st.pub;
-  loadQz(S,st);
+  loadQz(S,st);if(st&&Number.isInteger(st.trv)&&st.trv>=0&&st.trv<=120)S.trv=st.trv;
   if(st&&typeof st.ts==='string')S.ts=st.ts;
   if(st&&st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)S.ql[k]=Math.floor(+v);
   if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
