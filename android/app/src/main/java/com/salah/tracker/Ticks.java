@@ -15,7 +15,7 @@ import org.json.JSONObject;
 public class Ticks extends BroadcastReceiver {
     static final String ACTION_TICK = "com.salah.tracker.TICK", ACTION_LATER = "com.salah.tracker.LATER";
     static final String CH_REMIND = "prayer_remind";
-    static final String[] NAMES = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
+    static final String[] NAMES = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha", "Witr"};
 
     @Override
     public void onReceive(Context c, Intent in) {
@@ -27,11 +27,11 @@ public class Ticks extends BroadcastReceiver {
             record(c, d, p, in.getBooleanExtra("j", false));
             if (AdhanService.playing) { try { c.startService(new Intent(c, AdhanService.class).setAction(AdhanService.ACTION_STOP)); } catch (Exception ignored) {} }
             if (nm != null) nm.cancel(nid);
-            AdhanService.log(c, p, NAMES[Math.max(0, Math.min(4, p))], in.getBooleanExtra("j", false) ? "ticked from the notification (jamā'ah)" : "ticked from the notification");
+            AdhanService.log(c, p, NAMES[Math.max(0, Math.min(5, p))], in.getBooleanExtra("j", false) ? "ticked from the notification (jamā'ah)" : "ticked from the notification");
         } else if (a.startsWith(ACTION_LATER + ".") && d != null && p >= 0) {
             if (nm != null) nm.cancel(nid);
             int mins = in.getIntExtra("mins", 15);
-            String n = NAMES[Math.max(0, Math.min(4, p))];
+            String n = NAMES[Math.max(0, Math.min(5, p))];
             AdhanPlayer.setAlarm(c, System.currentTimeMillis() + mins * 60000L,
                     AdhanPlayer.alarmIntent(c, 950 + p, "Did you pray " + n + "?", "Tap a button to tick it.", "ask", d, p));
         }
@@ -71,7 +71,7 @@ public class Ticks extends BroadcastReceiver {
     /** Adds the tick buttons; "Later" only when there's room. */
     static void actions(Context c, NotificationCompat.Builder b, int nid, String d, int p, boolean later) {
         if (d == null || p < 0) return;
-        b.addAction(0, "✓ In jamā'ah", pi(c, ACTION_TICK, nid, d, p, true, 1));
+        if (p != 5) b.addAction(0, "✓ In jamā'ah", pi(c, ACTION_TICK, nid, d, p, true, 1)); // Witr (5): no jamā'ah button
         b.addAction(0, "✓ Prayed", pi(c, ACTION_TICK, nid, d, p, false, 2));
         if (later) b.addAction(0, "Later", pi(c, ACTION_LATER, nid, d, p, false, 3));
     }

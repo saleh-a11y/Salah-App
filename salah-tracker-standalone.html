@@ -667,6 +667,12 @@ const setJam=(d,v)=>setBits(S.yj,d,v&getMask(d)),setEx=(d,v)=>setBits(S.yx,d,v);
 function getSn(d){const s=S.yn[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
 function getNf(d){const s=S.yo[d.getFullYear()];return s?(parseInt(s[doy(d)],32)||0):0}
 const setSn=(d,v)=>setBits(S.yn,d,v),setNf=(d,v)=>setBits(S.yo,d,v);
+/* Witr: kept in the sunnah string (bit 4) so earlier ticks carry over; shown as a 6th prayer after Isha.
+   Hanafi: wājib, so a day is only complete with it. Shāfiʿī: sunnah, shown but not needed for a full day. */
+const WI=5,getW=d=>getSn(d)>>4&1,setW=(d,on)=>setSn(d,on?getSn(d)|16:getSn(d)&~16);
+const wReq=()=>((S.qz&&S.qz.mz)||S.asr)!=='shafii';
+const exDay=d=>(getEx(d)&31)===31;
+const dayFull=d=>pc(getMask(d))===5&&(!wReq()||getW(d));
 const XK={j:'yj',x:'yx',n:'yn',o:'yo'};
 const yearDoc=y=>{const o={m:S.yrs[y]||'0'.repeat(366),l:S.yl[y]||'0'.repeat(366)};for(const k in XK)if(S[XK[k]][y])o[k]=S[XK[k]][y];return o};
 function setMask(d,m,l){
@@ -706,9 +712,9 @@ function renderCal(){
   for(let i=0;i<off;i++)h+='<i></i>';
   for(let d=1;d<=dim;d++){
     const dt=new Date(V.y,V.m,d),dis=dt<pd||dt>t,m=getMask(dt),L=getLate(dt),c=pc(m);
-    const xc=pc(getEx(dt)|m);let cl=dis?'dis':c==5?'full':xc==5&&c<5?'exc':c>0?'part':dt<t?'none':'';
+    const xc=pc(getEx(dt)|m),w=getW(dt);let cl=dis?'dis':dayFull(dt)?'full':xc==5&&c<5||exDay(dt)?'exc':c>0||w?'part':dt<t?'none':'';
     if(+dt==+t)cl+=' today';
-    h+='<button class="day '+cl+'" data-d="'+ymd(dt)+'"'+(dis?' disabled':'')+'><span>'+d+'</span><em>'+P.map((_,i)=>'<u'+(m>>i&1?' class="on'+(L>>i&1?' lx':'')+'"':'')+'></u>').join('')+'</em></button>';
+    h+='<button class="day '+cl+'" data-d="'+ymd(dt)+'"'+(dis?' disabled':'')+'><span>'+d+'</span><em>'+P.map((_,i)=>'<u'+(m>>i&1?' class="on'+(L>>i&1?' lx':'')+'"':'')+'></u>').join('')+'<u class="wu'+(w?' on':'')+'"></u></em></button>';
   }
   $('#grid').innerHTML=h;
 }
@@ -726,6 +732,8 @@ function renderSheet(){
     else s=rel<w[0]?'Starts '+hm(w[0]):rel<=w[1]?Math.floor(r/60)+'h '+r%60+'m left':'Time passed';
     const jm=getJam(sel)>>i&1,ex=getEx(sel)>>i&1;if(ex&&!on)s='Excused';
     return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+' <span class="ar">'+AR[i]+'</span></b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-j="'+i+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button></span>':'')+'</div>'}).join('')
+    +(()=>{const on=getW(sel),w=W[4],ex=exDay(sel)&&!on;let s=on?'Prayed':ex?'Excused':past?'Missed':rel<w[0]?'After Isha':rel<=w[1]?'Before Fajr':'Time passed';
+      return '<div class="prow'+(ex?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-w="1"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>Witr <span class="ar">الوتر</span></b><small>'+(wReq()?'Wājib':'Sunnah')+' · after Isha, before Fajr</small></span><small>'+s+'</small></button></div>'})()
     +(isFem()?'<button class="exb'+((getEx(sel)&31)===31?' on':'')+'" data-a="ex">'+((getEx(sel)&31)===31?'✓ Ḥayḍ / nifās day: no salah owed':'Mark as a ḥayḍ / nifās day')+'</button>':'');
   $('#sm').textContent=MS;MS='';
 }
@@ -734,10 +742,11 @@ $('#ov').onclick=e=>{
   if(e.target.id==='ov'){$('#ov').hidden=true;return}
   const p=e.target.closest('.pr'),l=e.target.closest('.lt'),a=e.target.closest('[data-a]'),jb=e.target.closest('[data-j]');
   if(jb)setJam(sel,getJam(sel)^(1<<+jb.dataset.j));
+  else if(p&&p.dataset.w)wTick(sel);
   else if(a&&a.dataset.a==='ex')setEx(sel,(getEx(sel)&31)===31?0:31);
   else if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.i));
-  else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr')setMask(sel,0);else for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i)}
+  else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr'){setMask(sel,0);setW(sel,false)}else{for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i);if(!getW(sel)&&getMask(sel)>>4&1)setW(sel,true)}}
   else return;
   renderSheet();all();renderToday();
 };
@@ -920,6 +929,9 @@ function planNotifs(){
       if(NP.jam){const j=jamaah(i,fri,d);if(j){if(S.trv>0)add(2,at(j.t-S.trv-2),'Leave now for '+j.label,j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid')+' is about '+S.trv+' min away.');else add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}}
       if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
     }
+    /* Witr: one reminder an hour after Isha (after jamā'ah when the board has it), skipped once ticked */
+    if(NP.end&&k<3&&!getW(d)&&!exDay(d)){const j=S.board?jamaah(4,fri,d):null,t=(j?j.t:W[4][0])+60,id=k*100+53;
+      if(at(t).getTime()>now+30000)out.push({id,title:'Witr before you sleep',body:'Not ticked yet. Witr can be prayed until Fajr ('+hm(W[4][1])+').',schedule:{at:at(t),allowWhileIdle:true},d:ymd(d),p:WI})}
   }
   if(NP.rm)for(let k=0;k<7;k++){const d=addDays(t0,k);if(!rmActive(d))continue;const W=win(d),ba=boardAdhan(3,d.getDay()===5,d),ift=ba!=null?ba:W[3][0],at=m=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(m));
     if(at(W[0][0]-30).getTime()>now+30000)out.push({id:920+k,title:'Sehri ends in 30 minutes',body:'Sehri ends at '+hm(W[0][0])+'. Make your intention for the fast.',schedule:{at:at(W[0][0]-30),allowWhileIdle:true}});
@@ -950,13 +962,14 @@ async function scheduleNotifs(){
 }
 const queueNotifs=()=>{clearTimeout(NT);NT=setTimeout(scheduleNotifs,1500)};
 /* prayers already ticked (last 2 days to the next 2), so the phone skips their reminders */
-function doneList(){const o=[],t=today0();for(let k=-2;k<3;k++){const d=addDays(t,k),m=getMask(d)|getEx(d);for(let i=0;i<5;i++)if(m>>i&1)o.push(ymd(d)+':'+i)}return o}
+function doneList(){const o=[],t=today0();for(let k=-2;k<3;k++){const d=addDays(t,k),m=getMask(d)|getEx(d);for(let i=0;i<5;i++)if(m>>i&1)o.push(ymd(d)+':'+i);if(getW(d)||exDay(d))o.push(ymd(d)+':'+WI)}return o}
 /* ticks made with the notification buttons while the app was closed */
 async function takeTicks(){
   if(!AP||!S.pub)return 0;let r;try{r=await AP.takeTicks()}catch(e){return 0}
   const ts=(r&&r.ticks)||[];let n=0;
   for(const x of ts){
-    if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x.d)||!(x.p>=0&&x.p<5))continue;const d=parse(x.d);if(d<parse(S.pub)||d>today0())continue;
+    if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x.d)||!(x.p>=0&&x.p<=WI))continue;const d=parse(x.d);if(d<parse(S.pub)||d>today0())continue;
+    if(x.p===WI){if(!getW(d))setW(d,true);n++;continue}
     const b=1<<x.p,W=win(d),at=new Date(+x.t||Date.now()),mins=(at-d)/6e4,late=mins>W[x.p][1];
     if(!(getMask(d)&b))setMask(d,getMask(d)|b,late?getLate(d)|b:getLate(d)&~b);
     setJam(d,x.j?getJam(d)|b:getJam(d)&~b);n++;
@@ -1177,7 +1190,12 @@ function renderToday(){
     const isNext=nx&&nx.i===i&&+nx.d===+d;
     const jm=getJam(d)>>i&1,ex=getEx(d)>>i&1;if(ex&&!on)st='Excused';
     return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-tj="'+i+'" aria-pressed="'+!!jm+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button></span>':'')+'</div>';
-  }).join('');
+  }).join('')+(()=>{
+    const on=getW(d),x=xs[4],ex=exDay(d)&&!on,ishaOn=m>>4&1;let st;
+    if(on)st='Prayed';else if(ex)st='Excused';else if(now<x.start)st='After Isha';else if(now<=x.end)st=ishaOn?'Now':'After Isha';else st='Missed';
+    const nw=!on&&!ex&&ishaOn&&now>=x.start&&now<=x.end;
+    return '<div class="prow'+(ex?' exd':'')+'"><button class="pr'+(on?' on':'')+(nw?' now':'')+'" data-tw="1"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>Witr <span class="ar">الوتر</span></b><small>'+(wReq()?'Wājib':'Sunnah')+' · before Fajr '+clock(x.end)+'</small></span><small>'+st+'</small></button></div>';
+  })();
   $('#tm').textContent=TM;
   try{renderKahf()}catch(e){}
   try{renderDots();renderSunnah();renderExBtn()}catch(e){}
@@ -1195,15 +1213,16 @@ function pushWidget(){clearTimeout(WGT);WGT=setTimeout(async()=>{
   }catch(e){}
 },1500)}
 function dotState(d,i,now){
+  if(i===WI){if(getW(d))return 'a';if(exDay(d))return 'x';const W=win(d)[4],mins=(now-d)/6e4;return mins>W[1]?(wReq()?'m':'u'):mins>=W[0]?'n':'u'}
   const b=1<<i;if(getMask(d)&b)return getJam(d)&b?'j':getLate(d)&b?'l':'a';if(getEx(d)&b)return 'x';
   const W=win(d)[i],mins=(now-d)/6e4;return mins>W[1]?'m':mins>=W[0]?'n':'u';
 }
 const DOTL={j:"in jamā'ah",a:'prayed',l:'late',m:'missed',x:'excused',n:'now',u:'upcoming'};
 function renderDots(){
   const el=$('#tdots');if(!el)return;const d=today0(),now=new Date();
-  el.innerHTML=P.map((p,i)=>{const s=dotState(d,i,now);return '<span class="dt d-'+s+'" title="'+p+': '+DOTL[s]+'"><i></i><small>'+p.slice(0,1)+'</small></span>'}).join('')
+  el.innerHTML=[...P,'Witr'].map((p,i)=>{const s=dotState(d,i,now);return '<span class="dt d-'+s+'" title="'+p+': '+DOTL[s]+'"><i></i><small>'+(i===WI?'W':p.slice(0,1))+'</small></span>'}).join('')
     +'<span class="dtl"><i class="d-j"></i>Jamā‘ah <i class="d-a"></i>Prayed <i class="d-l"></i>Late <i class="d-m"></i>Missed'+(isFem()?' <i class="d-x"></i>Excused':'')+'</span>';
-  el.setAttribute('aria-label','Today: '+P.map((p,i)=>p+' '+DOTL[dotState(d,i,now)]).join(', '));
+  el.setAttribute('aria-label','Today: '+[...P,'Witr'].map((p,i)=>p+' '+DOTL[dotState(d,i,now)]).join(', '));
 }
 const isFem=()=>!!(S.qz&&S.qz.g==='f');
 function renderExBtn(){
@@ -1212,9 +1231,9 @@ function renderExBtn(){
   el.textContent=on?'✓ Ḥayḍ / nifās today: no salah owed':'Ḥayḍ / nifās today?';
 }
 $('#exb').onclick=()=>{const d=today0(),on=(getEx(d)&31)===31;setEx(d,on?0:31);renderToday();all()};
-const SNL=[['Fajr sunnah',0],['Dhuhr sunnah',1],['Maghrib sunnah',2],['Isha sunnah',3],['Witr',4]],NFL=[['Tahajjud',0],['Ishrāq',1],['Ḍuḥā',2],['Awwābīn',4]];
+const SNL=[['Fajr sunnah',0],['Dhuhr sunnah',1],['Maghrib sunnah',2],['Isha sunnah',3]],NFL=[['Tahajjud',0],['Ishrāq',1],['Ḍuḥā',2],['Awwābīn',4]];
 function renderSunnah(){
-  const el=$('#sn');if(!el)return;const d=today0(),a=getSn(d),b=getNf(d),n=[0,1,2,3,4].reduce((x,i)=>x+(a>>i&1)+(b>>i&1),0);
+  const el=$('#sn');if(!el)return;const d=today0(),a=getSn(d)&15,b=getNf(d),n=[0,1,2,3,4].reduce((x,i)=>x+(a>>i&1)+(b>>i&1),0);
   $('#snc').textContent=n?n+' today':'';
   el.innerHTML='<div class="chips">'+SNL.map(([l,i])=>'<button data-sn="'+i+'" class="'+(a>>i&1?'on':'')+'" aria-pressed="'+!!(a>>i&1)+'">'+(a>>i&1?'✓ ':'')+l+'</button>').join('')+'</div>'
     +'<div class="chips">'+NFL.map(([l,i])=>'<button data-nf="'+i+'" class="'+(b>>i&1?'on':'')+'" aria-pressed="'+!!(b>>i&1)+'">'+(b>>i&1?'✓ ':'')+l+'</button>').join('')+'</div>';
@@ -1222,9 +1241,10 @@ function renderSunnah(){
 $('#sn').onclick=e=>{const a=e.target.closest('[data-sn]'),b=e.target.closest('[data-nf]'),d=today0();
   if(a)setSn(d,getSn(d)^(1<<+a.dataset.sn));else if(b)setNf(d,getNf(d)^(1<<+b.dataset.nf));else return;renderSunnah();try{renderProgress()}catch(x){}};
 $('#tl').onclick=e=>{
-  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]'),jb=e.target.closest('[data-tj]');if(!p&&!l&&!jb)return;
+  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]'),jb=e.target.closest('[data-tj]'),wb=e.target.closest('[data-tw]');if(!p&&!l&&!jb&&!wb)return;
   sel=today0();MS='';
-  if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  if(wb)wTick(sel);
+  else if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
   else{const i=+jb.dataset.tj;setJam(sel,getJam(sel)^(1<<i))}
   TM=MS;MS='';renderToday();all();checkMilestone();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
@@ -1245,7 +1265,7 @@ function streaks(){
 function renderInsights(){
   const t0=today0(),now=new Date(),pd=parse(S.pub),days=[];for(let k=6;k>=0;k--)days.push(addDays(t0,-k));
   $('#wgrid').innerHTML='<span></span>'+days.map(d=>'<b'+(+d===+t0?' class="tdy"':'')+'>'+'SMTWTFS'[d.getDay()]+'</b>').join('')
-    +P.map((p,i)=>'<span>'+p+'</span>'+days.map(d=>{const s=d<pd?'u':dotState(d,i,+d===+t0?now:new Date(+addDays(d,1)+36e6));return '<i class="d-'+s+'" title="'+p+' · '+d.toLocaleDateString(undefined,{weekday:'short',day:'numeric'})+': '+DOTL[s]+'"></i>'}).join('')).join('');
+    +[...P,'Witr'].map((p,i)=>'<span>'+p+'</span>'+days.map(d=>{const s=d<pd?'u':dotState(d,i,+d===+t0?now:new Date(+addDays(d,1)+36e6));return '<i class="d-'+s+'" title="'+p+' · '+d.toLocaleDateString(undefined,{weekday:'short',day:'numeric'})+': '+DOTL[s]+'"></i>'}).join('')).join('');
   const from=new Date(Math.max(+addDays(t0,-56),+pd,S.ts?+parse(S.ts):0)),L=[];
   const miss={},per=[0,0,0,0,0],ontime=[0,0,0,0,0],cnt=[0,0,0,0,0];let jam=0,tot=0,mThis=[0,0],mLast=[0,0];
   for(let d=new Date(from);d<t0;d=addDays(d,1)){const m=getMask(d),L2=getLate(d),J=getJam(d),X=getEx(d);
@@ -1260,7 +1280,8 @@ function renderInsights(){
   if(rate(best)>0)L.push(['✦','Your strongest prayer is <b>'+P[best]+'</b>: on time '+Math.round(rate(best)*100)+'% of the time.']);
   if(mThis[1]>=10){const a=Math.round(mThis[0]/mThis[1]*100);let x='On time this month: <b>'+a+'%</b>';if(mLast[1]>=10){const b=Math.round(mLast[0]/mLast[1]*100);x+=a>b?' · up '+(a-b)+'% from last month, alḥamdulillāh':a<b?' · '+(b-a)+'% lower than last month':' · same as last month'}L.push(['📈',x+'.'])}
   if(jam)L.push(['🕌','Prayed in jamāʿah: <b>'+Math.round(jam/Math.max(1,per.reduce((a,b)=>a+b,0))*100)+'%</b> of the prayers you ticked.']);
-  let sn=0;days.forEach(d=>{const a=getSn(d),b=getNf(d);for(let i=0;i<5;i++)sn+=(a>>i&1)+(b>>i&1)});if(sn)L.push(['🤲',sn+' Sunnah and nafl prayers this week.']);
+  let sn=0,wt=0;days.forEach(d=>{const a=getSn(d)&15,b=getNf(d);wt+=getW(d);for(let i=0;i<5;i++)sn+=(a>>i&1)+(b>>i&1)});
+  if(wt)L.push(['🌙','Witr prayed on <b>'+wt+' of 7</b> nights this week.']);if(sn)L.push(['🤲',sn+' Sunnah and nafl prayers this week.']);
   $('#ins').innerHTML=L.map(([e,t])=>'<p><span aria-hidden="true">'+e+'</span><span>'+t+'</span></p>').join('');
 }
 /* Qur'an reading log: pages a day towards a khatm (604 pages) */
@@ -2536,6 +2557,13 @@ function tick(i){
   if(t&&t.s==='wait'){MS=P[i]+' starts at '+hm(t.w[0]);return}
   setMask(sel,getMask(sel)|b,t&&t.s==='late'?getLate(sel)|b:getLate(sel)&~b);
   if(t&&t.s==='late')MS=P[i]+' is past its time, so it is marked Late. Tap Late to change it.';
+}
+/* Witr: on or off; can't be ticked before Isha time has started that day */
+function wTick(d){
+  if(getW(d)){setW(d,false);return}
+  const rel=(new Date()-d)/6e4,w=win(d)[4];
+  if(+d===+today0()&&rel<w[0]-2){MS='Witr is prayed after Isha, from '+hm(w[0])+'.';return}
+  setW(d,true);
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
