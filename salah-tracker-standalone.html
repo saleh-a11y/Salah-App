@@ -965,6 +965,7 @@ async function takeTicks(){
   return n;
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)takeTicks()});
+try{if(AP&&AP.addListener)AP.addListener('ticked',()=>takeTicks())}catch(e){}
 async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}

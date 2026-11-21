@@ -23,12 +23,12 @@ public class Ticks extends BroadcastReceiver {
         String d = in.getStringExtra("d");
         int p = in.getIntExtra("p", -1), nid = in.getIntExtra("nid", 0);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (a.equals(ACTION_TICK) && d != null && p >= 0) {
+        if (a.startsWith(ACTION_TICK + ".") && d != null && p >= 0) {
             record(c, d, p, in.getBooleanExtra("j", false));
             if (AdhanService.playing) { try { c.startService(new Intent(c, AdhanService.class).setAction(AdhanService.ACTION_STOP)); } catch (Exception ignored) {} }
             if (nm != null) nm.cancel(nid);
             AdhanService.log(c, p, NAMES[Math.max(0, Math.min(4, p))], in.getBooleanExtra("j", false) ? "ticked from the notification (jamā'ah)" : "ticked from the notification");
-        } else if (a.equals(ACTION_LATER) && d != null && p >= 0) {
+        } else if (a.startsWith(ACTION_LATER + ".") && d != null && p >= 0) {
             if (nm != null) nm.cancel(nid);
             int mins = in.getIntExtra("mins", 15);
             String n = NAMES[Math.max(0, Math.min(4, p))];
@@ -48,6 +48,7 @@ public class Ticks extends BroadcastReceiver {
             for (int k = Math.max(0, done.length() - 59); k < done.length(); k++) keep.put(done.get(k));
             keep.put(d + ":" + p);
             sp.edit().putString("ticks", t.toString()).putString("done", keep.toString()).apply();
+            AdhanPlayer.ticked();
         } catch (Exception ignored) {}
     }
 

@@ -24,6 +24,17 @@ import org.json.JSONObject;
 /** Schedules the adhān as exact alarms; each alarm starts AdhanService, which plays the full recording. */
 @CapacitorPlugin(name = "AdhanPlayer")
 public class AdhanPlayer extends Plugin {
+    static AdhanPlayer live;
+
+    @Override
+    public void load() { live = this; }
+
+    /** Tells the open app that a notification button ticked a prayer. */
+    static void ticked() {
+        AdhanPlayer p = live;
+        if (p != null) try { p.notifyListeners("ticked", new JSObject()); } catch (Exception ignored) {}
+    }
+
     static final String PREFS = "adhan_player";
     static final int RC_BASE = 50000;
 
@@ -122,7 +133,13 @@ public class AdhanPlayer extends Plugin {
     @PluginMethod
     public void setDone(PluginCall call) {
         JSArray a = call.getArray("done", new JSArray());
-        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("done", a.toString()).apply();
+        SharedPreferences sp = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        // keep ticks from notification buttons the app hasn't picked up yet
+        try {
+            org.json.JSONArray t = new org.json.JSONArray(sp.getString("ticks", "[]"));
+            for (int k = 0; k < t.length(); k++) { org.json.JSONObject o = t.getJSONObject(k); a.put(o.getString("d") + ":" + o.getInt("p")); }
+        } catch (Exception ignored) {}
+        sp.edit().putString("done", a.toString()).apply();
         call.resolve();
     }
 
