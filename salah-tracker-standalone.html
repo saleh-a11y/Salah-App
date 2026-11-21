@@ -544,6 +544,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 </div>
 
 <div class="card"><h2 class="serif">Ramaḍān mode</h2><p class="mu" style="margin:0 0 10px">Switches on by itself when Ramaḍān starts (Jamiatul Ulama dates). Turn it on now to see how it looks.</p><label class="tg"><input type="checkbox" id="rmon"><span>Show Ramaḍān mode now<small class="mu">Preview only. Fasts you log are kept.</small></span></label></div>
+<div class="card"><h2 class="serif">Your privacy</h2><p style="margin:0 0 8px;font-size:14px">Everything you enter stays on this phone: your prayers, qaḍā, fasts and adhkār. No ads, no accounts, no tracking. The app only downloads masjid times, Jamiat's Hijri dates and update checks.</p><a href="https://github.com/saleh-a11y/Salah-App/blob/main/PRIVACY.md" target="_blank" rel="noopener">Read the privacy policy ↗</a></div>
 <div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
 <div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
 <small id="foot"></small>
@@ -1238,7 +1239,14 @@ function msRow(st){
 function checkMilestone(){
   if(!S.pub)return;const c=streaks().cur,n=[...MSL].reverse().find(x=>c>=x);if(!n)return;
   const k=n+':'+ymd(addDays(today0(),-(c-1)));if(lsGet('salah_ms')===k)return;lsSet('salah_ms',k);
-  if(c===n)alertMsg('MāshāAllāh! '+n+' days in a row with all five prayers ✦');
+  if(c===n){alertMsg('MāshāAllāh! '+n+' days in a row with all five prayers ✦');maybeReview()}
+}
+/* Google Play's review card: at most once every four months, after a milestone, never in the first week */
+function maybeReview(){
+  try{
+    if(!NATIVE||!S.ts||(today0()-parse(S.ts))/864e5<7)return;const last=+lsGet('salah_rv')||0;if(Date.now()-last<120*864e5)return;
+    lsSet('salah_rv',String(Date.now()));setTimeout(()=>{try{Capacitor.registerPlugin('Review').request()}catch(e){}},3000);
+  }catch(e){}
 }
 function monthStats(y,m){
   const t0=today0(),pd=parse(S.pub),o={y,m,ok:0,late:0,miss:0,days:0,per:[0,0,0,0,0]};

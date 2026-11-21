@@ -14,6 +14,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_UPLOAD_KEY: ${{ secrets.UPLOAD_KEYSTORE_B64 != '' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v5
@@ -84,6 +86,39 @@ jobs:
 
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk SalahTracker.apk
+
+      - name: Publish "preview" pre-release (all-phases branch only; the app never updates from it)
+        if: github.ref == 'refs/heads/all-phases'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp SalahTracker.apk SalahTracker-preview.apk
+          gh release delete preview --yes --cleanup-tag || true
+          git push origin :refs/tags/preview || true
+          gh release create preview SalahTracker-preview.apk \
+            --title "preview (not released)" \
+            --notes "Preview build ${{ github.run_number }} from the all-phases branch. Installing it replaces the app on your phone and keeps your data." \
+            --target "${GITHUB_SHA}" --prerelease --latest=false
+
+      - name: Build Play Store bundle (only when the upload key is set up)
+        if: env.HAS_UPLOAD_KEY == 'true'
+        env:
+          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+        working-directory: android
+        run: |
+          echo "${{ secrets.UPLOAD_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export UPLOAD_STORE_FILE="$RUNNER_TEMP/upload.jks"
+          ./gradlew bundleRelease --no-daemon
+          cp app/build/outputs/bundle/release/app-release.aab ../SalahTracker.aab
+
+      - name: Keep the Play Store bundle
+        if: hashFiles('SalahTracker.aab') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalahTracker-play-bundle
+          path: SalahTracker.aab
 
       - name: Publish "latest" release
         if: github.ref == 'refs/heads/main'

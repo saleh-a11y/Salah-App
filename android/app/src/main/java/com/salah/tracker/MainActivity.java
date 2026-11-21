@@ -21,6 +21,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AdhanPlayer.class);
         registerPlugin(Compass.class);
         registerPlugin(Launch.class);
+        registerPlugin(Review.class);
         super.onCreate(savedInstanceState);
     }
 }
