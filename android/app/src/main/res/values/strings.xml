@@ -4,4 +4,6 @@
     <string name="title_activity_main">Salah Tracker</string>
     <string name="package_name">com.salah.tracker</string>
     <string name="custom_url_scheme">com.salah.tracker</string>
+    <string name="widget_small_desc">Next prayer with a countdown</string>
+    <string name="widget_large_desc">Next prayer, today's five prayers and your qaḍā progress</string>
 </resources>

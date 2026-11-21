@@ -126,6 +126,15 @@ public class AdhanPlayer extends Plugin {
         call.resolve();
     }
 
+    /** Times and progress for the home-screen widget. */
+    @PluginMethod
+    public void widget(PluginCall call) {
+        JSObject d = call.getObject("data", new JSObject());
+        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("widget", d.toString()).apply();
+        try { PrayerWidget.refreshAll(getContext()); } catch (Exception ignored) {}
+        call.resolve();
+    }
+
     @PluginMethod
     public void openAppSettings(PluginCall call) {
         Context c = getContext();
