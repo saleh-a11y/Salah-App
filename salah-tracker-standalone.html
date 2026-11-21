@@ -1142,17 +1142,17 @@ function renderCountdown(){
     if(x.jam)boxes.push({k:'j',label:x.name==="Jumu'ah"?'Khutbah':"Jamā'ah",at:x.jam});
   }else boxes.push({k:'s',label:'Time starts',at:x.start});
   const live=boxes.find(b=>b.at>now);
-  const key=x.i+'|'+x.d.getTime()+'|'+(live?live.k:'')+'|'+boxes.map(b=>b.at.getTime()).join();
+  const key=x.i+'|'+x.d.getTime()+'|'+(live?live.k:'')+'|'+boxes.map(b=>b.at.getTime()).join()+'|'+Math.floor(now/6e4);
   if(key!==cdKey){
     cdKey=key;
     const cur=dayPrayers(today0()).concat(dayPrayers(addDays(today0(),-1))).find(y=>y.start<=now&&now<y.end);
     el.innerHTML='<div class="lbl">Next prayer'+(x.d>today0()?' · tomorrow':'')+'</div><div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
       +'<div class="cd-row'+(boxes.length===1?' one':'')+'">'+boxes.map(b=>'<div class="cd-box'+(b===live?' live':'')+'"><small>'+b.label+'</small><span class="cd-t">'+clock(b.at)+'</span><span class="cd-c'+(b.at>now?'':' done')+'" data-k="'+b.k+'">'+(b.at>now?'':'✓ called')+'</span></div>').join('')+'</div>'
-      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(S.trv>0&&x.jam&&x.jam>now?'<br>Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah"):'')+'</div>'+(cur?'<div class="cd-cur" id="cdcur"></div>':'');
+      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(S.trv>0&&x.jam&&x.jam>now?'<br>Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah"):'')+'</div>'+(cur?'<div class="cd-cur" id="cdcur" data-s="'+(+cur.start)+'" data-e="'+(+cur.end)+'" data-i="'+cur.i+'" data-d="'+ymd(cur.d)+'"></div>':'');
     renderToday();
   }
   boxes.forEach(b=>{const c=el.querySelector('.cd-c[data-k="'+b.k+'"]');if(c&&b.at>now)c.textContent=cdf(b.at-now)});
-  const cc=$('#cdcur');if(cc){const cur=dayPrayers(today0()).concat(dayPrayers(addDays(today0(),-1))).find(y=>y.start<=now&&now<y.end);
+  const cc=$('#cdcur');if(cc){const cs=+cc.dataset.s,ce=+cc.dataset.e,cur=now>=cs&&now<ce?{start:new Date(cs),end:new Date(ce),i:+cc.dataset.i,d:parse(cc.dataset.d)}:null;
     if(cur){const fr=Math.min(1,(now-cur.start)/(cur.end-cur.start)),left=Math.max(0,Math.round((cur.end-now)/6e4)),warn=left<=15,C=2*Math.PI*15,done=getMask(cur.d)>>cur.i&1;
       cc.className='cd-cur'+(warn&&!done?' warn':'');cc.innerHTML='<svg viewBox="0 0 36 36" width="34" height="34" aria-hidden="true"><circle cx="18" cy="18" r="15" class="r0"/><circle cx="18" cy="18" r="15" class="r1" stroke-dasharray="'+(C*fr).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 18 18)"/></svg><span><b>'+esc(P[cur.i])+' time</b> · '+(left>=60?Math.floor(left/60)+'h '+left%60+'m':left+'m')+' left'+(done?' · ✓ prayed':'')+'</span>'}else cc.remove()}
 }
