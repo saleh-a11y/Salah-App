@@ -496,7 +496,6 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p class="mu" style="margin:14px 0 2px;font-size:13px">Each prayer that month</p><div id="pper"></div></div>
 </div>
 <div class="pane" id="p_dhikr" hidden>
-<div class="card" id="qrcard"><h2 class="serif">Qurʾān reading</h2><div id="qrb"></div></div>
 <div class="card dk-head"><div class="seg" id="dkseg" role="group" aria-label="Morning, evening or the 99 Names"><button data-s="m">Morning</button><button data-s="e">Evening</button><button data-s="y">Mine</button><button data-s="n">99 Names</button></div>
 <div id="dkhead"><p id="dkst" style="margin:10px 0 0;font-size:14px"></p><span class="bar big"><i id="dkbar"></i></span>
 <p class="mu" style="margin:8px 0 0;font-size:12px">Tap a dhikr each time you say it. <button class="lnk" id="dkreset" style="font-size:12px">Start again</button></p>
@@ -1272,7 +1271,7 @@ function renderQr(){
     +'<span class="bar big"><i style="width:'+(pg/604*100).toFixed(1)+'%"></i></span><p class="mu" style="font-size:12px;margin:6px 0 0">Juz '+Math.min(30,Math.floor(pg/20.13)+1)+(S.qr.k?' · '+plural(S.qr.k,'khatm')+' completed, māshāAllāh':'')+'</p>'
     +'<div class="chips"><button data-qr="1">+1 page</button><button data-qr="5">+5</button><button data-qr="20">+1 juz</button><button data-qr="-1">−1</button></div>';
 }
-$('#qrb').onclick=e=>{const b=e.target.closest('[data-qr]');if(!b)return;const k=ymd(today0()),n=+b.dataset.qr;S.qr.p[k]=Math.max(0,(S.qr.p[k]||0)+n);if(!S.qr.p[k])delete S.qr.p[k];
+if($('#qrb'))$('#qrb').onclick=e=>{const b=e.target.closest('[data-qr]');if(!b)return;const k=ymd(today0()),n=+b.dataset.qr;S.qr.p[k]=Math.max(0,(S.qr.p[k]||0)+n);if(!S.qr.p[k])delete S.qr.p[k];
   if(qrTotal()-S.qr.k*604>=604){S.qr.k++;alertMsg('Khatm complete! May Allah accept it ✦')}renderQr();sq=sq.then(saveSettings)};
 const MSL=[7,30,40,100,365];
 function msRow(st){
