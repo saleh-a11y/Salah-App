@@ -368,6 +368,9 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 #fzb input[type=number]{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit}
 
 .relg{margin-top:10px;border-top:1px solid var(--bd);padding-top:8px}.relg summary{display:flex;align-items:center;cursor:pointer;font-size:14px;padding:6px 0;font-weight:600}.relg ol{padding-left:20px;margin:6px 0;font-size:14px;line-height:1.5}.relg li{margin:4px 0}
+
+.bchg{border-color:var(--gold)}.bchg b{display:block}.bchg ul{margin:6px 0 10px;padding-left:18px;font-size:14px}
+.kahf{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:12px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 40%,var(--bd));font-size:14px}.kahf button{white-space:nowrap;padding:8px 12px}.kahf button.on{background:var(--em);border-color:var(--em);color:#fbf4e2}
 </style>
 </head>
 <body>
@@ -405,10 +408,11 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <section id="app" hidden>
 <div class="pane" id="p_today">
 <div class="bkdue" id="bkdue" hidden><span><b>Back up your prayers</b><i id="bkdt" style="font-style:normal" class="mu"></i></span><button id="bkdl">Later</button><button class="pri" id="bkdb">Back up</button></div>
+<div class="card bchg" id="bchg" hidden aria-live="polite"></div>
 <div class="card yask" id="yask" hidden aria-live="polite"></div>
 <div class="msw" id="msw" role="group" aria-label="Masjid"></div>
 <div class="card cd-card" id="cdcard" aria-live="polite"></div>
-<div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><p id="hjt"></p><div id="tl"></div><small id="tm"></small></div>
+<div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><p id="hjt"></p><div id="tl"></div><small id="tm"></small><div id="kahf" class="kahf" hidden></div></div>
 <div class="card qz-today" id="qzt" hidden></div>
 <div class="card"><h2 class="serif">Adhkār today</h2><div id="dktoday"></div></div>
 <button class="card nm-today" id="nmtoday" aria-label="Name of Allah of the day"></button>
@@ -495,6 +499,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <label class="tg"><input type="checkbox" id="n_adh"><span>Adhān at prayer time<small class="mu" id="n_adh_s">Plays the adhān when each prayer is called</small></span></label>
 <label class="tg"><input type="checkbox" id="n_pre"><span>15 minutes before each prayer time starts<small class="mu">e.g. "Asr in 15 minutes"</small></span></label>
 <label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu" id="n_jam_s">Your masjid's iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
+<label class="tg"><input type="checkbox" id="n_jum"><span>Jumu'ah morning reminder<small class="mu">Fridays at 08:00 · Sūrah al-Kahf, ghusl and the khutbah time</small></span></label>
 <label class="tg"><input type="checkbox" id="n_end"><span>10 minutes before a prayer's time ends<small class="mu">Only if you haven't ticked it yet</small></span></label>
 </div>
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
@@ -729,6 +734,12 @@ const LAKE_SNAP={asOf:'2026-11-14',
   info:[['Fajr starts','03:45'],['Sunrise','05:10'],['Zawaal ends','11:56'],['Asr (Hanafi)','16:33'],['Sunset','18:32'],['Isha starts','19:58']],
   jumuah:['12:25','12:55','13:00'],note:'The board lists an Esha change to 20:30 on 15 Nov 2026.'};
 const MASJID={rows:[],info:[],jumuah:null,note:''};
+function freshTxt(){
+  const M=MASJID;if(!M.asOf)return '';
+  if(M.upd&&ymd(new Date(M.upd))===ymd(today0()))return 'updated '+clock(new Date(M.upd));
+  const n=Math.round((today0()-parse(M.asOf))/864e5);
+  return n<=0?'saved today':'saved '+(n===1?'yesterday':n+' days ago')+(n>=7?' ⚠':'');
+}
 function resetMasjid(){
   for(const k of Object.keys(MASJID))delete MASJID[k];
   Object.assign(MASJID,{rows:[],info:[],jumuah:null,note:'',asOf:ymd(today0())},S.board===LAKE.url&&S.asr==='hanafi'?JSON.parse(JSON.stringify(LAKE_SNAP)):{});
@@ -837,18 +848,18 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdat
 
 /* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
 const LN=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?(Capacitor.registerPlugin?Capacitor.registerPlugin('LocalNotifications'):Capacitor.Plugins.LocalNotifications):null;
-let NP={on:false,adh:true,pre:true,jam:true,end:true},NT;
+let NP={on:false,adh:true,pre:true,jam:true,end:true,jum:true},NT;
 const AP=LN&&Capacitor.registerPlugin?Capacitor.registerPlugin('AdhanPlayer'):null;
 const isAdhan=n=>n.id%10===4&&n.id<900;
 const ADHAN_CH={id:'adhan1',name:'Adhān',description:'Plays the adhān at each prayer time',importance:5,visibility:1,sound:'adhan.mp3',vibration:true};
 try{const o=JSON.parse(localStorage.getItem('salah_notif'));if(o)NP=Object.assign(NP,o)}catch(e){}
 const saveNP=()=>{try{localStorage.setItem('salah_notif',JSON.stringify(NP))}catch(e){}};
-function jamaah(i,fri){
+function jamaah(i,fri,d){
   const M=MASJID;
   if(fri&&i===1&&M.jumuah&&tm(M.jumuah[2])!=null)return{t:tm(M.jumuah[2]),label:"Jumu'ah khutbah"};
   const re=[/^fajr/i,/^(dhuhr|zuhr)/i,/^asr/i,/^maghrib/i,/^(esha|isha)/i][i];
   const r=(M.rows||[]).find(x=>re.test(x[0]));
-  return r&&tm(r[2])!=null?{t:tm(r[2]),label:P[i]+" jamā'ah"}:null;
+  return r&&tm(r[2])!=null?{t:tm(r[2])+mShift(i,d),label:P[i]+" jamā'ah"}:null;
 }
 function planNotifs(){
   const out=[],now=Date.now(),t0=today0();
@@ -858,12 +869,14 @@ function planNotifs(){
     for(let i=0;i<5;i++){
       const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body,x)=>{if(t.getTime()>now+30000)out.push(Object.assign({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}},x||{}))};
       const dd=ymd(d);
-      if(NP.adh){const ba=boardAdhan(i,fri),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i})}
+      if(NP.adh){const ba=boardAdhan(i,fri,d),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i})}
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
-      if(NP.jam){const j=jamaah(i,fri);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
+      if(NP.jam){const j=jamaah(i,fri,d);if(j)add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}
       if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
     }
   }
+  if(NP.jum)for(let k=0;k<8;k++){const d=addDays(t0,k);if(d.getDay()!==5)continue;const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),8,0),j=S.board?jamaah(1,true,d):null;
+    if(at.getTime()>now+30000)out.push({id:910+k,title:"Jumu'ah Mubārak ✦",body:'Read Sūrah al-Kahf today, make ghusl and go early.'+(j?' Khutbah at '+hm(j.t)+' · '+(S.bname||'your masjid')+'.':''),schedule:{at,allowWhileIdle:true}})}
   let lb=0;try{lb=+localStorage.getItem('salah_lastbk')||0}catch(e){}
   if(lb){const d=new Date(lb+7*864e5),due=new Date(d.getFullYear(),d.getMonth(),d.getDate(),19,0);if(due.getTime()>now+30000)out.push({id:900,title:'Time to back up',body:'It’s been a week since your last Salah Tracker backup. Open the app and tap Back up now.',schedule:{at:due,allowWhileIdle:true}})}
   return out.sort((a,b)=>a.schedule.at-b.schedule.at);
@@ -906,7 +919,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)takeTicks(
 async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
-  ['adh','pre','jam','end'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
+  ['adh','pre','jam','end','jum'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
   $('#n_adh_s').textContent=(S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts')+(AP?' · full adhān, quiet when your phone is on silent or vibrate':'');
   if(!S.board){$('#n_jam').disabled=true;$('#n_jam_s').textContent='Needs a masjid board · add one in settings (⚙︎)'}else $('#n_jam_s').textContent=(S.bname||'Your masjid')+' iqāmah times · Jumu\'ah khutbah on Fridays';
   $('#non').hidden=NP.on;
@@ -921,7 +934,7 @@ $('#non').onclick=async()=>{
   NP.on=true;saveNP();await scheduleNotifs();
 };
 $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(e){};scheduleNotifs()};
-['adh','pre','jam','end'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
+['adh','pre','jam','end','jum'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
 $('#nadt').onclick=async()=>{
   if(!LN)return;
   if(AP){try{await AP.test({delay:5000});$('#nst').textContent='Test adhān in 5 seconds. Lock your phone now to hear it the way it will play at prayer time. Tap “Stop adhān” on the notification to stop it.';setTimeout(()=>renderNotif(),20000);setTimeout(()=>renderAdhanCheck(),9000);return}catch(e){}}
@@ -1011,7 +1024,7 @@ $('#bkok').onclick=async()=>{
     clean.qt=5;loadQz(clean,st);clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
     for(const [y,v] of Object.entries(years))await save('y'+y,v);
-    if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false}));
+    if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false,jum:o.notif.jum!==false}));
     if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
     if(/^[01]{99}$/.test(o.names||''))lsSet('salah_names',o.names);
     if(Array.isArray(o.mydk))lsSet('salah_mydk',JSON.stringify(o.mydk.filter(myValid).slice(0,200)));
@@ -1043,17 +1056,19 @@ $('#mset').onclick=()=>$('#gear').click();
 $('#mth').onclick=()=>$('#th').click();
 
 /* ---- countdown to the next adhān and jamā'ah ---- */
-function boardAdhan(i,fri){
+/* the board shows one day; on other days Maghrib moves with sunset and the rest keep the board's clock times */
+function mShift(i,d){if(i!==3||!d||!MASJID.asOf||ymd(d)===MASJID.asOf)return 0;try{return Math.round(sunCalc(d).ss-sunCalc(parse(MASJID.asOf)).ss)}catch(e){return 0}}
+function boardAdhan(i,fri,d){
   const M=MASJID;if(!S.board||!M.rows||!M.rows.length)return null;
   if(fri&&i===1&&M.jumuah&&tm(M.jumuah[0])!=null)return tm(M.jumuah[0]);
   const re=[/^fajr/i,/^(dhuhr|zuhr)/i,/^asr/i,/^maghrib/i,/^(esha|isha)/i][i],r=M.rows.find(x=>re.test(x[0]));
-  return r&&tm(r[1])!=null?tm(r[1]):null;
+  return r&&tm(r[1])!=null?tm(r[1])+mShift(i,d):null;
 }
 const atMin=(d,m)=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(m));
 function dayPrayers(d){
   const W=win(d),fri=d.getDay()===5;
   return P.map((p,i)=>{
-    const ba=boardAdhan(i,fri),j=S.board?jamaah(i,fri):null;
+    const ba=boardAdhan(i,fri,d),j=S.board?jamaah(i,fri,d):null;
     return{i,d,name:j&&/Jumu/.test(j.label)?"Jumu'ah":p,start:atMin(d,W[i][0]),end:atMin(d,W[i][1]),adhan:ba!=null?atMin(d,ba):null,jam:j?atMin(d,j.t):null};
   });
 }
@@ -1081,7 +1096,7 @@ function renderCountdown(){
     const cur=dayPrayers(today0()).find(y=>y.start<=now&&now<y.end&&y.i!==x.i);
     el.innerHTML='<div class="lbl">Next prayer'+(x.d>today0()?' · tomorrow':'')+'</div><div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
       +'<div class="cd-row'+(boxes.length===1?' one':'')+'">'+boxes.map(b=>'<div class="cd-box'+(b===live?' live':'')+'"><small>'+b.label+'</small><span class="cd-t">'+clock(b.at)+'</span><span class="cd-c'+(b.at>now?'':' done')+'" data-k="'+b.k+'">'+(b.at>now?'':'✓ called')+'</span></div>').join('')+'</div>'
-      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?'':' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(cur?'<br>'+esc(P[cur.i])+' time ends at '+clock(cur.end):'')+'</div>';
+      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(cur?'<br>'+esc(P[cur.i])+' time ends at '+clock(cur.end):'')+'</div>';
     renderToday();
   }
   boxes.forEach(b=>{const c=el.querySelector('.cd-c[data-k="'+b.k+'"]');if(c&&b.at>now)c.textContent=cdf(b.at-now)});
@@ -1096,7 +1111,7 @@ function renderToday(){
   try{renderNameToday()}catch(e){}
   try{renderHijriToday()}catch(e){}
   try{renderDhikrToday()}catch(e){}
-  try{renderQzToday();renderYAsk()}catch(e){}
+  try{renderQzToday();renderYAsk();renderBChg()}catch(e){}
   const d=today0(),m=getMask(d),L=getLate(d),now=new Date(),xs=dayPrayers(d),nx=nextPrayer(now);
   $('#tdate').textContent=d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   $('#tl').innerHTML=xs.map(x=>{
@@ -1107,6 +1122,7 @@ function renderToday(){
     return '<div class="prow"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button>':'')+'</div>';
   }).join('');
   $('#tm').textContent=TM;
+  try{renderKahf()}catch(e){}
 }
 $('#tl').onclick=e=>{
   const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]');if(!p&&!l)return;
@@ -1322,6 +1338,16 @@ $('#qzpdf').onclick=async()=>{
     m.textContent='✓ Report ready.';
   }catch(e){m.textContent='Couldn’t make the report. Please try again.'}
 };
+
+/* Friday: Sūrah al-Kahf (from Thursday's Maghrib to Friday's Maghrib) */
+function kahfDay(){const n=new Date(),t=today0(),W=win(t),mins=(n-t)/6e4;if(t.getDay()===5&&mins<W[3][0])return ymd(t);if(t.getDay()===4&&mins>=W[3][0])return ymd(addDays(t,1));return null}
+function renderKahf(){
+  const el=$('#kahf');if(!el)return;const k=kahfDay();if(!k){el.hidden=true;return}
+  let done=false;try{done=lsGet('salah_kahf')===k}catch(e){}
+  el.hidden=false;el.innerHTML='<span>✦ It’s Jumu’ah'+(new Date().getDay()===4?' night':'')+': read <b>Sūrah al-Kahf</b></span><button id="kahfb" class="'+(done?'on':'')+'" aria-pressed="'+done+'">'+(done?'✓ Read':'Mark read')+'</button>';
+}
+$('#kahf').onclick=e=>{if(!e.target.closest('#kahfb'))return;const k=kahfDay();if(!k)return;lsSet('salah_kahf',lsGet('salah_kahf')===k?'':k);renderKahf()};
+$('#bchg').onclick=e=>{if(e.target.id==='bchgx'){try{localStorage.removeItem('salah_bchg')}catch(x){}renderBChg()}};
 
 /* qaḍā on the Today page */
 function renderQzToday(){
@@ -2212,13 +2238,31 @@ function refreshViews(){if(typeof INTRO_BUSY!=='undefined'&&INTRO_BUSY){INTRO_PE
 function applyBoard(R){
   const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
   const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
-  Object.assign(MASJID,m,{asOf:d,status:'Live from the board, updated '+hm((new Date()-today0())/6e4)+'.'});
-  try{const c=boardCache();c[S.board]={date:d,t:R.t,m,asr:S.asr};for(const k of Object.keys(c))if(!S.boards.some(b=>b.url===k))delete c[k];localStorage.setItem('salah_board',JSON.stringify(c))}catch(e){}
+  const prev=boardCache()[S.board];
+  Object.assign(MASJID,m,{asOf:d,upd:Date.now(),status:'Live from the board, updated '+hm((new Date()-today0())/6e4)+'.'});
+  try{boardChanged(prev,m)}catch(e){}
+  try{const c=boardCache();c[S.board]={date:d,t:R.t,m,asr:S.asr,u:Date.now()};for(const k of Object.keys(c))if(!S.boards.some(b=>b.url===k))delete c[k];localStorage.setItem('salah_board',JSON.stringify(c))}catch(e){}
   renderMasjid();refreshViews();queueNotifs();
+}
+/* compare with what the board said last time; Maghrib's small daily moves with sunset are ignored */
+function boardChanged(prev,m){
+  if(!prev||!prev.m||!Array.isArray(prev.m.rows)||!prev.m.rows.length||(prev.asr||'hanafi')!==S.asr)return;
+  const out=[],nm=r=>(r[0]||'').toLowerCase().slice(0,3);
+  m.rows.forEach(r=>{const o=prev.m.rows.find(x=>nm(x)===nm(r));if(!o)return;const mg=/^mag/i.test(r[0]);
+    [[1,'adhān'],[2,"jamā'ah"]].forEach(([k,l])=>{const a=tm(o[k]),b=tm(r[k]);if(a==null||b==null||a===b)return;if(mg&&Math.abs(a-b)<=5)return;out.push(r[0].replace(/^Esha$/i,'Isha')+' '+l+' '+o[k]+' → '+r[k])})});
+  if(prev.m.jumuah&&m.jumuah&&prev.m.jumuah[2]!==m.jumuah[2])out.push("Jumu'ah khutbah "+prev.m.jumuah[2]+' → '+m.jumuah[2]);
+  if(!out.length)return;
+  lsSet('salah_bchg',JSON.stringify({d:ymd(today0()),u:S.board,name:S.bname||'Your masjid',list:out}));renderBChg();
+  if(LN&&NP.on)try{LN.schedule({notifications:[{id:905,title:(S.bname||'Your masjid')+' changed its times',body:out.join(' · '),schedule:{at:new Date(Date.now()+2000),allowWhileIdle:true}}]})}catch(e){}
+}
+function renderBChg(){
+  const el=$('#bchg');if(!el)return;let o=null;try{o=JSON.parse(lsGet('salah_bchg'))}catch(e){}
+  if(!o||o.u!==S.board||!Array.isArray(o.list)){el.hidden=true;return}
+  el.hidden=false;el.innerHTML='<b>'+esc(o.name)+' changed its times</b><ul>'+o.list.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><button id="bchgx">OK</button>';
 }
 function loadBoardCache(){
   try{const c=boardCache()[S.board];
-    if(c&&c.t&&c.m&&(c.asr||'hanafi')===S.asr){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
+    if(c&&c.t&&c.m&&(c.asr||'hanafi')===S.asr){LIVE={date:c.date,t:c.t};Object.assign(MASJID,c.m,{asOf:c.date,upd:c.u||0,status:'Saved from the board on '+fmt(parse(c.date))+'. Refreshing\u2026'})}}catch(e){}
 }
 let pulled=0;
 async function pullBoard(){
@@ -2258,9 +2302,9 @@ let sq=Promise.resolve();
 function qada(sign){
   const n=Math.floor(+$('#qn').value);
   if(!(n>0)){$('#qm').textContent='Enter a number of 1 or more.';return}
-  const v=$('#qp').value,idx=v==='all'?[0,1,2,3,4]:[+v];
-  idx.forEach(i=>{const b=S.q[i];S.q[i]=Math.max(0,S.q[i]+sign*n);logQada(S.q[i]-b)});
-  renderStats();sq=sq.then(saveSettings);return sq;
+  const v=$('#qp').value,idx=v==='all'?[...Array(qzN()).keys()]:[+v];
+  const r=qzLog(idx,sign*n);$('#qm').textContent=r.ch?(r.ch>0?'Added ':'Took off ')+Math.abs(r.ch).toLocaleString()+'.':'Nothing to take off.';
+  renderStats();renderQzToday();sq=sq.then(saveSettings);return sq;
 }
 $('#qa').onclick=()=>qada(1);$('#qu').onclick=()=>qada(-1);
 
