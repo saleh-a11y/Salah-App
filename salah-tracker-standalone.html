@@ -382,6 +382,16 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 .cd-cur{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(230,201,131,.25);font-size:13px;color:#e8efe9}.cd-cur .r0{fill:none;stroke:rgba(255,255,255,.18);stroke-width:4}.cd-cur .r1{fill:none;stroke:var(--gold2);stroke-width:4;stroke-linecap:round}.cd-cur.warn .r1{stroke:#ff9a8a}.cd-cur.warn b{color:#ffc2b8}
 .msr{display:flex;gap:6px;justify-content:center;margin-top:12px}.ms{padding:4px 10px;border-radius:999px;border:1px solid var(--bd);font-size:12px;color:var(--mu)}.ms.got{border-color:var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
 .day.exc{background:var(--dis);border-style:dashed}
+
+.rm-card{background:linear-gradient(170deg,#1a2f4f 0%,#0e1c33 100%);color:#f2ecdd;border-color:color-mix(in srgb,var(--gold) 55%,#0e1c33)}.rm-card.soon{padding:14px 16px}
+.rm-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.rm-h b{font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:20px;color:var(--gold2)}.rm-h .ar{font-family:"Amiri",serif;color:var(--gold2);font-size:18px}
+.rm-t{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 6px}.rm-t>div{border:1px solid rgba(230,201,131,.35);border-radius:14px;padding:8px;text-align:center}.rm-t>div.on{border-color:var(--gold2);background:rgba(230,201,131,.12)}.rm-t small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#cfd8e6}.rm-t b{font-family:"Marcellus",Georgia,serif;font-size:26px;font-weight:400}
+.rm-cd{text-align:center;margin:6px 0;color:#cfd8e6}.rm-cd b{color:var(--gold2);font-variant-numeric:tabular-nums}
+.rm-dua{text-align:center;margin:8px 0}.rm-dua .ar{display:block;font-family:"Amiri",serif;font-size:19px;color:var(--gold2);line-height:1.6}.rm-dua small{color:#cfd8e6;font-size:12px}
+.rm-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.rm-f span{font-size:14px}.rm-f .seg{flex:1;max-width:240px}
+.rm-card button{background:rgba(255,255,255,.06);border-color:rgba(230,201,131,.4);color:#f2ecdd}.rm-card button.on{background:var(--gold2);border-color:var(--gold2);color:#1a2f4f}
+.rm-x{display:flex;gap:8px;margin-top:10px}.rm-x button{flex:1}
+.rm-l10{font-size:13px;margin:10px 0 0;color:#cfd8e6}.rm-l10 span{display:inline-block;min-width:26px;text-align:center;margin-left:4px;border:1px solid rgba(230,201,131,.4);border-radius:8px;padding:2px 4px}.rm-l10 span.on{background:var(--gold2);color:#1a2f4f}.rm-l10 span.tn{box-shadow:0 0 0 2px var(--gold2)}
 </style>
 </head>
 <body>
@@ -426,6 +436,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <div class="card yask" id="yask" hidden aria-live="polite"></div>
 <div class="msw" id="msw" role="group" aria-label="Masjid"></div>
 <div class="card cd-card" id="cdcard" aria-live="polite"></div>
+<div class="card rm-card" id="rmcard" hidden></div>
 <div class="card" id="tcard"><h2 class="serif">Today's prayers</h2><p id="tdate" class="mu" style="margin:-2px 0 10px"></p><div id="tdots" class="tdots" role="img"></div><p id="hjt"></p><div id="tl"></div><small id="tm"></small><button id="exb" class="exb" hidden></button><div id="kahf" class="kahf" hidden></div>
 <details class="snd"><summary>Sunnah &amp; nafl <span id="snc" class="mu"></span></summary><div id="sn"></div></details></div>
 <div class="card qz-today" id="qzt" hidden></div>
@@ -515,6 +526,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <label class="tg"><input type="checkbox" id="n_pre"><span>15 minutes before each prayer time starts<small class="mu">e.g. "Asr in 15 minutes"</small></span></label>
 <label class="tg"><input type="checkbox" id="n_jam"><span>8 minutes before masjid jamā'ah<small class="mu" id="n_jam_s">Your masjid's iqāmah times · Jumu'ah khutbah on Fridays</small></span></label>
 <label class="tg"><input type="checkbox" id="n_jum"><span>Jumu'ah morning reminder<small class="mu">Fridays at 08:00 · Sūrah al-Kahf, ghusl and the khutbah time</small></span></label>
+<label class="tg"><input type="checkbox" id="n_rm"><span>Ramaḍān: sehri and ifṭār<small class="mu">30 minutes before sehri ends, and at ifṭār</small></span></label>
 <label class="tg"><input type="checkbox" id="n_end"><span>10 minutes before a prayer's time ends<small class="mu">Only if you haven't ticked it yet</small></span></label>
 </div>
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
@@ -531,6 +543,7 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 <p class="mu" style="margin:10px 0 0;font-size:12px">Your qaḍā count is stored as a history of every change, so it is never lost. If “Back up to Google” is on in your phone’s settings, Android also keeps a copy of the app’s data.</p>
 </div>
 
+<div class="card"><h2 class="serif">Ramaḍān mode</h2><p class="mu" style="margin:0 0 10px">Switches on by itself when Ramaḍān starts (Jamiatul Ulama dates). Turn it on now to see how it looks.</p><label class="tg"><input type="checkbox" id="rmon"><span>Show Ramaḍān mode now<small class="mu">Preview only. Fasts you log are kept.</small></span></label></div>
 <div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
 <div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
 <small id="foot"></small>
@@ -607,7 +620,7 @@ const today0=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(
 const doy=d=>Math.round((d-new Date(d.getFullYear(),0,1))/864e5);
 const pc=m=>[0,1,2,3,4].reduce((a,i)=>a+(m>>i&1),0);
 const fmt=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
-const S={pub:null,yrs:{},yl:{},yj:{},yx:{},yn:{},yo:{},trv:0,ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
+const S={rd:{},rn:{},pub:null,yrs:{},yl:{},yj:{},yx:{},yn:{},yo:{},trv:0,ts:null,edit:false,q:[0,0,0,0,0,0],qt:5,ql:{},qz:null,qh:false,qe:[],qa:{},fz:null,boards:[],asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null},D=new Set();let V={y:0,m:0},sel=null,ref=null,T;
 
 /* storage: private account db when signed in, else this device */
 async function initStore(){
@@ -871,7 +884,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdat
 
 /* ---- prayer notifications: scheduled on the phone for the next 7 days ---- */
 const LN=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?(Capacitor.registerPlugin?Capacitor.registerPlugin('LocalNotifications'):Capacitor.Plugins.LocalNotifications):null;
-let NP={on:false,adh:true,pre:true,jam:true,end:true,jum:true},NT;
+let NP={on:false,adh:true,pre:true,jam:true,end:true,jum:true,rm:true},NT;
 const AP=LN&&Capacitor.registerPlugin?Capacitor.registerPlugin('AdhanPlayer'):null;
 const isAdhan=n=>n.id%10===4&&n.id<900;
 const ADHAN_CH={id:'adhan1',name:'Adhān',description:'Plays the adhān at each prayer time',importance:5,visibility:1,sound:'adhan.mp3',vibration:true};
@@ -898,6 +911,9 @@ function planNotifs(){
       if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
     }
   }
+  if(NP.rm)for(let k=0;k<7;k++){const d=addDays(t0,k);if(!rmActive(d))continue;const W=win(d),ba=boardAdhan(3,d.getDay()===5,d),ift=ba!=null?ba:W[3][0],at=m=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(m));
+    if(at(W[0][0]-30).getTime()>now+30000)out.push({id:920+k,title:'Sehri ends in 30 minutes',body:'Sehri ends at '+hm(W[0][0])+'. Make your intention for the fast.',schedule:{at:at(W[0][0]-30),allowWhileIdle:true}});
+    if(at(ift).getTime()>now+30000)out.push({id:930+k,title:'Ifṭār time ✦',body:'Time to open your fast ('+hm(ift)+'). '+IFTAR_DUA,schedule:{at:at(ift),allowWhileIdle:true}});}
   if(NP.jum)for(let k=0;k<8;k++){const d=addDays(t0,k);if(d.getDay()!==5)continue;const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),8,0),j=S.board?jamaah(1,true,d):null;
     if(at.getTime()>now+30000)out.push({id:910+k,title:"Jumu'ah Mubārak ✦",body:'Read Sūrah al-Kahf today, make ghusl and go early.'+(j?' Khutbah at '+hm(j.t)+' · '+(S.bname||'your masjid')+'.':''),schedule:{at,allowWhileIdle:true}})}
   let lb=0;try{lb=+localStorage.getItem('salah_lastbk')||0}catch(e){}
@@ -942,7 +958,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)takeTicks(
 async function renderNotif(next){
   const st=$('#nst');
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
-  ['adh','pre','jam','end','jum'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
+  ['adh','pre','jam','end','jum','rm'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
   $('#n_adh_s').textContent=(S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts')+(AP?' · full adhān, quiet when your phone is on silent or vibrate':'');
   if(!S.board){$('#n_jam').disabled=true;$('#n_jam_s').textContent='Needs a masjid board · add one in settings (⚙︎)'}else $('#n_jam_s').textContent=(S.bname||'Your masjid')+' iqāmah times · Jumu\'ah khutbah on Fridays';
   $('#non').hidden=NP.on;
@@ -957,7 +973,7 @@ $('#non').onclick=async()=>{
   NP.on=true;saveNP();await scheduleNotifs();
 };
 $('#nex').onclick=async()=>{try{await LN.changeExactNotificationSetting()}catch(e){};scheduleNotifs()};
-['adh','pre','jam','end','jum'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
+['adh','pre','jam','end','jum','rm'].forEach(k=>$('#n_'+k).onchange=e=>{NP[k]=e.target.checked;saveNP();queueNotifs()});
 $('#nadt').onclick=async()=>{
   if(!LN)return;
   if(AP){try{await AP.test({delay:5000});$('#nst').textContent='Test adhān in 5 seconds. Lock your phone now to hear it the way it will play at prayer time. Tap “Stop adhān” on the notification to stop it.';setTimeout(()=>renderNotif(),20000);setTimeout(()=>renderAdhanCheck(),9000);return}catch(e){}}
@@ -1044,10 +1060,10 @@ $('#bkok').onclick=async()=>{
     clean.asr=clean.asr==='shafii'?'shafii':'hanafi';clean.board=boardURL(clean.board);
     for(const k of['blat','blon'])clean[k]=typeof st[k]==='number'?st[k]:null;
     clean.boards=cleanBoards(st.boards);if(clean.board&&!clean.boards.some(b=>b.url===clean.board))clean.boards.unshift({url:clean.board,name:clean.bname,town:clean.btown,lat:clean.blat,lon:clean.blon});
-    clean.qt=5;loadQz(clean,st);clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
+    clean.qt=5;loadQz(clean,st);loadRm(clean,st);clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
     for(const [y,v] of Object.entries(years))await save('y'+y,v);
-    if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false,jum:o.notif.jum!==false}));
+    if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false,jum:o.notif.jum!==false,rm:o.notif.rm!==false}));
     if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
     if(/^[01]{99}$/.test(o.names||''))lsSet('salah_names',o.names);
     if(Array.isArray(o.mydk))lsSet('salah_mydk',JSON.stringify(o.mydk.filter(myValid).slice(0,200)));
@@ -1076,6 +1092,7 @@ function showTab(t,keep){
 }
 $('#tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
 $('#mset').onclick=()=>$('#gear').click();
+$('#rmon').checked=lsGet('salah_rmode')==='on';$('#rmon').onchange=e=>{lsSet('salah_rmode',e.target.checked?'on':'auto');renderRm();queueNotifs()};
 $('#mth').onclick=()=>$('#th').click();
 
 /* ---- countdown to the next adhān and jamā'ah ---- */
@@ -1138,6 +1155,7 @@ function renderToday(){
   try{renderHijriToday()}catch(e){}
   try{renderDhikrToday()}catch(e){}
   try{renderQzToday();renderYAsk();renderBChg()}catch(e){}
+  try{renderRm()}catch(e){console.error(e)}
   const d=today0(),m=getMask(d),L=getLate(d),now=new Date(),xs=dayPrayers(d),nx=nextPrayer(now);
   $('#tdate').textContent=d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   $('#tl').innerHTML=xs.map(x=>{
@@ -1429,6 +1447,53 @@ function renderKahf(){
 $('#kahf').onclick=e=>{if(!e.target.closest('#kahfb'))return;const k=kahfDay();if(!k)return;lsSet('salah_kahf',lsGet('salah_kahf')===k?'':k);renderKahf()};
 $('#bchg').onclick=e=>{if(e.target.id==='bchgx'){try{localStorage.removeItem('salah_bchg')}catch(x){}renderBChg()}};
 
+/* ---- Ramaḍān mode: sehri and ifṭār, the fasting log, Tarāwīḥ and the last ten nights ---- */
+function loadRm(o,st){
+  o.rd={};o.rn={};if(!st)return;const D=/^\d{4}-\d{2}-\d{2}$/;
+  if(st.rd&&typeof st.rd==='object')for(const [k,v] of Object.entries(st.rd))if(D.test(k)&&/^[fhito]$/.test(v))o.rd[k]=v;
+  if(st.rn&&typeof st.rn==='object')for(const k of Object.keys(st.rn))if(D.test(k))o.rn[k]=1;
+}
+const rmMode=()=>lsGet('salah_rmode')==='on'?'on':'auto';
+function rmDay(d){
+  let h=null;try{h=hijriOf(d)}catch(e){}
+  if(h)return h.m===9?h.d:0;const x=hijYM(d);if(!x||x.m!==9)return 0;
+  try{return +new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric'}).format(d)}catch(e){return 1}
+}
+function rmActive(d){const n=rmDay(d);return n?n:rmMode()==='on'?-1:0}
+function rmUntil(){for(let k=1;k<=40;k++){if(rmDay(addDays(today0(),k)))return k}return 0}
+const RMW={h:'ḥayḍ / nifās',i:'illness',t:'travel',o:'another reason'};
+const IFTAR_DUA='ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللّٰهُ';
+function renderRm(){
+  const el=$('#rmcard');if(!el||!S.pub)return;const d=today0(),n=rmActive(d);
+  if(!n){const u=rmUntil();if(u&&u<=30){el.hidden=false;el.className='card rm-card soon';el.innerHTML='<div class="rm-h"><b>Ramaḍān in '+plural(u,'day')+'</b><span class="ar">رَمَضَان</span></div><p class="mu" style="margin:4px 0 0">Expected to begin '+fmt(addDays(d,u))+', subject to the moon sighting. Ramaḍān mode switches on by itself.</p>'}else el.hidden=true;return}
+  el.hidden=false;el.className='card rm-card';
+  const W=win(d),now=new Date(),mins=(now-d)/6e4,fri=d.getDay()===5;
+  const ba=boardAdhan(3,fri,d),sehri=W[0][0],iftar=ba!=null?ba:W[3][0];
+  const nextIsIftar=mins<iftar&&mins>=sehri,target=nextIsIftar?atMin(d,iftar):mins<sehri?atMin(d,sehri):atMin(addDays(d,1),win(addDays(d,1))[0][0]);
+  const code=S.rd[ymd(d)],tw=getNf(d)>>3&1,last10=n>=20||n===-1;
+  let h='<div class="rm-h"><b>'+(n>0?ord(n)+' Ramaḍān':'Ramaḍān mode (preview)')+'</b><span class="ar">رَمَضَان مُبَارَك</span></div>'
+    +'<div class="rm-t"><div class="'+(nextIsIftar?'':'on')+'"><small>Sehri ends</small><b>'+hm(sehri)+'</b></div><div class="'+(nextIsIftar?'on':'')+'"><small>Ifṭār</small><b>'+hm(iftar)+'</b></div></div>'
+    +'<p class="rm-cd">'+(nextIsIftar?'Ifṭār':'Sehri ends')+' in <b id="rmcd" data-t="'+(+target)+'">'+cdf(target-now)+'</b></p>'
+    +(nextIsIftar&&iftar-mins<60?'<p class="rm-dua"><span class="ar">'+IFTAR_DUA+'</span><small>“The thirst has gone, the veins are moistened, and the reward is certain, if Allah wills.” (Abū Dāwūd)</small></p>':'')
+    +'<div class="rm-f"><span>Today’s fast</span><div class="seg" id="rmf"><button data-rf="f" class="'+(code==='f'?'on':'')+'">✓ Fasting</button><button data-rf="x" class="'+(code&&code!=='f'?'on':'')+'">Not fasting</button></div></div>'
+    +(code&&code!=='f'?'<div class="chips" id="rmw">'+Object.entries(RMW).map(([k,l])=>'<button data-rw="'+k+'" class="'+(code===k?'on':'')+'">'+l+'</button>').join('')+'</div><p class="mu" style="font-size:12px;margin:6px 0 0">Added to your missed fasts to make up later.</p>':'')
+    +'<div class="rm-x"><button id="rmtw" class="'+(tw?'on':'')+'" aria-pressed="'+!!tw+'">'+(tw?'✓ ':'')+'Tarāwīḥ tonight</button>'+(last10?'<button id="rmn" class="'+(S.rn[ymd(d)]?'on':'')+'">'+(S.rn[ymd(d)]?'✓ ':'')+'Night worship</button>':'')+'</div>';
+  if(last10&&n>0){const nights=[21,23,25,27,29];h+='<p class="rm-l10">Last ten nights · odd nights: '+nights.map(x=>{const dd=addDays(d,x-1-n),k=ymd(dd);return '<span class="'+(S.rn[k]?'on':'')+(x===n+1?' tn':'')+'">'+x+'</span>'}).join('')+'</p>'}
+  const fasted=Object.values(S.rd).filter(v=>v==='f').length,missed=rmMissed();
+  h+='<p class="mu" style="font-size:12px;margin:8px 0 0">This Ramaḍān: '+fasted+' fasted'+(missed?' · '+missed+' to make up':'')+'</p>';
+  el.innerHTML=h;
+}
+setInterval(()=>{const c=document.getElementById('rmcd');if(!c)return;const t=+c.dataset.t-Date.now();if(t<=0){renderRm();return}c.textContent=cdf(t)},1000);
+$('#rmcard').onclick=e=>{
+  const d=today0(),k=ymd(d),f=e.target.closest('[data-rf]'),w=e.target.closest('[data-rw]');
+  if(f){if(f.dataset.rf==='f')S.rd[k]=S.rd[k]==='f'?undefined:'f';else S.rd[k]=S.rd[k]&&S.rd[k]!=='f'?undefined:'o';if(!S.rd[k])delete S.rd[k]}
+  else if(w)S.rd[k]=w.dataset.rw;
+  else if(e.target.closest('#rmtw'))setNf(d,getNf(d)^8);
+  else if(e.target.closest('#rmn')){if(S.rn[k])delete S.rn[k];else S.rn[k]=1}
+  else return;
+  renderRm();try{renderFasts()}catch(x){}sq=sq.then(saveSettings);
+};
+
 /* qaḍā on the Today page */
 function renderQzToday(){
   const el=$('#qzt');if(!el||!S.pub)return;
@@ -1560,7 +1625,8 @@ function ramadansSince(pub){
   const a=hijYM(parse(pub)),b=hijYM(today0());if(!a||!b)return Math.max(0,Math.floor((today0()-parse(pub))/864e5/354.37));
   const s=a.m<9?a.y:a.y+1,e=b.m>9?b.y:b.y-1;return Math.max(0,e-s+1);
 }
-const fzOwed=F=>F.k*30+F.e+(qzOn()&&S.qz.g==='f'?F.h*Math.max(0,F.r-F.k):0);
+const rmMissed=()=>Object.values(S.rd||{}).filter(v=>v!=='f').length;
+const fzOwed=F=>F.k*30+F.e+(qzOn()&&S.qz.g==='f'?F.h*Math.max(0,F.r-F.k):0)+rmMissed();
 let FZE=false;
 function renderFasts(){
   const el=$('#fzb');if(!el||!S.pub)return;const F=S.fz,fem=qzOn()&&S.qz.g==='f';
@@ -2376,7 +2442,7 @@ function tick(i){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-const setDoc=()=>({trv:S.trv,pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+const setDoc=()=>({rd:S.rd,rn:S.rn,trv:S.trv,pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
 async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
@@ -2401,7 +2467,7 @@ async function resetAll(){
       else try{localStorage.removeItem('salah_'+k)}catch(e){}
     }
   }catch(e){stat('Couldn’t reset, please try again');return}
-  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0,0];S.ts=null;S.qz=null;S.qh=false;S.qe=[];S.qa={};S.fz=null;S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null,qt:5,ql:{},boards:[]});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
+  S.pub=null;S.yrs={};S.yl={};S.q=[0,0,0,0,0,0];S.ts=null;S.qz=null;S.qh=false;S.qe=[];S.qa={};S.fz=null;S.rd={};S.rn={};S.edit=false;D.clear();Object.assign(S,{asr:'hanafi',board:'',bname:'',btown:'',loc:'jhb',blat:null,blon:null,qt:5,ql:{},boards:[]});LIVE=null;try{localStorage.removeItem('salah_board')}catch(e){}applyLoc();resetMasjid();queueNotifs();
   stat('Reset done');boot();
 }
 let rt;
@@ -2502,7 +2568,7 @@ function boot(){
 (async()=>{
   stat('Loading…');await initStore();
   const st=await load('settings');if(st&&st.pub)S.pub=st.pub;
-  loadQz(S,st);if(st&&Number.isInteger(st.trv)&&st.trv>=0&&st.trv<=120)S.trv=st.trv;
+  loadRm(S,st);loadQz(S,st);if(st&&Number.isInteger(st.trv)&&st.trv>=0&&st.trv<=120)S.trv=st.trv;
   if(st&&typeof st.ts==='string')S.ts=st.ts;
   if(st&&st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)S.ql[k]=Math.floor(+v);
   if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
