@@ -374,6 +374,8 @@ header.compact{padding-bottom:40px}header.compact .sky{display:none}
 
 .sbt{display:flex;flex-direction:column;gap:4px}.sbt button{padding:5px 10px;border-radius:12px;font-size:12px;flex:1}.jm.on{background:color-mix(in srgb,var(--gold) 22%,var(--card));border-color:var(--gold)}
 .prow.exd .pr{opacity:.6;border-style:dashed}
+.wt.on{background:color-mix(in srgb,var(--em) 18%,var(--card));border-color:var(--em)}
+.wpick{display:flex;gap:6px;margin:-2px 0 10px}.wpick button{flex:1;margin:0;padding:10px 8px;border-radius:14px;font-size:14px}.wpick .wx{flex:none;width:44px}
 .tdots{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:0 0 12px}.dt{display:flex;flex-direction:column;align-items:center;gap:3px}.dt i{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);display:block}.dt small{font-size:11px;color:var(--mu)}
 .d-j i,i.d-j{background:var(--gold);border-color:var(--gold)}.d-a i,i.d-a{background:var(--em);border-color:var(--em)}.d-l i,i.d-l{background:var(--late);border-color:var(--late)}.d-m i,i.d-m{background:var(--miss);border-color:var(--c3)}.d-x i,i.d-x{border-style:dashed;background:var(--dis)}.d-n i{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
 .dtl{flex-basis:100%;font-size:11px;color:var(--mu);display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}.dtl i{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--bd);margin-left:4px}
@@ -731,20 +733,20 @@ function renderSheet(){
     else if(past)s='Missed';
     else s=rel<w[0]?'Starts '+hm(w[0]):rel<=w[1]?Math.floor(r/60)+'h '+r%60+'m left':'Time passed';
     const jm=getJam(sel)>>i&1,ex=getEx(sel)>>i&1;if(ex&&!on)s='Excused';
-    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+' <span class="ar">'+AR[i]+'</span></b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-j="'+i+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button></span>':'')+'</div>'}).join('')
-    +(()=>{const on=getW(sel),w=W[4],ex=exDay(sel)&&!on;let s=on?'Prayed':ex?'Excused':past?'Missed':rel<w[0]?'After Isha':rel<=w[1]?'Before Fajr':'Time passed';
-      return '<div class="prow'+(ex?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-w="1"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>Witr <span class="ar">الوتر</span></b><small>'+(wReq()?'Wājib':'Sunnah')+' · after Isha, before Fajr</small></span><small>'+s+'</small></button></div>'})()
+    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+'" data-i="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+p+' <span class="ar">'+AR[i]+'</span></b><small>'+hm(w[0])+' – '+hm(w[1])+'</small></span><small>'+s+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-j="'+i+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-i="'+i+'">Late</button>'+(i===4?wBtn(sel,'data-w'):'')+'</span>':'')+'</div>'+(i===4&&!on&&WPICK?wPick():'')}).join('')
     +(isFem()?'<button class="exb'+((getEx(sel)&31)===31?' on':'')+'" data-a="ex">'+((getEx(sel)&31)===31?'✓ Ḥayḍ / nifās day: no salah owed':'Mark as a ḥayḍ / nifās day')+'</button>':'');
   $('#sm').textContent=MS;MS='';
 }
-$('#grid').onclick=e=>{const b=e.target.closest('.day');if(!b||b.disabled)return;sel=parse(b.dataset.d);renderSheet();$('#ov').hidden=false};
+$('#grid').onclick=e=>{const b=e.target.closest('.day');if(!b||b.disabled)return;sel=parse(b.dataset.d);WPICK=false;renderSheet();$('#ov').hidden=false};
 $('#ov').onclick=e=>{
   if(e.target.id==='ov'){$('#ov').hidden=true;return}
   const p=e.target.closest('.pr'),l=e.target.closest('.lt'),a=e.target.closest('[data-a]'),jb=e.target.closest('[data-j]');
   if(jb)setJam(sel,getJam(sel)^(1<<+jb.dataset.j));
-  else if(p&&p.dataset.w)wTick(sel);
+  else if(e.target.closest('[data-w]'))wTick(sel);
+  else if(e.target.closest('[data-wp]')){const v=e.target.closest('[data-wp]').dataset.wp;WPICK=false;if(v!=='x'){tick(4);if(v==='1'&&getMask(sel)>>4&1)setW(sel,true)}}
+  else if(p&&+p.dataset.i===4&&!p.closest('.sbt')&&!(getMask(sel)>>4&1)&&wReq()&&!getW(sel)&&!WPICK&&!(timing(sel,4)&&timing(sel,4).s==='wait')){WPICK=true;renderSheet();return}
   else if(a&&a.dataset.a==='ex')setEx(sel,(getEx(sel)&31)===31?0:31);
-  else if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  else if(p){const i=+p.dataset.i;if(getMask(sel)>>i&1){setMask(sel,getMask(sel)&~(1<<i));if(i===4)setW(sel,false)}else tick(i)}
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.i));
   else if(a){if(a.dataset.a==='done'){$('#ov').hidden=true;return}if(a.dataset.a==='clr'){setMask(sel,0);setW(sel,false)}else{for(let i=0;i<5;i++)if(!(getMask(sel)>>i&1))tick(i);if(!getW(sel)&&getMask(sel)>>4&1)setW(sel,true)}}
   else return;
@@ -1189,13 +1191,9 @@ function renderToday(){
     const times=x.adhan||x.jam?(x.adhan?'Adhān '+clock(x.adhan):'')+(x.adhan&&x.jam?' · ':'')+(x.jam?(x.name==="Jumu'ah"?'Khutbah ':"Jamā'ah ")+clock(x.jam):''):clock(x.start)+' – '+clock(x.end);
     const isNext=nx&&nx.i===i&&+nx.d===+d;
     const jm=getJam(d)>>i&1,ex=getEx(d)>>i&1;if(ex&&!on)st='Excused';
-    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-tj="'+i+'" aria-pressed="'+!!jm+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button></span>':'')+'</div>';
-  }).join('')+(()=>{
-    const on=getW(d),x=xs[4],ex=exDay(d)&&!on,ishaOn=m>>4&1;let st;
-    if(on)st='Prayed';else if(ex)st='Excused';else if(now<x.start)st='After Isha';else if(now<=x.end)st=ishaOn?'Now':'After Isha';else st='Missed';
-    const nw=!on&&!ex&&ishaOn&&now>=x.start&&now<=x.end;
-    return '<div class="prow'+(ex?' exd':'')+'"><button class="pr'+(on?' on':'')+(nw?' now':'')+'" data-tw="1"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>Witr <span class="ar">الوتر</span></b><small>'+(wReq()?'Wājib':'Sunnah')+' · before Fajr '+clock(x.end)+'</small></span><small>'+st+'</small></button></div>';
-  })();
+    return '<div class="prow'+(ex&&!on?' exd':'')+'"><button class="pr'+(on?' on':'')+(isNext&&!on?' now':'')+'" data-ti="'+i+'"><span class="ck">'+(on?'✓':'')+'</span><span class="nm"><b>'+esc(x.name)+' <span class="ar">'+AR[i]+'</span></b><small>'+times+'</small></span><small>'+st+'</small></button>'+(on?'<span class="sbt"><button class="jm'+(jm?' on':'')+'" data-tj="'+i+'" aria-pressed="'+!!jm+'">Jamā‘ah</button><button class="lt'+(lt?' on':'')+'" data-tl="'+i+'">Late</button>'+(i===4?wBtn(d,'data-tw'):'')+'</span>':'')+'</div>'
+      +(i===4&&!on&&WPICK?wPick():'');
+  }).join('');
   $('#tm').textContent=TM;
   try{renderKahf()}catch(e){}
   try{renderDots();renderSunnah();renderExBtn()}catch(e){}
@@ -1241,10 +1239,13 @@ function renderSunnah(){
 $('#sn').onclick=e=>{const a=e.target.closest('[data-sn]'),b=e.target.closest('[data-nf]'),d=today0();
   if(a)setSn(d,getSn(d)^(1<<+a.dataset.sn));else if(b)setNf(d,getNf(d)^(1<<+b.dataset.nf));else return;renderSunnah();try{renderProgress()}catch(x){}};
 $('#tl').onclick=e=>{
-  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]'),jb=e.target.closest('[data-tj]'),wb=e.target.closest('[data-tw]');if(!p&&!l&&!jb&&!wb)return;
+  const p=e.target.closest('[data-ti]'),l=e.target.closest('[data-tl]'),jb=e.target.closest('[data-tj]'),wb=e.target.closest('[data-tw]');if(!p&&!l&&!jb&&!wb&&!e.target.closest('[data-wp]'))return;
+  const pk=e.target.closest('[data-wp]');
   sel=today0();MS='';
-  if(wb)wTick(sel);
-  else if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1)setMask(sel,getMask(sel)&~(1<<i));else tick(i)}
+  if(pk){WPICK=false;const v=pk.dataset.wp;if(v==='x'){renderToday();return}tick(4);if(v==='1'&&getMask(sel)>>4&1)setW(sel,true)}
+  else if(wb)wTick(sel);
+  else if(p&&+p.dataset.ti===4&&!(getMask(sel)>>4&1)&&wReq()&&!getW(sel)&&!WPICK){const t=timing(sel,4);if(t&&t.s==='wait')tick(4);else{WPICK=true;renderToday();return}}
+  else if(p){const i=+p.dataset.ti;if(getMask(sel)>>i&1){setMask(sel,getMask(sel)&~(1<<i));if(i===4)setW(sel,false)}else tick(i)}
   else if(l)setMask(sel,getMask(sel),getLate(sel)^(1<<+l.dataset.tl));
   else{const i=+jb.dataset.tj;setJam(sel,getJam(sel)^(1<<i))}
   TM=MS;MS='';renderToday();all();checkMilestone();clearTimeout(TMT);TMT=setTimeout(()=>{TM='';renderToday()},6000);
@@ -2558,6 +2559,10 @@ function tick(i){
   setMask(sel,getMask(sel)|b,t&&t.s==='late'?getLate(sel)|b:getLate(sel)&~b);
   if(t&&t.s==='late')MS=P[i]+' is past its time, so it is marked Late. Tap Late to change it.';
 }
+/* Witr sits in the Isha card: a third button once Isha is ticked; Hanafi gets "Isha" or "Isha + Witr" when ticking Isha */
+let WPICK=false;
+const wBtn=(d,attr)=>{const on=getW(d);return '<button class="wt'+(on?' on':'')+'" '+attr+'="1" aria-pressed="'+!!on+'">'+(on?'✓ ':'')+'Witr</button>'};
+const wPick=()=>'<div class="wpick"><button data-wp="0">✓ Isha</button><button class="pri" data-wp="1">✓ Isha + Witr</button><button class="wx" data-wp="x" aria-label="Cancel">✕</button></div>';
 /* Witr: on or off; can't be ticked before Isha time has started that day */
 function wTick(d){
   if(getW(d)){setW(d,false);return}
