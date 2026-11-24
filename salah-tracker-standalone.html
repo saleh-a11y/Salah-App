@@ -580,6 +580,62 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
 :root:not([data-theme="light"]) .tabs button.on::before{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.06));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.08),0 0 0 .5px rgba(241,215,146,.35),0 6px 14px -6px rgba(0,0,0,.6)}
 :root:not([data-theme="light"]) .tabs button.on .lg2 [fill="url(#qB)"]{fill:url(#qG)}
 }
+
+/* ===== Smarter: calmer hierarchy, fewer ornaments, more space ===== */
+header{padding:16px 16px 74px!important}
+.sky{height:58px!important;bottom:20px!important;opacity:.9}
+.htop{flex-wrap:nowrap}
+.brand{gap:10px;min-width:0;flex:1}.brand>div{min-width:0}.brand svg{width:40px;height:40px;flex:none}
+header h1{font-size:20px!important;white-space:nowrap;letter-spacing:.02em!important;margin:0}
+.brand .ar{display:block;font-size:13px;opacity:.75;line-height:1.3;margin-top:3px}header h1{line-height:1.15}
+.hbtns small#stat{display:none}
+.hbtns{position:relative}
+.hbtns{gap:6px!important;flex:none}.hbtns button{width:34px!important;height:34px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)!important}
+/* section titles: no stars, no rules, just a quiet serif heading */
+h2::before{content:none!important}
+h2.serif{background:none!important;padding-bottom:0!important;margin-bottom:12px!important}
+h2{font-size:20px!important;letter-spacing:.01em!important}
+.card{padding:18px 18px 16px;margin-bottom:14px}
+.mu{line-height:1.45}
+/* next prayer: one clear number, everything else small */
+.card.cd-card{text-align:left;padding:18px 20px 16px}
+.cd-card::before{content:none!important}
+.cd-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cd-card .lbl{letter-spacing:.18em!important;font-size:11px!important;color:#e9d39a}
+.cd-src{font-size:11.5px;color:#bcd3c5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.cd-name{font-size:30px!important;margin:6px 0 0!important;text-shadow:none!important}
+.cd-name .ar{font-size:22px!important}
+.cd-big{display:flex;align-items:baseline;gap:10px;margin:6px 0 12px}
+.cd-big small{font-size:13px;color:#cfe0d6}
+.cd-big .cd-c{font-family:"Marcellus",Georgia,serif;font-size:46px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.cd-big.done .cd-c{font-size:22px}
+.cd-pills{display:flex;gap:8px;flex-wrap:wrap}
+.cd-p{font-size:12.5px;color:#d9e8de;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.cd-p b{color:#fff8e6;font-weight:600;margin-left:2px}
+.cd-p.live{border-color:rgba(241,215,146,.6);background:rgba(241,215,146,.12)}
+.cd-p.past{opacity:.65}
+.cd-foot{margin-top:10px!important;font-size:12px!important;color:#b9cfc2!important}
+.cd-cur{justify-content:flex-start!important;margin-top:14px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.12)!important}
+/* prayer list: lighter tiles, the current prayer marked by a gold edge, not a glow */
+#tl .prow,#sl .prow{margin-bottom:6px}
+.pr{border-color:transparent!important;box-shadow:none!important;padding:12px 14px!important}
+.pr:not(.on){background:rgba(255,255,255,.5)!important}
+:root[data-theme="dark"] .pr:not(.on){background:rgba(255,255,255,.04)!important}
+.pr.now{box-shadow:inset 3px 0 0 #c9a24f!important;background:linear-gradient(90deg,rgba(241,215,146,.22),rgba(255,255,255,.5) 60%)!important;animation:none!important}
+:root[data-theme="dark"] .pr.now{background:linear-gradient(90deg,rgba(241,215,146,.12),rgba(255,255,255,.03) 60%)!important}
+.pr .nm small{opacity:.8}
+.ck{width:26px!important;height:26px!important;border-width:1.5px!important}
+.sbt button{border-radius:12px!important}
+/* today's dots: smaller, tidier */
+.tdots{gap:10px!important;margin:4px 0 6px}
+.dt i{width:18px!important;height:18px!important}
+.dt small{font-size:10.5px}
+/* masjid button reads like a quiet link */
+#madd.add{background:none!important;border:1px dashed rgba(201,162,79,.55)!important;box-shadow:none!important;color:var(--gtx)!important;font-weight:600}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]) .pr:not(.on){background:rgba(255,255,255,.04)!important}
+:root:not([data-theme="light"]) .pr.now{background:linear-gradient(90deg,rgba(241,215,146,.12),rgba(255,255,255,.03) 60%)!important}
+}
 </style>
 </head>
 <body>
@@ -1342,9 +1398,14 @@ function renderCountdown(){
   if(key!==cdKey){
     cdKey=key;
     const cur=dayPrayers(today0()).concat(dayPrayers(addDays(today0(),-1))).find(y=>y.start<=now&&now<y.end);
-    el.innerHTML='<div class="lbl">Next prayer'+(x.d>today0()?' · tomorrow':'')+'</div><div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
-      +'<div class="cd-row'+(boxes.length===1?' one':'')+'">'+boxes.map(b=>'<div class="cd-box'+(b===live?' live':'')+'"><small>'+b.label+'</small><span class="cd-t">'+clock(b.at)+'</span><span class="cd-c'+(b.at>now?'':' done')+'" data-k="'+b.k+'">'+(b.at>now?'':'✓ called')+'</span></div>').join('')+'</div>'
-      +'<div class="cd-foot">'+(S.board?esc(S.bname||'Your masjid')+(x.adhan||x.jam?' · '+freshTxt():' · board not read yet, so calculated times are shown'):'Calculated for your area · add a masjid board in settings for jamā’ah times')+(S.trv>0&&x.jam&&x.jam>now?'<br>Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah"):'')+'</div>'+(cur?'<div class="cd-cur" id="cdcur" data-s="'+(+cur.start)+'" data-e="'+(+cur.end)+'" data-i="'+cur.i+'" data-d="'+ymd(cur.d)+'"></div>':'');
+    const tm=x.d>today0(),jl=x.name==="Jumu'ah"?'Khutbah':"Jamā'ah",lw=live?{a:'Adhān in',j:jl+' in',s:'Starts in'}[live.k]:'';
+    el.innerHTML='<div class="cd-top"><span class="lbl">Next prayer'+(tm?' · tomorrow':'')+'</span>'+(S.board?'<span class="cd-src">'+esc(S.bname||'Your masjid')+'</span>':'<span class="cd-src">Calculated</span>')+'</div>'
+      +'<div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
+      +'<div class="cd-big'+(live?'':' done')+'"><small>'+(live?lw:'')+'</small><span class="cd-c" data-k="'+(live?live.k:'-')+'">'+(live?'':'✓ called')+'</span></div>'
+      +'<div class="cd-pills">'+boxes.map(b=>'<span class="cd-p'+(b===live?' live':'')+(b.at<=now?' past':'')+'">'+(b.at<=now?'✓ ':'')+b.label+' <b>'+clock(b.at)+'</b></span>').join('')+'</div>'
+      +(S.board&&!(x.adhan||x.jam)?'<div class="cd-foot">Board not read yet, so calculated times are shown</div>':S.board?'<div class="cd-foot">'+freshTxt()+'</div>':'')
+      +(S.trv>0&&x.jam&&x.jam>now?'<div class="cd-foot">Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah")+'</div>':'')
+      +(cur?'<div class="cd-cur" id="cdcur" data-s="'+(+cur.start)+'" data-e="'+(+cur.end)+'" data-i="'+cur.i+'" data-d="'+ymd(cur.d)+'"></div>':'');
     renderToday();
   }
   boxes.forEach(b=>{const c=el.querySelector('.cd-c[data-k="'+b.k+'"]');if(c&&b.at>now)c.textContent=cdf(b.at-now)});
