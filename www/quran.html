@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Quran — 13 line</title>
+<style>
+@font-face{font-family:"IndoPak";src:url("fonts/indopak-nastaleeq.woff2") format("woff2");font-display:block}
+@font-face{font-family:"Marcellus";src:url("fonts/marcellus.woff2") format("woff2")}
+:root{--em:#0f5a37;--gold:#b8913f;--gold2:#e6c983;--ink:#1d1a14;--paper:#fffdf7;--bg:#efe8d8}
+:root[data-theme="dark"]{--ink:#efe7d2;--paper:#13221b;--bg:#08130e}
+*{box-sizing:border-box}[hidden]{display:none!important}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;overscroll-behavior:none}
+.top{display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(180deg,#04281a,#0a4a31);color:#f6efdc}
+.top b{font-family:Marcellus,Georgia,serif;font-size:17px;font-weight:400;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top small{color:#cfe0d6;font-size:12px}
+.seg{display:flex;border:1px solid rgba(241,215,146,.55);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;color:#e9d39a;font-size:12px;padding:6px 10px}
+.seg button.on{background:rgba(241,215,146,.9);color:#3d2c08;font-weight:600}
+.ib{background:rgba(255,255,255,.08);border:1px solid rgba(241,215,146,.45);color:#f1d792;border-radius:50%;width:34px;height:34px;font-size:16px}
+#stage{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;touch-action:pan-y;overflow:hidden}
+.page{height:100%;width:min(100%,calc((100dvh - 120px)*0.66),620px);background:var(--paper);border-radius:6px;position:relative;
+  box-shadow:0 1px 0 rgba(0,0,0,.05),0 10px 30px -10px rgba(40,30,10,.35);padding:4.2% 5%;display:flex;flex-direction:column}
+.page::before{content:"";position:absolute;inset:2.2%;border:1.5px solid var(--gold);border-radius:4px;pointer-events:none;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4px rgba(184,145,63,.55)}
+.ln{flex:1;display:flex;padding:0 .18em;align-items:center;justify-content:space-between;direction:rtl;font-family:IndoPak;white-space:nowrap;line-height:1;position:relative}
+.ln.c{justify-content:center;gap:.35em}
+.ln span{display:inline-block}
+.ln.sn{justify-content:center}
+.sn i{font-style:normal;font-family:Marcellus,Georgia,serif;font-size:.55em;color:#3d2c08;background:linear-gradient(90deg,transparent,rgba(230,201,131,.55) 15%,rgba(230,201,131,.55) 85%,transparent);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);padding:.35em 2.2em;direction:ltr}
+:root[data-theme="dark"] .sn i{color:#f6e3a6;background:linear-gradient(90deg,transparent,rgba(230,201,131,.18) 15%,rgba(230,201,131,.18) 85%,transparent)}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 12px;font-size:12.5px;color:#6f6a5c}
+.foot button{background:#fff;border:1px solid rgba(184,145,63,.45);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--em)}
+:root[data-theme="dark"] .foot button{background:rgba(255,255,255,.06);color:#f1d792}
+/* tajweed colours (used only when colour mode is on and the text has been marked) */
+.tj-g{color:#1a8f3c}.tj-i{color:#d97706}.tj-q{color:#1d4ed8}.tj-m{color:#c0262d}
+</style></head>
+<body>
+<div class="top"><button class="ib" id="cls" aria-label="Close">✕</button><b id="ttl">Al-Fātiḥah</b><small id="jz"></small>
+<div class="seg" role="group" aria-label="Colour mode" hidden><button id="mPlain" class="on">Plain</button><button id="mCol">Colour</button></div>
+<button class="ib" id="go" aria-label="Go to surah, juz or page">≡</button></div>
+<div id="stage"><div class="page" id="pg" aria-live="polite"></div></div>
+<div class="foot"><button id="nx" aria-label="Next page">‹ Next</button><span id="pn"></span><button id="pv" aria-label="Previous page">Previous ›</button></div>
+<script>
+const SUR=["Al-Fātiḥah","Al-Baqarah","Āl ʿImrān","An-Nisāʾ","Al-Māʾidah","Al-Anʿām","Al-Aʿrāf","Al-Anfāl","At-Tawbah","Yūnus","Hūd","Yūsuf","Ar-Raʿd","Ibrāhīm","Al-Ḥijr","An-Naḥl","Al-Isrāʾ","Al-Kahf","Maryam","Ṭā Hā","Al-Anbiyāʾ","Al-Ḥajj","Al-Muʾminūn","An-Nūr","Al-Furqān","Ash-Shuʿarāʾ","An-Naml","Al-Qaṣaṣ","Al-ʿAnkabūt","Ar-Rūm","Luqmān","As-Sajdah","Al-Aḥzāb","Sabaʾ","Fāṭir","Yā Sīn","Aṣ-Ṣāffāt","Ṣād","Az-Zumar","Ghāfir","Fuṣṣilat","Ash-Shūrā","Az-Zukhruf","Ad-Dukhān","Al-Jāthiyah","Al-Aḥqāf","Muḥammad","Al-Fatḥ","Al-Ḥujurāt","Qāf","Adh-Dhāriyāt","Aṭ-Ṭūr","An-Najm","Al-Qamar","Ar-Raḥmān","Al-Wāqiʿah","Al-Ḥadīd","Al-Mujādilah","Al-Ḥashr","Al-Mumtaḥanah","Aṣ-Ṣaff","Al-Jumuʿah","Al-Munāfiqūn","At-Taghābun","Aṭ-Ṭalāq","At-Taḥrīm","Al-Mulk","Al-Qalam","Al-Ḥāqqah","Al-Maʿārij","Nūḥ","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyāmah","Al-Insān","Al-Mursalāt","An-Nabaʾ","An-Nāziʿāt","ʿAbasa","At-Takwīr","Al-Infiṭār","Al-Muṭaffifīn","Al-Inshiqāq","Al-Burūj","Aṭ-Ṭāriq","Al-Aʿlā","Al-Ghāshiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Aḍ-Ḍuḥā","Ash-Sharḥ","At-Tīn","Al-ʿAlaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-ʿĀdiyāt","Al-Qāriʿah","At-Takāthur","Al-ʿAṣr","Al-Humazah","Al-Fīl","Quraysh","Al-Māʿūn","Al-Kawthar","Al-Kāfirūn","An-Naṣr","Al-Masad","Al-Ikhlāṣ","Al-Falaq","An-Nās"];
+const JUZ=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,41],[9,93],[11,6],[12,53],[15,1],[17,1],[18,75],[21,1],[23,1],[25,21],[27,56],[29,46],[33,31],[36,28],[39,32],[41,47],[46,1],[51,31],[58,1],[67,1],[78,1]];
+let Q=null,P=1,MODE='plain';
+const $=s=>document.querySelector(s);
+try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t;P=+localStorage.getItem('q_page')||1;MODE=localStorage.getItem('q_mode')||'plain'}catch(e){}
+function ctx(p){ // surah and juz for the top bar: from the first ayah line on the page
+  const L=Q.pages[p-1].find(l=>l[0]===0)||[0,0,'',1,1];const s=L[3],a=L[4];
+  let j=1;JUZ.forEach((x,i)=>{if(s>x[0]||(s===x[0]&&a>=x[1]))j=i+1});return {s,j}}
+function render(){
+  const pg=$('#pg'),lines=Q.pages[P-1];
+  pg.innerHTML=lines.map(l=>{
+    if(l[0]===1)return '<div class="ln sn"><i>'+SUR[l[2]-1]+'</i></div>';
+    if(l[0]===2)return '<div class="ln c">'+Q.bism.split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div>';
+    return '<div class="ln'+(l[1]?' c':'')+'">'+l[2].split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div>';
+  }).join('')+'<div class="ln" style="visibility:hidden"></div>'.repeat(Math.max(0,13-lines.length));
+  fit();
+  const c=ctx(P);$('#ttl').textContent=SUR[c.s-1];$('#jz').textContent='Juz '+c.j;$('#pn').textContent=P+' / 847';
+  try{localStorage.setItem('q_page',P)}catch(e){}
+}
+function fit(){ // one font size for the whole page so every line fits its width, like a printed mushaf
+  const pg=$('#pg'),W=pg.clientWidth*0.9,H=pg.clientHeight/13;let fs=Math.min(H*0.62,W/9);
+  pg.style.fontSize=fs+'px';
+  // keep at least a quarter-letter gap between words on the fullest line
+  let worst=1;pg.querySelectorAll('.ln').forEach(l=>{if(l.classList.contains('sn'))return;const sp=l.querySelectorAll('span');let w=0;sp.forEach(x=>w+=x.offsetWidth);w+=(sp.length-1)*fs*0.22;if(w>l.clientWidth)worst=Math.min(worst,l.clientWidth/w)});
+  if(worst<1)pg.style.fontSize=(fs*worst*0.97)+'px';
+}
+function go(p){P=Math.max(1,Math.min(847,p));render()}
+$('#nx').onclick=()=>go(P+1);$('#pv').onclick=()=>go(P-1);
+let x0=null;$('#stage').addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+$('#stage').addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(P+(dx>0?1:-1))}); // Arabic book: swipe right for the next page
+function setMode(m){MODE=m;$('#mPlain').classList.toggle('on',m==='plain');$('#mCol').classList.toggle('on',m==='colour');document.body.classList.toggle('colour',m==='colour');try{localStorage.setItem('q_mode',m)}catch(e){}}
+$('#mPlain').onclick=()=>setMode('plain');$('#mCol').onclick=()=>setMode('colour');
+$('#go').onclick=()=>{const v=prompt('Go to page (1–847), or s18 for a surah, j15 for a juz');if(!v)return;
+  const m=/^s(\d+)$/i.exec(v),j=/^j(\d+)$/i.exec(v);
+  if(m){const s=+m[1];const i=Q.pages.findIndex(pp=>pp.some(l=>l[0]===1&&l[2]===s));if(i>=0)go(i+1)}
+  else if(j){const t=JUZ[+j[1]-1];if(t){const i=Q.pages.findIndex(pp=>pp.some(l=>l[0]===0&&(l[3]>t[0]||(l[3]===t[0]&&l[4]>=t[1]))));go(i+1)}}
+  else if(+v)go(+v)};
+addEventListener('resize',fit);
+$('#cls').onclick=()=>{try{parent.qrClose()}catch(e){history.back()}};
+setMode(MODE);
+fetch('quran/pages.json').then(r=>r.json()).then(d=>{Q=d;document.fonts.load('20px IndoPak').then(render,render)});
+</script>
+</body></html>
