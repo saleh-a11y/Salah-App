@@ -55,6 +55,9 @@ body.intro-in .pane:not([hidden])>*:nth-child(3){animation-delay:.51s}
 body.intro-in .pane:not([hidden])>*:nth-child(4){animation-delay:.57s}
 body.intro-in .pane:not([hidden])>*:nth-child(n+5){animation-delay:.63s}
 body.intro-in .tabs{animation:rise .48s .45s cubic-bezier(.2,.7,.2,1) both}
+#setup{position:relative}
+.sback{display:inline-flex;align-items:center;gap:4px;margin:0 0 10px;padding:8px 14px 8px 10px;border-radius:20px;font-size:15px;font-weight:600;color:var(--em);background:var(--grow,rgba(255,255,255,.5));border:1px solid var(--gedge,var(--bd))}
+:root[data-theme="dark"] .sback{color:#f1d792}
 body.intro-in .tabs{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 body.intro-in .card{box-shadow:none!important}
 #intro .stage,#intro .moon{transform:translateZ(0)}
@@ -518,7 +521,7 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
 .pr.on{background:var(--gon)!important;border-color:rgba(255,255,255,.7)!important}
 :root[data-theme="dark"] .pr.on{border-color:rgba(127,209,173,.28)!important}
 .pr.now{border-color:#d9b45e!important}
-.sbt button:not(.on),.chips button:not(.on),.wpick button:not(.pri),.day:not(.full):not(.part):not(.none):not(.dis),.per div{background:var(--grow);border-color:var(--gedge)}
+.sbt button:not(.on),.chips button:not(.on):not(.pri),.wpick button:not(.pri),.day:not(.full):not(.part):not(.none):not(.dis),.per div{background:var(--grow);border-color:var(--gedge)}
 .day.full{background:var(--gon)}
 /* frosted tab bar and sheets */
 .tabs{background:rgba(255,253,246,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:rgba(255,255,255,.8)}
@@ -526,6 +529,9 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
 .sheet{background:var(--glass),rgba(246,241,229,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 :root[data-theme="dark"] .sheet{background:var(--glass),rgba(8,20,15,.75)}
 @media (prefers-reduced-motion:reduce){body::before{animation:none}}
+/* cards with their own dark colours keep them under the glass look */
+.card.rm-card{background:radial-gradient(80% 60% at 50% 0%,rgba(241,215,146,.16),transparent 70%),linear-gradient(170deg,rgba(28,50,84,.94),rgba(12,25,46,.96))!important;border:1.5px solid rgba(241,215,146,.6)!important;color:#f2ecdd;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 18px 40px -16px rgba(10,20,40,.55)!important}
+.card.rm-card .mu{color:#c9d3e3}
 @media (prefers-color-scheme:dark){
 :root:not([data-theme="light"]) body::before{opacity:1;filter:saturate(1.3) brightness(1.15)}
 :root:not([data-theme="light"]) .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 0 1px rgba(201,162,79,.18),0 10px 30px -10px rgba(0,0,0,.6)!important}
@@ -558,6 +564,7 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
 <header><div class="htop"><div class="brand"><svg width="50" height="50" viewBox="0 0 200 200" aria-hidden="true"><path d="M100 22 L122.6 45.4 L155.2 44.8 L154.6 77.4 L178 100 L154.6 122.6 L155.2 155.2 L122.6 154.6 L100 178 L77.4 154.6 L44.8 155.2 L45.4 122.6 L22 100 L45.4 77.4 L44.8 44.8 L77.4 45.4 Z" fill="none" stroke="#e3c27a" stroke-width="3" stroke-linejoin="round"/><rect x="38" y="38" width="124" height="124" transform="rotate(45 100 100)" fill="none" stroke="#e3c27a" stroke-opacity=".45" stroke-width="3"/><rect x="38" y="38" width="124" height="124" fill="none" stroke="#e3c27a" stroke-opacity=".45" stroke-width="3"/><circle cx="100" cy="100" r="56" fill="rgba(6,42,31,.6)" stroke="#e3c27a" stroke-width="3.5"/><text x="100" y="119" text-anchor="middle" font-family="Amiri,serif" font-weight="700" font-size="46" fill="#f1d792">صلاة</text></svg><div><h1 class="serif">Salah Tracker</h1><span class="ar">مُتَتَبِّع الصَّلَاة</span></div></div><div class="hbtns"><small id="stat"></small><button id="qbtn" aria-label="Qibla direction" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></button><button id="th" aria-label="Light or dark mode">◐</button><button id="gear" aria-label="Settings" hidden>⚙︎</button></div></div><svg class="sky" viewBox="0 0 360 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc48c"/><stop offset="1" stop-color="#23915a"/></linearGradient></defs><g fill="#f7f0dc" fill-opacity=".17"><path d="M31 44L36 30L41 44Z"/><rect x="32" y="44" width="8" height="40"/><rect x="29" y="57" width="14" height="3" rx="1"/><rect x="29" y="75" width="14" height="3" rx="1"/><path d="M99 22L104 8L109 22Z"/><rect x="100" y="22" width="8" height="62"/><rect x="97" y="35" width="14" height="3" rx="1"/><rect x="97" y="53" width="14" height="3" rx="1"/><path d="M251 22L256 8L261 22Z"/><rect x="252" y="22" width="8" height="62"/><rect x="249" y="35" width="14" height="3" rx="1"/><rect x="249" y="53" width="14" height="3" rx="1"/><path d="M319 44L324 30L329 44Z"/><rect x="320" y="44" width="8" height="40"/><rect x="317" y="57" width="14" height="3" rx="1"/><rect x="317" y="75" width="14" height="3" rx="1"/><rect x="14" y="66" width="332" height="18"/><path d="M58 66A12 10 0 0 1 82 66Z"/><path d="M122 66A12 10 0 0 1 146 66Z"/><path d="M214 66A12 10 0 0 1 238 66Z"/><path d="M278 66A12 10 0 0 1 302 66Z"/></g><rect x="154" y="50" width="52" height="34" fill="#1d7f4f"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52Z" fill="url(#gd)"/><path d="M150 52C150 30 166 20 180 15C194 20 210 30 210 52" fill="none" stroke="#e6c983" stroke-opacity=".5" stroke-width=".8"/><rect x="148" y="51" width="64" height="3" fill="#e6c983" fill-opacity=".7"/><g stroke="#e6c983" stroke-width="1.4" stroke-linecap="round"><line x1="180" y1="15" x2="180" y2="9"/><line x1="36" y1="30" x2="36" y2="24"/><line x1="104" y1="8" x2="104" y2="2"/><line x1="256" y1="8" x2="256" y2="2"/><line x1="324" y1="30" x2="324" y2="24"/></g><path d="M182.6 3.2a3.2 3.2 0 1 0 0 5.6a2.6 2.6 0 1 1 0-5.6z" fill="#e6c983"/></svg></header>
 
 <section id="setup" class="card" hidden>
+<button type="button" class="sback" id="sback" hidden aria-label="Back">‹ Back</button>
 <h2 class="serif">Set up your tracker</h2>
 <div class="fld" style="border-top:0;padding-top:0"><b>Your starting date</b>
 <p class="mu" style="margin:0 0 6px">The date you reached puberty. Prayers are counted from this day.</p>
@@ -2737,6 +2744,19 @@ $('#qa').onclick=()=>qada(1);$('#qu').onclick=()=>qada(-1);
 /* setup */
 $('#gear').onclick=()=>{S.edit=true;boot()};
 $('#pc').onclick=()=>{S.edit=false;boot()};
+$('#sback').onclick=()=>{S.edit=false;boot();window.scrollTo(0,0)};
+/* phone back button / gesture: close what's open, leave settings, go back to Today; otherwise the app goes to the background */
+window.salahBack=function(){
+  if(!$('#lock').hidden)return false;
+  if(!$('#qbov').hidden){qbClose();return true}
+  if(!$('#qzov').hidden){qzClose();return true}
+  if(!$('#fmov').hidden){closeFinder();return true}
+  if(!$('#bkov').hidden){pending=null;$('#bkov').hidden=true;return true}
+  for(const id of ['ov','myov','nmov'])if(!$('#'+id).hidden){$('#'+id).hidden=true;if(id==='ov')WPICK=false;return true}
+  if(S.pub&&S.edit){S.edit=false;boot();window.scrollTo(0,0);return true}
+  if(S.pub&&typeof TAB!=='undefined'&&TAB!=='today'){showTab('today');window.scrollTo(0,0);return true}
+  return false;
+};
 /* reset: two taps, then everything is erased */
 async function resetAll(){
   stat('Resetting…');
@@ -2833,7 +2853,7 @@ function loadQz(o,st){
 }
 function boot(){
   const ok=S.pub&&!S.edit;
-  $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#qbtn').hidden=!ok;$('#pc').hidden=!S.pub;
+  $('#setup').hidden=ok;$('#app').hidden=!ok;$('#gear').hidden=!S.pub;$('#sback').hidden=!S.pub;$('#qbtn').hidden=!ok;$('#pc').hidden=!S.pub;
   $('#pd').max=ymd(today0());
   if(!ok){$('#tabs').hidden=true;document.body.classList.remove('has-tabs');document.querySelector('header').classList.remove('compact');clearInterval(cdTimer);$('#pd').value=S.pub||'';$('#rs').hidden=!S.pub;$('#rsto').hidden=!!S.pub;$('#ps').textContent=S.pub?'Save':'Save & start';fillSetup();return}
   const t=today0(),y=new Date(t);y.setDate(y.getDate()-1);
