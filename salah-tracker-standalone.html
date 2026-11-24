@@ -636,6 +636,9 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 :root:not([data-theme="light"]) .pr:not(.on){background:rgba(255,255,255,.04)!important}
 :root:not([data-theme="light"]) .pr.now{background:linear-gradient(90deg,rgba(241,215,146,.12),rgba(255,255,255,.03) 60%)!important}
 }
+.tabs{transition:transform .32s cubic-bezier(.3,.7,.2,1),opacity .25s;will-change:transform}
+.tabs.hide{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.tabs{transition:opacity .2s}}
 </style>
 </head>
 <body>
@@ -1340,7 +1343,7 @@ $('#bkok').onclick=async()=>{
 
 /* ---- tabs ---- */
 let TAB='today';
-function showTab(t,keep){
+function showTab(t,keep){{const _t=document.getElementById('tabs');_t&&_t.classList.remove('hide')}
   const prevTab=TAB;TAB=t;['today','track','prog','dhikr','cal','more'].forEach(k=>{$('#p_'+k).hidden=k!==t});
   if(prevTab!==t&&!document.body.classList.contains('intro-in')){const el=$('#p_'+t);el.classList.remove('enter');void el.offsetWidth;el.classList.add('enter')}
   document.querySelectorAll('#tabs button').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});
@@ -2831,6 +2834,14 @@ $('#gear').onclick=()=>{S.edit=true;boot()};
 $('#pc').onclick=()=>{S.edit=false;boot()};
 $('#sback').onclick=()=>{S.edit=false;boot();window.scrollTo(0,0)};
 /* phone back button / gesture: close what's open, leave settings, go back to Today; otherwise the app goes to the background */
+
+/* tab bar slides away while scrolling down to read, comes back on any scroll up, at the top, at the bottom, or on a tab change */
+(function(){let y0=window.scrollY,tk=false;const bar=()=>document.getElementById('tabs');
+  window.addEventListener('scroll',()=>{if(tk)return;tk=true;requestAnimationFrame(()=>{tk=false;const t=bar();if(!t)return;
+    const y=window.scrollY,dy=y-y0,max=document.documentElement.scrollHeight-innerHeight;
+    if(y<60||y>=max-8||dy<-6)t.classList.remove('hide');else if(dy>8)t.classList.add('hide');
+    if(Math.abs(dy)>6)y0=y})},{passive:true});
+})();
 window.salahBack=function(){
   if(!$('#lock').hidden)return false;
   if(!$('#qbov').hidden){qbClose();return true}
