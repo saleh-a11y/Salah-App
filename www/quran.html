@@ -2,7 +2,6 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Quran — 13 line</title>
 <style>
-@font-face{font-family:"IndoPak";src:url("fonts/indopak-nastaleeq.woff2") format("woff2");font-display:block}
 @font-face{font-family:"Marcellus";src:url("fonts/marcellus.woff2") format("woff2")}
 :root{--em:#0f5a37;--gold:#b8913f;--gold2:#e6c983;--ink:#1d1a14;--paper:#fffdf7;--bg:#efe8d8}
 :root[data-theme="dark"]{--ink:#efe7d2;--paper:#13221b;--bg:#08130e}
@@ -112,19 +111,13 @@ body.calm .toast{top:calc(var(--sat) + 14px)}
 </style></head>
 <body>
 <div class="top"><button class="ib" id="cls" aria-label="Close">✕</button><b id="ttl">Al-Fātiḥah</b><small id="jz"></small>
-<div class="seg" id="cseg" role="group" aria-label="Colour or plain" hidden><button data-v="colour">Colour</button><button data-v="plain">Plain</button></div>
 <button class="ib" id="bm" aria-label="Bookmark this page" aria-pressed="false">🔖</button>
 <button class="ib" id="idx" aria-label="Index: surahs, juz, bookmarks and go to page">≡</button></div>
 <div id="stage"><div class="toast" id="toast"></div><div class="book" id="book"></div></div>
 <div class="hint" id="hint">Tap the middle of the page for the menu</div>
-<div class="foot"><div class="off" id="offRow" hidden><button id="offM" aria-label="Show the earlier PDF page">◀</button><b id="offTxt"></b><button id="offP" aria-label="Show the later PDF page">▶</button></div><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
+<div class="foot"><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
 <div class="ov" id="ov" hidden><div class="sheet" role="dialog" aria-label="Qur'ān index">
  <div class="sh-top"><h3>Index</h3><button class="sh-x" id="ovx" aria-label="Close index">✕</button></div>
- <div class="src" id="src">
-  <div class="r"><button data-src="text" id="sText">Text pages</button><button data-src="pdf" id="sPdf">Printed pages</button></div>
-  <div class="r"><label>Add plain PDF<input type="file" accept="application/pdf,.pdf" data-kind="plain"></label><label>Add colour PDF<input type="file" accept="application/pdf,.pdf" data-kind="colour"></label></div>
-  <p id="srcInfo">Use your own copy of a 13-line Qur'ān PDF (for example Waterval's) to read the printed pages. It stays on this phone.</p>
- </div>
  <div class="jump"><input id="jp" type="number" inputmode="numeric" min="1" max="847" placeholder="Go to page 1–847"><button id="jgo">Go</button></div>
  <div class="tabs3" role="tablist"><button data-t="s" class="on">Surahs</button><button data-t="j">Juz</button><button data-t="b">Bookmarks</button></div>
  <div class="list" id="list"></div>
@@ -133,69 +126,34 @@ body.calm .toast{top:calc(var(--sat) + 14px)}
 const SUR=["Al-Fātiḥah","Al-Baqarah","Āl ʿImrān","An-Nisāʾ","Al-Māʾidah","Al-Anʿām","Al-Aʿrāf","Al-Anfāl","At-Tawbah","Yūnus","Hūd","Yūsuf","Ar-Raʿd","Ibrāhīm","Al-Ḥijr","An-Naḥl","Al-Isrāʾ","Al-Kahf","Maryam","Ṭā Hā","Al-Anbiyāʾ","Al-Ḥajj","Al-Muʾminūn","An-Nūr","Al-Furqān","Ash-Shuʿarāʾ","An-Naml","Al-Qaṣaṣ","Al-ʿAnkabūt","Ar-Rūm","Luqmān","As-Sajdah","Al-Aḥzāb","Sabaʾ","Fāṭir","Yā Sīn","Aṣ-Ṣāffāt","Ṣād","Az-Zumar","Ghāfir","Fuṣṣilat","Ash-Shūrā","Az-Zukhruf","Ad-Dukhān","Al-Jāthiyah","Al-Aḥqāf","Muḥammad","Al-Fatḥ","Al-Ḥujurāt","Qāf","Adh-Dhāriyāt","Aṭ-Ṭūr","An-Najm","Al-Qamar","Ar-Raḥmān","Al-Wāqiʿah","Al-Ḥadīd","Al-Mujādilah","Al-Ḥashr","Al-Mumtaḥanah","Aṣ-Ṣaff","Al-Jumuʿah","Al-Munāfiqūn","At-Taghābun","Aṭ-Ṭalāq","At-Taḥrīm","Al-Mulk","Al-Qalam","Al-Ḥāqqah","Al-Maʿārij","Nūḥ","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyāmah","Al-Insān","Al-Mursalāt","An-Nabaʾ","An-Nāziʿāt","ʿAbasa","At-Takwīr","Al-Infiṭār","Al-Muṭaffifīn","Al-Inshiqāq","Al-Burūj","Aṭ-Ṭāriq","Al-Aʿlā","Al-Ghāshiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Aḍ-Ḍuḥā","Ash-Sharḥ","At-Tīn","Al-ʿAlaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-ʿĀdiyāt","Al-Qāriʿah","At-Takāthur","Al-ʿAṣr","Al-Humazah","Al-Fīl","Quraysh","Al-Māʿūn","Al-Kawthar","Al-Kāfirūn","An-Naṣr","Al-Masad","Al-Ikhlāṣ","Al-Falaq","An-Nās"];
 const JUZ=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,41],[9,93],[11,6],[12,53],[15,1],[17,1],[18,75],[21,1],[23,1],[25,21],[27,56],[29,46],[33,31],[36,28],[39,32],[41,47],[46,1],[51,31],[58,1],[67,1],[78,1]];
 let Q=null,P=1,BM=[],PINFO=[],SSTART=[],JSTART=[],TAB='s';
-const $=s=>document.querySelector(s),N=847,K=(s,a)=>s*1000+a;
+const $=s=>document.querySelector(s),N=847;
 try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t;P=Math.min(N,Math.max(1,+localStorage.getItem('q_page')||1));BM=JSON.parse(localStorage.getItem('q_bm')||'[]')}catch(e){}
-function insets(t,b){const r=document.documentElement.style;r.setProperty('--sat',Math.max(0,t|0)+'px');r.setProperty('--sab',Math.max(0,b|0)+'px');if(typeof cur!=='undefined'&&cur)fit(cur)}
+function insets(t,b){const r=document.documentElement.style;r.setProperty('--sat',Math.max(0,t|0)+'px');r.setProperty('--sab',Math.max(0,b|0)+'px');if(typeof cur!=='undefined'&&cur&&PDF)show(P)}
 window.qrInsets=insets;
 try{const q=parent&&parent.qrBars&&parent.qrBars();if(q)insets(q.t,q.b)}catch(e){}
 const save=()=>{try{localStorage.setItem('q_page',P);localStorage.setItem('q_bm',JSON.stringify(BM))}catch(e){}};
 
-/* where every surah and juz starts, and which surah and juz each page belongs to */
-function index(){
-  const lines=[];Q.pages.forEach((pg,i)=>pg.forEach(l=>{if(l[0]===0)lines.push([K(l[3],l[4]),i+1]);if(l[0]===1&&!SSTART[l[2]])SSTART[l[2]]=i+1}));
-  JUZ.forEach((x,j)=>{const k=K(x[0],x[1]);let pg=1;for(const [lk,p] of lines){if(lk<=k)pg=p;else break}JSTART[j+1]=pg});
-  for(let p=1;p<=N;p++){const f=Q.pages[p-1].find(l=>l[0]===0);const k=f?K(f[3],f[4]):0;let j=1;JUZ.forEach((x,i)=>{if(k>=K(x[0],x[1]))j=i+1});
-    let s=f?f[3]:1;const h=Q.pages[p-1].find(l=>l[0]===1);if(h&&Q.pages[p-1].indexOf(h)===0)s=h[2];PINFO[p]={s,j}}
-}
+/* where every surah and juz starts, and which surah and juz each page belongs to (page numbers of the 13-line muṣḥaf) */
+function index(){Q.s.forEach((p,i)=>SSTART[i+1]=p);Q.j.forEach((p,i)=>JSTART[i+1]=p);Q.p.forEach((x,i)=>PINFO[i+1]={s:x[0],j:x[1]})}
 
-/* ---- printed pages from the reader's own PDF (kept in this phone's storage, never in the app) ---- */
-let SRC='text',PV='plain',PDF=null,PDFMETA={},pdfjs=null,CACHE=new Map();
-try{SRC=localStorage.getItem('q_src')||'text';PV=localStorage.getItem('q_pv')||'plain'}catch(e){}
-function idb(){return new Promise((ok,no)=>{const r=indexedDB.open('salah_quran',1);r.onupgradeneeded=()=>r.result.createObjectStore('pdf');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
-async function dbGet(k){const d=await idb();return new Promise(ok=>{const q=d.transaction('pdf').objectStore('pdf').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})}
-async function dbPut(k,v){const d=await idb();return new Promise((ok,no)=>{const t=d.transaction('pdf','readwrite');t.objectStore('pdf').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error)})}
-async function loadPdf(kind){
-  const rec=await dbGet(kind);if(!rec)return false;
-  if(!pdfjs){pdfjs=await import('./vendor/pdfjs/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs'}
-  PDF=await pdfjs.getDocument({data:new Uint8Array(await rec.blob.arrayBuffer())}).promise;PDFMETA={kind,off:rec.off||0,n:PDF.numPages,name:rec.name};CACHE.clear();return true}
-async function havePdf(){return {plain:!!(await dbGet('plain')),colour:!!(await dbGet('colour'))}}
+/* the 13-line Qur'ān (30 juz, 847 pages) ships inside the app; page n of the PDF is page n of the muṣḥaf */
+let PDF=null,pdfjs=null,CACHE=new Map();
+try{indexedDB.deleteDatabase('salah_quran');localStorage.removeItem('q_src');localStorage.removeItem('q_pv')}catch(e){} // clear the old "add your own PDF" copy
+async function loadPdf(){
+  pdfjs=await import('./vendor/pdfjs/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs';
+  const buf=await (await fetch('quran/quran-13-line.pdf')).arrayBuffer();
+  PDF=await pdfjs.getDocument({data:new Uint8Array(buf)}).promise}
 async function render(p){ // render one printed page to a canvas (cached for quick page turns)
-  const key=PDFMETA.kind+':'+PDFMETA.off+':'+p;if(CACHE.has(key))return CACHE.get(key);
-  const n=p+PDFMETA.off;if(n<1||n>PDFMETA.n)return null;
-  const pr=(async()=>{const pg=await PDF.getPage(n),W=book.clientWidth*(devicePixelRatio||1),H=book.clientHeight*(devicePixelRatio||1),v0=pg.getViewport({scale:1}),sc=Math.min(W/v0.width,H/v0.height),v=pg.getViewport({scale:sc});
-    const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;return c})();
+  const key=p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
+  if(p<1||p>PDF.numPages)return null;
+  const pr=(async()=>{const pg=await PDF.getPage(p),W=book.clientWidth*(devicePixelRatio||1),H=book.clientHeight*(devicePixelRatio||1),v0=pg.getViewport({scale:1}),sc=Math.min(W/v0.width,H/v0.height),v=pg.getViewport({scale:sc});
+    const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;return c})();
   CACHE.set(key,pr);if(CACHE.size>8)CACHE.delete(CACHE.keys().next().value);return pr}
-function drawScan(el,p){
-  el.classList.add('scan');el.innerHTML='<div class="wait">Loading page…</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';el.dataset.p=p;
-  render(p).then(c=>{if(el.dataset.p!=p)return;const w=el.querySelector('.wait');if(!c){if(w)w.textContent='This page is not in your PDF';return}
-    const k=document.createElement('canvas');k.width=c.width;k.height=c.height;k.getContext('2d').drawImage(c,0,0);if(w)w.replaceWith(k);else el.prepend(k)})}
-function prefetch(){if(SRC==='pdf'&&PDF){render(P+1);render(P-1)}}
-
-/* draw one page into a .page element */
-const ROS='<path d="M20 8l3.5 8.5L32 20l-8.5 3.5L20 32l-3.5-8.5L8 20l8.5-3.5z" fill="#c9a24f" stroke="#9c7426" stroke-width=".8"/>';
 function draw(el,p){
-  if(SRC==='pdf'&&PDF){drawScan(el,p);return}
-  el.classList.remove('scan');
-  const lines=Q.pages[p-1];
-  el.innerHTML=lines.map(l=>{
-    if(l[0]===1)return '<div class="ln sn"><i>Sūrah '+SUR[l[2]-1]+'</i></div>';
-    const t=l[0]===2?Q.bism:l[2];
-    return '<div class="ln'+(l[0]===2||l[1]?' c':'')+'"><div class="fit">'+t.split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div></div>';
-  }).join('')+'<div class="ln" style="visibility:hidden"></div>'.repeat(Math.max(0,13-lines.length))
-   +['a','b','c','d'].map(k=>'<svg class="cr '+k+'" viewBox="0 0 40 40"><circle cx="20" cy="20" r="9" fill="#f6ecd0" stroke="#9c7426" stroke-width="1.6"/>'+ROS+'<circle cx="20" cy="20" r="2.6" fill="#0f5a37"/></svg>').join('')
-   +'<div class="pnum">'+p+'</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';
-  el.dataset.p=p;fit(el);
-}
-function fit(pg){ // one size for the page; full lines then stretch to the full width like print
-  const H=pg.clientHeight*(1-.136)/13,lines=[...pg.querySelectorAll('.ln:not(.sn)')];
-  lines.forEach(l=>{l.classList.remove('j');const f=l.querySelector('.fit');if(f){f.style.transform='';f.style.width='';f.style.margin=''}});
-  let fs=H*0.66;pg.style.fontSize=fs+'px';
-  let worst=1;lines.forEach(l=>{const f=l.querySelector('.fit');if(!f||l.classList.contains('c'))return;const r=(l.clientWidth*.975)/f.scrollWidth;if(r<worst)worst=r});
-  if(worst<1){fs*=worst;pg.style.fontSize=fs+'px'}
-  lines.forEach(l=>{const f=l.querySelector('.fit');if(!f||l.classList.contains('c'))return;
-    const avail=l.clientWidth*.975,k=avail/f.scrollWidth;
-    if(k<=1.12)f.style.transform='scaleX('+k.toFixed(4)+')';else{f.style.transform='scaleX(1.12)';l.classList.add('j');f.style.width=(avail/1.12)+'px';f.style.margin='0 auto'}});
-}
+  el.classList.add('scan');el.innerHTML='<div class="wait">Loading page…</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';el.dataset.p=p;
+  render(p).then(c=>{if(el.dataset.p!=p)return;const w=el.querySelector('.wait');if(!c){if(w)w.textContent='Page not found';return}
+    const k=document.createElement('canvas');k.width=c.width;k.height=c.height;k.getContext('2d').drawImage(c,0,0);if(w)w.replaceWith(k);else el.prepend(k)}).catch(()=>{const w=el.querySelector('.wait');if(w)w.textContent='Could not show this page'})}
+function prefetch(){if(PDF){render(P+1);render(P-1)}}
 
 /* the book: one visible page; during a turn a second page sits underneath */
 const book=$('#book');let cur,under=null,busy=false;
@@ -206,8 +164,8 @@ function bar(){const i=PINFO[P];$('#ttl').textContent=SUR[i.s-1];$('#jz').textCo
   const on=BM.some(b=>b.p===P);$('#bm').classList.toggle('on',on);$('#bm').setAttribute('aria-pressed',on)}
 let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1800)}
 function crossed(a,b){ // tell the reader when a turn enters a new surah or juz
-  const pg=Q.pages[b-1],h=pg.find(l=>l[0]===1);
-  if(h&&b>a)toast('Sūrah '+SUR[h[2]-1]+' begins');else if(PINFO[a].j!==PINFO[b].j)toast('Juz '+PINFO[b].j);}
+  const h=Q.h[b-1];
+  if(h&&b>a)toast('Sūrah '+SUR[h-1]+' begins');else if(PINFO[a].j!==PINFO[b].j)toast('Juz '+PINFO[b].j);}
 
 /* turning: angle 0 = flat, 180 = turned over the spine (the right edge, as in an Arabic book) */
 function setAngle(el,a){el.style.transform='rotateY('+a+'deg)';const s=el.querySelector('.shade');if(s)s.style.opacity=Math.sin(a*Math.PI/180)*.9;
@@ -217,14 +175,14 @@ function prep(dir){ // dir 1 = next page (the current page turns away), -1 = pre
   if(P<=1)return null;under=cur;under.classList.add('under');const t=mk('turn');draw(t,P-1);setAngle(t,180);return t}
 function animate(el,from,to,done){busy=true;const t0=performance.now(),d=Math.max(160,Math.abs(to-from)*2.6);
   (function f(now){const k=Math.min(1,(now-t0)/d),e=1-Math.pow(1-k,3);setAngle(el,from+(to-from)*e);if(k<1)requestAnimationFrame(f);else{busy=false;done()}})(t0)}
-function turn(dir){if(busy||!Q)return;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const from=P,to=P+dir;if(to<1||to>N)return;
+function turn(dir){if(busy||!PDF)return;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const from=P,to=P+dir;if(to<1||to>N)return;
   if(reduce){show(to);crossed(from,to);return}
   const el=prep(dir);if(!el)return;
   calm(true);if(dir>0)animate(el,0,180,()=>{show(to);crossed(from,to)});else animate(el,180,0,()=>{show(to);crossed(from,to)});
 }
 /* drag to turn: the page follows the finger; swipe right = next page */
 let g=null;
-$('#stage').addEventListener('touchstart',e=>{if(busy||!Q)return;g={x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now(),dir:0,el:null}},{passive:true});
+$('#stage').addEventListener('touchstart',e=>{if(busy||!PDF)return;g={x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now(),dir:0,el:null}},{passive:true});
 $('#stage').addEventListener('touchmove',e=>{if(!g)return;const dx=e.touches[0].clientX-g.x,dy=e.touches[0].clientY-g.y;
   if(!g.dir){if(Math.abs(dx)<10||Math.abs(dy)>Math.abs(dx))return;g.dir=dx>0?1:-1;g.el=prep(g.dir);if(!g.el){g=null;return}}
   const W=book.clientWidth,k=Math.min(1,Math.abs(dx)/W);setAngle(g.el,g.dir>0?k*180:180-k*180)},{passive:true});
@@ -256,7 +214,7 @@ function list(){const L=$('#list');let h='';
   if(TAB==='b')h=BM.length?BM.map(b=>'<button class="row" data-p="'+b.p+'"><span class="no">🔖</span><span class="nm">Page '+b.p+'<small>'+SUR[PINFO[b.p].s-1]+' · Juz '+PINFO[b.p].j+' · '+new Date(b.t).toLocaleDateString()+'</small></span><span class="pg" data-del="'+b.p+'" aria-label="Remove bookmark">✕</span></button>').join(''):'<div class="empty">No bookmarks yet. Tap 🔖 at the top to bookmark a page.</div>';
   L.innerHTML=h;const c=L.querySelector('.cur');if(c)c.scrollIntoView({block:'center'});
   document.querySelectorAll('.tabs3 button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB))}
-function openIdx(){$('#ov').hidden=false;list();srcUI()}function closeIdx(){$('#ov').hidden=true}
+function openIdx(){$('#ov').hidden=false;list()}function closeIdx(){$('#ov').hidden=true}
 $('#idx').onclick=openIdx;$('#pn').onclick=()=>{openIdx();setTimeout(()=>$('#jp').focus(),50)};$('#ovx').onclick=closeIdx;
 $('#ov').onclick=e=>{if(e.target.id==='ov')closeIdx()};
 document.querySelector('.tabs3').onclick=e=>{const b=e.target.closest('button');if(b){TAB=b.dataset.t;list()}};
@@ -264,30 +222,11 @@ $('#list').onclick=e=>{const d=e.target.closest('[data-del]');if(d){BM=BM.filter
   const r=e.target.closest('.row');if(r){closeIdx();show(+r.dataset.p)}};
 function jump(){const v=Math.round(+$('#jp').value);if(v>=1&&v<=N){closeIdx();show(v);$('#jp').value=''}else{$('#jp').value='';$('#jp').placeholder='Enter 1 to 847'}}
 $('#jgo').onclick=jump;$('#jp').addEventListener('keydown',e=>{if(e.key==='Enter')jump()});
-async function srcUI(){const h=await havePdf();
-  $('#sText').classList.toggle('on',SRC!=='pdf');$('#sPdf').classList.toggle('on',SRC==='pdf');
-  $('#srcInfo').textContent=(h.plain||h.colour)?'Your PDF: '+[h.plain?'plain':'',h.colour?'colour-coded':''].filter(Boolean).join(' and ')+'. It stays on this phone.':"Use your own copy of a 13-line Qur'ān PDF (for example Waterval's) to read the printed pages. It stays on this phone.";
-  $('#offRow').hidden=!(SRC==='pdf'&&PDF);if(PDF)$('#offTxt').textContent='Line up: page '+P+' is PDF page '+(P+PDFMETA.off);
-  const both=h.plain&&h.colour;$('#cseg').hidden=!(both&&SRC==='pdf');document.querySelectorAll('#cseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===PV))}
-async function useSrc(src){
-  if(src==='pdf'){const h=await havePdf();if(!h[PV])PV=h.colour?'colour':h.plain?'plain':PV;if(!(h.plain||h.colour)){toast('Add your PDF first');srcUI();return}
-    toast('Opening your PDF…');try{await loadPdf(PV)}catch(e){toast('Could not open that PDF');return}}
-  SRC=src;try{localStorage.setItem('q_src',SRC);localStorage.setItem('q_pv',PV)}catch(e){}show(P);srcUI()}
-document.querySelectorAll('#src [data-src]').forEach(b=>b.onclick=()=>useSrc(b.dataset.src));
-document.querySelectorAll('#src input[type=file]').forEach(inp=>inp.onchange=async()=>{const f=inp.files[0];inp.value='';if(!f)return;
-  if(!/pdf$/i.test(f.type)&&!/\.pdf$/i.test(f.name)){toast('Please choose a PDF file');return}
-  toast('Saving your PDF…');
-  try{const old=await dbGet(inp.dataset.kind);await dbPut(inp.dataset.kind,{blob:f,name:f.name,off:old?old.off:0});PV=inp.dataset.kind;closeIdx();P=1;await useSrc('pdf');calm(false);toast('If this isn\'t Al-Fātiḥah, use ◀ ▶ below to line it up')}
-  catch(e){toast('Could not save the PDF on this phone')}});
-async function shiftOff(d){if(!PDF)return;PDFMETA.off+=d;CACHE.clear();const rec=await dbGet(PDFMETA.kind);if(rec){rec.off=PDFMETA.off;await dbPut(PDFMETA.kind,rec)}show(P);srcUI()}
-$('#offM').onclick=()=>shiftOff(-1);$('#offP').onclick=()=>shiftOff(1);
-$('#cseg').onclick=async e=>{const b=e.target.closest('button');if(!b||b.dataset.v===PV)return;PV=b.dataset.v;await useSrc('pdf')};
-
 /* the phone's back button closes the index before it closes the reader */
 window.qrBack=()=>{if(!$('#ov').hidden){closeIdx();return true}return false};
 $('#cls').onclick=()=>{try{parent.qrClose()}catch(e){history.back()}};
-addEventListener('resize',()=>{if(cur)fit(cur)});
-fetch('quran/pages.json').then(r=>r.json()).then(async d=>{Q=d;index();await document.fonts.load('20px IndoPak').catch(()=>{});
-  if(SRC==='pdf'){try{if(!(await loadPdf(PV)))SRC='text'}catch(e){SRC='text'}}show(P);srcUI()});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PDF)show(P)},200)});
+fetch('quran/index.json').then(r=>r.json()).then(async d=>{Q=d;index();bar();cur=mk();cur.classList.add('scan');cur.innerHTML='<div class="wait">Opening the Qur\'ān…</div>';
+  try{await loadPdf();show(P)}catch(e){cur.querySelector('.wait').textContent='Could not open the Qur\'ān'}});
 </script>
 </body></html>
