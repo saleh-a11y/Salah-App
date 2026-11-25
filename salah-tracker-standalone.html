@@ -2844,7 +2844,14 @@ $('#sback').onclick=()=>{S.edit=false;boot();window.scrollTo(0,0)};
     if(Math.abs(dy)>6)y0=y})},{passive:true});
 })();
 /* Qur'an reader: the 13-line page viewer runs full screen in its own frame */
-function qrOpen(){const o=$('#qrov');if(!o.firstChild)o.innerHTML='<iframe src="quran.html" title="Qur\'ān" style="border:0;width:100%;height:100%"></iframe>';o.hidden=false;document.body.style.overflow='hidden'}
+/* the phone's status bar and navigation bar sizes, passed to the reader frame (a frame reads them as 0) */
+window.qrBars=function(){const d=document.createElement('div');d.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';document.body.appendChild(d);
+  const cs=getComputedStyle(d);let t=parseFloat(cs.paddingTop)||0,b=parseFloat(cs.paddingBottom)||0;d.remove();
+  // Android draws the app behind its bars but some WebViews still report 0: keep clear with safe defaults
+  if(/Android/i.test(navigator.userAgent)){if(t<1)t=28;if(b<1)b=Math.max(16,Math.round((screen.height-innerHeight)>40?0:48))}
+  return {t,b}};
+function qrOpen(){const o=$('#qrov');if(!o.firstChild)o.innerHTML='<iframe src="quran.html" title="Qur\'ān" style="border:0;width:100%;height:100%"></iframe>';o.hidden=false;document.body.style.overflow='hidden';
+  try{const w=o.firstChild.contentWindow,q=qrBars();if(w&&w.qrInsets)w.qrInsets(q.t,q.b)}catch(e){}}
 function qrClose(){$('#qrov').hidden=true;document.body.style.overflow='';try{const n=+localStorage.getItem('q_page');if(n)$('#qrinfo').textContent='Continue from page '+n+' of 847.'}catch(e){}}
 window.qrClose=qrClose;
 $('#qrbtn').onclick=qrOpen;$('#qropen').onclick=qrOpen;

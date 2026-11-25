@@ -77,12 +77,30 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-seri
 .row.cur{background:rgba(201,162,79,.12);border-radius:10px}
 .empty{padding:30px 16px;text-align:center;color:#8a7f66}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+/* ===== full screen like a printed muṣḥaf app: the page fills the screen, the menu appears on a tap ===== */
+:root{--sat:0px;--sab:0px}
+html,body{overflow:hidden;background:var(--paper)}
+#stage{position:fixed;left:0;right:0;top:var(--sat);bottom:var(--sab);padding:6px 4px;display:flex;align-items:center;justify-content:center}
+.book{width:100%!important;height:min(100%,calc((100vw - 8px)/.54))!important}
+.book .page{box-shadow:none;border-radius:0}
+.top,.foot{position:fixed;left:0;right:0;z-index:6;transition:opacity .25s,transform .25s}
+.top{top:0;padding:calc(var(--sat) + 8px) 12px 10px;box-shadow:0 6px 18px -8px rgba(0,0,0,.45)}
+.foot{bottom:0;padding:12px 14px calc(var(--sab) + 12px);background:rgba(255,253,246,.96);border-top:1px solid rgba(184,145,63,.45);box-shadow:0 -8px 22px -10px rgba(0,0,0,.3)}
+:root[data-theme="dark"] .foot{background:rgba(10,24,18,.96)}
+.ib{width:42px;height:42px;font-size:18px;flex:none}
+body.calm .top{opacity:0;transform:translateY(-100%);pointer-events:none}
+body.calm .foot{opacity:0;transform:translateY(100%);pointer-events:none}
+.toast{top:calc(var(--sat) + 70px)}
+body.calm .toast{top:calc(var(--sat) + 14px)}
+.hint{position:fixed;left:50%;bottom:calc(var(--sab) + 90px);transform:translateX(-50%);background:rgba(11,61,39,.92);color:#f6efdc;font-size:13px;padding:8px 16px;border-radius:999px;z-index:7;pointer-events:none;transition:opacity .5s;white-space:nowrap}
+.ov .sheet{padding-bottom:var(--sab)}
 </style></head>
 <body>
 <div class="top"><button class="ib" id="cls" aria-label="Close">✕</button><b id="ttl">Al-Fātiḥah</b><small id="jz"></small>
 <button class="ib" id="bm" aria-label="Bookmark this page" aria-pressed="false">🔖</button>
 <button class="ib" id="idx" aria-label="Index: surahs, juz, bookmarks and go to page">≡</button></div>
 <div id="stage"><div class="toast" id="toast"></div><div class="book" id="book"></div></div>
+<div class="hint" id="hint">Tap the middle of the page for the menu</div>
 <div class="foot"><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
 <div class="ov" id="ov" hidden><div class="sheet" role="dialog" aria-label="Qur'ān index">
  <div class="sh-top"><h3>Index</h3><button class="sh-x" id="ovx" aria-label="Close index">✕</button></div>
@@ -96,6 +114,9 @@ const JUZ=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,
 let Q=null,P=1,BM=[],PINFO=[],SSTART=[],JSTART=[],TAB='s';
 const $=s=>document.querySelector(s),N=847,K=(s,a)=>s*1000+a;
 try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t;P=Math.min(N,Math.max(1,+localStorage.getItem('q_page')||1));BM=JSON.parse(localStorage.getItem('q_bm')||'[]')}catch(e){}
+function insets(t,b){const r=document.documentElement.style;r.setProperty('--sat',Math.max(0,t|0)+'px');r.setProperty('--sab',Math.max(0,b|0)+'px');if(typeof cur!=='undefined'&&cur)fit(cur)}
+window.qrInsets=insets;
+try{const q=parent&&parent.qrBars&&parent.qrBars();if(q)insets(q.t,q.b)}catch(e){}
 const save=()=>{try{localStorage.setItem('q_page',P);localStorage.setItem('q_bm',JSON.stringify(BM))}catch(e){}};
 
 /* where every surah and juz starts, and which surah and juz each page belongs to */
@@ -133,6 +154,7 @@ function fit(pg){ // one size for the page; full lines then stretch to the full 
 /* the book: one visible page; during a turn a second page sits underneath */
 const book=$('#book');let cur,under=null,busy=false;
 function mk(cls){const d=document.createElement('div');d.className='page '+(cls||'');book.appendChild(d);return d}
+function calm(on){document.body.classList.toggle('calm',on);if(on){const h=$('#hint');if(h&&!h.dataset.seen){h.dataset.seen=1;setTimeout(()=>h.style.opacity=0,3500)}}}
 function show(p){book.innerHTML='';cur=mk();draw(cur,p);under=null;P=p;bar();save()}
 function bar(){const i=PINFO[P];$('#ttl').textContent=SUR[i.s-1];$('#jz').textContent='Juz '+i.j;$('#pn').textContent=P+' / '+N;$('#sl').value=P;
   const on=BM.some(b=>b.p===P);$('#bm').classList.toggle('on',on);$('#bm').setAttribute('aria-pressed',on)}
@@ -152,7 +174,7 @@ function animate(el,from,to,done){busy=true;const t0=performance.now(),d=Math.ma
 function turn(dir){if(busy||!Q)return;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const from=P,to=P+dir;if(to<1||to>N)return;
   if(reduce){show(to);crossed(from,to);return}
   const el=prep(dir);if(!el)return;
-  if(dir>0)animate(el,0,180,()=>{show(to);crossed(from,to)});else animate(el,180,0,()=>{show(to);crossed(from,to)});
+  calm(true);if(dir>0)animate(el,0,180,()=>{show(to);crossed(from,to)});else animate(el,180,0,()=>{show(to);crossed(from,to)});
 }
 /* drag to turn: the page follows the finger; swipe right = next page */
 let g=null;
@@ -161,20 +183,21 @@ $('#stage').addEventListener('touchmove',e=>{if(!g)return;const dx=e.touches[0].
   if(!g.dir){if(Math.abs(dx)<10||Math.abs(dy)>Math.abs(dx))return;g.dir=dx>0?1:-1;g.el=prep(g.dir);if(!g.el){g=null;return}}
   const W=book.clientWidth,k=Math.min(1,Math.abs(dx)/W);setAngle(g.el,g.dir>0?k*180:180-k*180)},{passive:true});
 $('#stage').addEventListener('touchend',e=>{if(!g)return;const G=g;g=null;
-  if(!G.el){const x=e.changedTouches[0].clientX,r=book.getBoundingClientRect();if(Math.abs(x-G.x)<8){if(x<r.left+r.width*.3)turn(1);else if(x>r.right-r.width*.3)turn(-1)}return}
+  if(!G.el){const x=e.changedTouches[0].clientX,r=book.getBoundingClientRect();if(Math.abs(x-G.x)<8){if(x<r.left+r.width*.25)turn(1);else if(x>r.right-r.width*.25)turn(-1);else calm(!document.body.classList.contains('calm'))}return}
+  calm(true);
   const dx=e.changedTouches[0].clientX-G.x,v=Math.abs(dx)/(performance.now()-G.t),W=book.clientWidth,k=Math.min(1,Math.abs(dx)/W),go=k>.35||v>.5;
   const a=G.dir>0?k*180:180-k*180,from=P,to=P+G.dir;
   if(G.dir>0)animate(G.el,a,go?180:0,()=>{if(go){show(to);crossed(from,to)}else show(from)});
   else animate(G.el,a,go?0:180,()=>{if(go){show(to);crossed(from,to)}else show(from)});
 });
 addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(1);if(e.key==='ArrowRight')turn(-1)});
-book.addEventListener('click',e=>{if(matchMedia('(hover:hover)').matches){const r=book.getBoundingClientRect();if(e.clientX<r.left+r.width*.3)turn(1);else if(e.clientX>r.right-r.width*.3)turn(-1)}});
+book.addEventListener('click',e=>{if(matchMedia('(hover:hover)').matches){const r=book.getBoundingClientRect();if(e.clientX<r.left+r.width*.25)turn(1);else if(e.clientX>r.right-r.width*.25)turn(-1);else calm(!document.body.classList.contains('calm'))}});
 
 /* page slider with a live "page · juz · surah" bubble */
 const sl=$('#sl'),bub=$('#bub');
 function bubble(p){const i=PINFO[p];bub.innerHTML='<b>'+p+'</b>Juz '+i.j+' · '+SUR[i.s-1];bub.hidden=false}
 sl.addEventListener('input',()=>bubble(+sl.value));
-sl.addEventListener('change',()=>{bub.hidden=true;const to=+sl.value;if(to!==P){const from=P;show(to);crossed(Math.min(from,to),to)}});
+sl.addEventListener('change',()=>{bub.hidden=true;calm(false);const to=+sl.value;if(to!==P){const from=P;show(to);crossed(Math.min(from,to),to)}});
 ['pointerup','touchend','blur'].forEach(ev=>sl.addEventListener(ev,()=>setTimeout(()=>bub.hidden=true,150)));
 
 /* bookmarks */
