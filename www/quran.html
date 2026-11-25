@@ -111,13 +111,18 @@ body.calm .toast{top:calc(var(--sat) + 14px)}
 </style></head>
 <body>
 <div class="top"><button class="ib" id="cls" aria-label="Close">✕</button><b id="ttl">Al-Fātiḥah</b><small id="jz"></small>
+<div class="seg" id="cseg" role="group" aria-label="Colour or plain" hidden><button data-v="colour">Colour</button><button data-v="plain">Plain</button></div>
 <button class="ib" id="bm" aria-label="Bookmark this page" aria-pressed="false">🔖</button>
 <button class="ib" id="idx" aria-label="Index: surahs, juz, bookmarks and go to page">≡</button></div>
 <div id="stage"><div class="toast" id="toast"></div><div class="book" id="book"></div></div>
 <div class="hint" id="hint">Tap the middle of the page for the menu</div>
-<div class="foot"><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
+<div class="foot"><div class="off" id="offRow" hidden><button id="offM" aria-label="Show the earlier colour page">◀</button><b id="offTxt"></b><button id="offP" aria-label="Show the later colour page">▶</button></div><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
 <div class="ov" id="ov" hidden><div class="sheet" role="dialog" aria-label="Qur'ān index">
  <div class="sh-top"><h3>Index</h3><button class="sh-x" id="ovx" aria-label="Close index">✕</button></div>
+ <div class="src" id="src">
+  <p id="srcInfo"></p>
+  <div class="r"><label id="cAdd">Add colour-coded PDF<input type="file" accept="application/pdf,.pdf" id="cFile"></label><button id="cDel" hidden>Remove colour PDF</button></div>
+ </div>
  <div class="jump"><input id="jp" type="number" inputmode="numeric" min="1" max="847" placeholder="Go to page 1–847"><button id="jgo">Go</button></div>
  <div class="tabs3" role="tablist"><button data-t="s" class="on">Surahs</button><button data-t="j">Juz</button><button data-t="b">Bookmarks</button></div>
  <div class="list" id="list"></div>
@@ -136,22 +141,30 @@ const save=()=>{try{localStorage.setItem('q_page',P);localStorage.setItem('q_bm'
 /* where every surah and juz starts, and which surah and juz each page belongs to (page numbers of the 13-line muṣḥaf) */
 function index(){Q.s.forEach((p,i)=>SSTART[i+1]=p);Q.j.forEach((p,i)=>JSTART[i+1]=p);Q.p.forEach((x,i)=>PINFO[i+1]={s:x[0],j:x[1]})}
 
-/* the 13-line Qur'ān (30 juz, 847 pages) ships inside the app; page n of the PDF is page n of the muṣḥaf */
-let PDF=null,pdfjs=null,CACHE=new Map();
-try{indexedDB.deleteDatabase('salah_quran');localStorage.removeItem('q_src');localStorage.removeItem('q_pv')}catch(e){} // clear the old "add your own PDF" copy
-async function loadPdf(){
-  pdfjs=await import('./vendor/pdfjs/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs';
-  const buf=await (await fetch('quran/quran-13-line.pdf')).arrayBuffer();
-  PDF=await pdfjs.getDocument({data:new Uint8Array(buf)}).promise}
+/* the plain 13-line Qur'ān (30 juz, 847 pages) ships inside the app; page n of the PDF is page n of the muṣḥaf.
+   A colour-coded (tajweed) 13-line PDF can be added from the phone: it is kept only in this phone's storage,
+   with an offset so its pages line up with the printed page numbers. */
+let PDF=null,pdfjs=null,CACHE=new Map(),PV='plain',OFF=0,HASC=false;
+try{localStorage.removeItem('q_src');PV=localStorage.getItem('q_pv')==='colour'?'colour':'plain'}catch(e){}
+function idb(){return new Promise((ok,no)=>{const r=indexedDB.open('salah_quran',1);r.onupgradeneeded=()=>r.result.createObjectStore('pdf');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+async function dbGet(k){try{const d=await idb();return await new Promise(ok=>{const q=d.transaction('pdf').objectStore('pdf').get(k);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)})}catch(e){return null}}
+async function dbPut(k,v){const d=await idb();return new Promise((ok,no)=>{const t=d.transaction('pdf','readwrite');t.objectStore('pdf').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)})}
+async function dbDel(k){const d=await idb();return new Promise(ok=>{const t=d.transaction('pdf','readwrite');t.objectStore('pdf').delete(k);t.oncomplete=ok;t.onerror=ok})}
+async function lib(){if(!pdfjs){pdfjs=await import('./vendor/pdfjs/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs'}return pdfjs}
+async function loadPdf(){ // opens the plain or colour pages, whichever is chosen (plain if there is no colour PDF)
+  await lib();let data=null;
+  if(PV==='colour'){const rec=await dbGet('colour');if(rec){data=new Uint8Array(await rec.blob.arrayBuffer());OFF=rec.off||0}else PV='plain'}
+  if(!data){data=new Uint8Array(await (await fetch('quran/quran-13-line.pdf')).arrayBuffer());OFF=0}
+  const old=PDF;PDF=await pdfjs.getDocument({data}).promise;CACHE.clear();if(old)try{old.destroy()}catch(e){}}
 async function render(p){ // render one printed page to a canvas (cached for quick page turns)
-  const key=p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
-  if(p<1||p>PDF.numPages)return null;
-  const pr=(async()=>{const pg=await PDF.getPage(p),W=book.clientWidth*(devicePixelRatio||1),H=book.clientHeight*(devicePixelRatio||1),v0=pg.getViewport({scale:1}),sc=Math.min(W/v0.width,H/v0.height),v=pg.getViewport({scale:sc});
+  const key=PV+OFF+':'+p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
+  const n=p+OFF;if(n<1||n>PDF.numPages)return null;
+  const pr=(async()=>{const pg=await PDF.getPage(n),W=book.clientWidth*(devicePixelRatio||1),H=book.clientHeight*(devicePixelRatio||1),v0=pg.getViewport({scale:1}),sc=Math.min(W/v0.width,H/v0.height),v=pg.getViewport({scale:sc});
     const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;return c})();
   CACHE.set(key,pr);if(CACHE.size>8)CACHE.delete(CACHE.keys().next().value);return pr}
 function draw(el,p){
   el.classList.add('scan');el.innerHTML='<div class="wait">Loading page…</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';el.dataset.p=p;
-  render(p).then(c=>{if(el.dataset.p!=p)return;const w=el.querySelector('.wait');if(!c){if(w)w.textContent='Page not found';return}
+  render(p).then(c=>{if(el.dataset.p!=p)return;const w=el.querySelector('.wait');if(!c){if(w)w.textContent=PV==='colour'?'This page is not in your colour PDF':'Page not found';return}
     const k=document.createElement('canvas');k.width=c.width;k.height=c.height;k.getContext('2d').drawImage(c,0,0);if(w)w.replaceWith(k);else el.prepend(k)}).catch(()=>{const w=el.querySelector('.wait');if(w)w.textContent='Could not show this page'})}
 function prefetch(){if(PDF){render(P+1);render(P-1)}}
 
@@ -159,7 +172,7 @@ function prefetch(){if(PDF){render(P+1);render(P-1)}}
 const book=$('#book');let cur,under=null,busy=false;
 function mk(cls){const d=document.createElement('div');d.className='page '+(cls||'');book.appendChild(d);return d}
 function calm(on){document.body.classList.toggle('calm',on);if(on){const h=$('#hint');if(h&&!h.dataset.seen){h.dataset.seen=1;setTimeout(()=>h.style.opacity=0,3500)}}}
-function show(p){book.innerHTML='';cur=mk();draw(cur,p);under=null;P=p;bar();save();prefetch()}
+function show(p){book.innerHTML='';cur=mk();draw(cur,p);under=null;P=p;bar();save();prefetch();if(PV==='colour')srcUI()}
 function bar(){const i=PINFO[P];$('#ttl').textContent=SUR[i.s-1];$('#jz').textContent='Juz '+i.j;$('#pn').textContent=P+' / '+N;$('#sl').value=P;
   const on=BM.some(b=>b.p===P);$('#bm').classList.toggle('on',on);$('#bm').setAttribute('aria-pressed',on)}
 let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1800)}
@@ -214,7 +227,7 @@ function list(){const L=$('#list');let h='';
   if(TAB==='b')h=BM.length?BM.map(b=>'<button class="row" data-p="'+b.p+'"><span class="no">🔖</span><span class="nm">Page '+b.p+'<small>'+SUR[PINFO[b.p].s-1]+' · Juz '+PINFO[b.p].j+' · '+new Date(b.t).toLocaleDateString()+'</small></span><span class="pg" data-del="'+b.p+'" aria-label="Remove bookmark">✕</span></button>').join(''):'<div class="empty">No bookmarks yet. Tap 🔖 at the top to bookmark a page.</div>';
   L.innerHTML=h;const c=L.querySelector('.cur');if(c)c.scrollIntoView({block:'center'});
   document.querySelectorAll('.tabs3 button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB))}
-function openIdx(){$('#ov').hidden=false;list()}function closeIdx(){$('#ov').hidden=true}
+function openIdx(){$('#ov').hidden=false;list();srcUI()}function closeIdx(){$('#ov').hidden=true}
 $('#idx').onclick=openIdx;$('#pn').onclick=()=>{openIdx();setTimeout(()=>$('#jp').focus(),50)};$('#ovx').onclick=closeIdx;
 $('#ov').onclick=e=>{if(e.target.id==='ov')closeIdx()};
 document.querySelector('.tabs3').onclick=e=>{const b=e.target.closest('button');if(b){TAB=b.dataset.t;list()}};
@@ -222,11 +235,33 @@ $('#list').onclick=e=>{const d=e.target.closest('[data-del]');if(d){BM=BM.filter
   const r=e.target.closest('.row');if(r){closeIdx();show(+r.dataset.p)}};
 function jump(){const v=Math.round(+$('#jp').value);if(v>=1&&v<=N){closeIdx();show(v);$('#jp').value=''}else{$('#jp').value='';$('#jp').placeholder='Enter 1 to 847'}}
 $('#jgo').onclick=jump;$('#jp').addEventListener('keydown',e=>{if(e.key==='Enter')jump()});
+/* colour-coded pages: add, switch, line up, remove */
+function srcUI(){
+  $('#srcInfo').textContent=HASC?'Your colour-coded PDF is saved on this phone. Switch between Colour and Plain at the top.':'Add a colour-coded (tajweed) 13-line Qur\'ān PDF to read in colour. It stays on this phone; the plain pages are built in.';
+  $('#cAdd').firstChild.textContent=HASC?'Replace colour PDF':'Add colour-coded PDF';$('#cDel').hidden=!HASC;
+  $('#cseg').hidden=!HASC;document.querySelectorAll('#cseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===PV));
+  $('#offRow').hidden=!(PV==='colour'&&PDF);$('#offTxt').textContent='Line up colour: page '+P+' = PDF page '+(P+OFF)}
+async function usePV(v){if(v===PV&&PDF)return;const keep=PV||'plain';PV=v;toast(v==='colour'?'Opening colour pages…':'Opening plain pages…');
+  try{await loadPdf()}catch(e){PV=keep;toast('Could not open those pages');try{await loadPdf()}catch(x){}}
+  try{localStorage.setItem('q_pv',PV)}catch(e){}show(P);srcUI()}
+$('#cseg').onclick=e=>{const b=e.target.closest('button');if(b)usePV(b.dataset.v)};
+$('#cFile').onchange=async()=>{const inp=$('#cFile'),f=inp.files[0];inp.value='';if(!f)return;
+  if(!/pdf$/i.test(f.type)&&!/\.pdf$/i.test(f.name)){toast('Please choose a PDF file');return}
+  toast('Saving your colour PDF…');
+  try{await lib();const doc=await pdfjs.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,n=doc.numPages;doc.destroy();
+    await dbPut('colour',{blob:f,name:f.name,off:0});HASC=true;closeIdx();PV='';await usePV('colour');calm(false);
+    toast(n===N?'Colour pages ready':'Your PDF has '+n+' pages, not '+N+'. Use ◀ ▶ below to line it up.')}
+  catch(e){toast('Could not save that PDF on this phone')}};
+$('#cDel').onclick=async()=>{await dbDel('colour');HASC=false;PV='';await usePV('plain');toast('Colour PDF removed')};
+async function shiftOff(d){if(PV!=='colour')return;OFF+=d;CACHE.clear();const rec=await dbGet('colour');if(rec){rec.off=OFF;await dbPut('colour',rec)}show(P);srcUI()}
+$('#offM').onclick=()=>shiftOff(-1);$('#offP').onclick=()=>shiftOff(1);
+
 /* the phone's back button closes the index before it closes the reader */
 window.qrBack=()=>{if(!$('#ov').hidden){closeIdx();return true}return false};
 $('#cls').onclick=()=>{try{parent.qrClose()}catch(e){history.back()}};
 let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PDF)show(P)},200)});
 fetch('quran/index.json').then(r=>r.json()).then(async d=>{Q=d;index();bar();cur=mk();cur.classList.add('scan');cur.innerHTML='<div class="wait">Opening the Qur\'ān…</div>';
-  try{await loadPdf();show(P)}catch(e){cur.querySelector('.wait').textContent='Could not open the Qur\'ān'}});
+  HASC=!!(await dbGet('colour'));
+  try{await loadPdf();show(P);srcUI()}catch(e){cur.querySelector('.wait').textContent='Could not open the Qur\'ān'}});
 </script>
 </body></html>
