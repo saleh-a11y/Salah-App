@@ -15,69 +15,190 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-seri
 .seg button{background:none;border:0;color:#e9d39a;font-size:12px;padding:6px 10px}
 .seg button.on{background:rgba(241,215,146,.9);color:#3d2c08;font-weight:600}
 .ib{background:rgba(255,255,255,.08);border:1px solid rgba(241,215,146,.45);color:#f1d792;border-radius:50%;width:34px;height:34px;font-size:16px}
-#stage{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;touch-action:pan-y;overflow:hidden}
-.page{height:100%;width:min(100%,calc((100dvh - 120px)*0.66),620px);background:var(--paper);border-radius:6px;position:relative;
-  box-shadow:0 1px 0 rgba(0,0,0,.05),0 10px 30px -10px rgba(40,30,10,.35);padding:4.2% 5%;display:flex;flex-direction:column}
-.page::before{content:"";position:absolute;inset:2.2%;border:1.5px solid var(--gold);border-radius:4px;pointer-events:none;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4px rgba(184,145,63,.55)}
-.ln{flex:1;display:flex;padding:0 .18em;align-items:center;justify-content:space-between;direction:rtl;font-family:IndoPak;white-space:nowrap;line-height:1;position:relative}
-.ln.c{justify-content:center;gap:.35em}
+#stage{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 6px 2px;touch-action:pan-y;overflow:hidden}
+.page{height:100%;width:min(100%,calc((100dvh - 96px)*0.66),620px);background:var(--paper);border-radius:3px;position:relative;
+  box-shadow:0 1px 0 rgba(0,0,0,.05),0 12px 30px -12px rgba(40,30,10,.4);padding:7.4% 8.6% 6.6%;display:flex;flex-direction:column;container-type:inline-size}
+/* printed-mushaf frame: thick gold rule, a band of small lozenges, thin rule, with corner rosettes */
+.page::after{content:"";position:absolute;inset:1.6%;pointer-events:none;border:2px solid #9c7426;border-radius:2px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M7 1l3 6-3 6-3-6z' fill='%23c9a24f' fill-opacity='.55'/%3E%3C/svg%3E") repeat;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:2.6%;box-shadow:inset 0 0 0 1px #9c7426}
+.page .cr{position:absolute;width:9%;aspect-ratio:1;pointer-events:none}
+.page .cr.a{top:.4%;left:.4%}.page .cr.b{top:.4%;right:.4%}.page .cr.c{bottom:.4%;left:.4%}.page .cr.d{bottom:.4%;right:.4%}
+.page::before{content:"";position:absolute;inset:5.6% 5.8% 5%;border:1px solid #9c7426;pointer-events:none}
+.pnum{position:absolute;bottom:1.9%;left:0;right:0;text-align:center;font:600 3.2cqw Inter,system-ui,sans-serif;color:#7a5a1c;background:none}
+.ln{flex:1;display:flex;padding:0 .1em;align-items:center;justify-content:center;gap:.26em;direction:rtl;font-family:IndoPak;white-space:nowrap;line-height:1;position:relative;color:#0c0a06;-webkit-text-stroke:.022em #0c0a06;paint-order:stroke fill}
+:root[data-theme="dark"] .ln{color:#f3ead4;-webkit-text-stroke-color:#f3ead4}
+.ln .fit{display:flex;gap:.26em;transform-origin:center;direction:rtl}
+.ln.j .fit{width:100%;justify-content:space-between;gap:0}
+.ln.c{justify-content:center}
 .ln span{display:inline-block}
 .ln.sn{justify-content:center}
-.sn i{font-style:normal;font-family:Marcellus,Georgia,serif;font-size:.55em;color:#3d2c08;background:linear-gradient(90deg,transparent,rgba(230,201,131,.55) 15%,rgba(230,201,131,.55) 85%,transparent);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);padding:.35em 2.2em;direction:ltr}
+.sn i{font-style:normal;font-family:Marcellus,Georgia,serif;font-size:.5em;color:#3d2c08;-webkit-text-stroke:0;width:96%;text-align:center;padding:.5em 0;direction:ltr;letter-spacing:.06em;
+  background:linear-gradient(90deg,#f6ecd0,#ead6a1 50%,#f6ecd0);border:1.5px solid #9c7426;border-radius:999px;box-shadow:inset 0 0 0 3px #f6ecd0,inset 0 0 0 4px #c9a24f}
 :root[data-theme="dark"] .sn i{color:#f6e3a6;background:linear-gradient(90deg,transparent,rgba(230,201,131,.18) 15%,rgba(230,201,131,.18) 85%,transparent)}
-.foot{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 12px;font-size:12.5px;color:#6f6a5c}
-.foot button{background:#fff;border:1px solid rgba(184,145,63,.45);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--em)}
-:root[data-theme="dark"] .foot button{background:rgba(255,255,255,.06);color:#f1d792}
-/* tajweed colours (used only when colour mode is on and the text has been marked) */
-.tj-g{color:#1a8f3c}.tj-i{color:#d97706}.tj-q{color:#1d4ed8}.tj-m{color:#c0262d}
+/* ---- book: two stacked pages; the top one turns on its spine ---- */
+#stage{position:relative;perspective:1800px}
+.book{position:relative;height:100%;width:min(100%,calc((100dvh - 120px)*0.66),620px)}
+.book .page{position:absolute;inset:0;width:100%;height:100%}
+.turn{transform-origin:100% 50%;transform-style:preserve-3d;backface-visibility:hidden;z-index:2;will-change:transform}
+.turn .shade{position:absolute;inset:0;pointer-events:none;border-radius:3px;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 45%,rgba(255,255,255,.18) 80%,rgba(0,0,0,.12))}
+.under .shade{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.22))}
+.ribbon{position:absolute;top:-2px;left:11%;width:7%;height:12%;background:linear-gradient(180deg,#b3262e,#8b1a20);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);box-shadow:0 2px 4px rgba(0,0,0,.25);z-index:3}
+/* ---- bottom bar: page slider ---- */
+.foot{display:flex;align-items:center;gap:10px;padding:6px 14px 10px;font-size:12.5px;color:#6f6a5c;position:relative}
+:root[data-theme="dark"] .foot{color:#b9c8bf}
+.foot input[type=range]{flex:1;direction:rtl;accent-color:#0f5a37;height:28px}
+.foot .pn{min-width:74px;text-align:center;font-weight:600;color:#0f5a37;background:#fff;border:1px solid rgba(184,145,63,.45);border-radius:999px;padding:7px 10px}
+:root[data-theme="dark"] .foot .pn{background:rgba(255,255,255,.06);color:#f1d792}
+.bubble{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);background:#0b3d27;color:#f6efdc;border:1px solid rgba(241,215,146,.6);border-radius:14px;padding:8px 14px;text-align:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+.bubble b{display:block;font:400 22px Marcellus,Georgia,serif;color:#f1d792}
+.toast{position:absolute;top:10px;left:50%;transform:translate(-50%,-8px);opacity:0;background:rgba(11,61,39,.92);color:#f6efdc;border:1px solid rgba(241,215,146,.55);border-radius:999px;padding:7px 16px;font-size:13px;transition:opacity .3s,transform .3s;pointer-events:none;z-index:5;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.ib.on{background:#f1d792;color:#7a1c20}
+/* ---- index sheet ---- */
+.ov{position:fixed;inset:0;background:rgba(3,18,11,.5);z-index:10;display:flex;align-items:flex-end}
+.sheet{background:var(--paper);width:100%;max-height:86dvh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -1px 0 #c9a24f}
+.sh-top{display:flex;align-items:center;gap:8px;padding:14px 14px 8px}
+.sh-top h3{margin:0;flex:1;font:400 20px Marcellus,Georgia,serif;color:var(--em)}
+:root[data-theme="dark"] .sh-top h3{color:#f1d792}
+.sh-x{background:none;border:1px solid rgba(184,145,63,.45);border-radius:50%;width:34px;height:34px;color:inherit}
+.tabs3{display:flex;gap:6px;padding:0 14px 8px}
+.tabs3 button{flex:1;padding:9px;border-radius:12px;border:1px solid rgba(184,145,63,.4);background:none;color:inherit;font-size:14px}
+.tabs3 button.on{background:#0f5a37;color:#fff8e6;border-color:#0f5a37}
+.jump{display:flex;gap:8px;padding:0 14px 10px}
+.jump input{flex:1;font-size:16px;padding:10px 12px;border-radius:12px;border:1px solid rgba(184,145,63,.5);background:transparent;color:inherit}
+.jump button{padding:10px 16px;border-radius:12px;border:0;background:#0f5a37;color:#fff8e6;font-weight:600}
+.list{overflow:auto;padding:0 8px 18px;-webkit-overflow-scrolling:touch}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(184,145,63,.18);padding:11px 8px;color:inherit;font-size:15px}
+.row .no{width:34px;height:34px;flex:none;display:grid;place-items:center;font-size:12.5px;font-weight:700;color:#7a5a1c;background:radial-gradient(circle,#fbf3dc,#efdcaa);border-radius:50%;border:1px solid #c9a24f}
+.row .nm{flex:1;min-width:0}.row .nm small{display:block;color:#8a7f66;font-size:12.5px;margin-top:2px}
+.row .pg{color:#0f5a37;font-weight:600;font-size:13px}
+:root[data-theme="dark"] .row .pg{color:#f1d792}
+.row.cur{background:rgba(201,162,79,.12);border-radius:10px}
+.empty{padding:30px 16px;text-align:center;color:#8a7f66}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style></head>
 <body>
 <div class="top"><button class="ib" id="cls" aria-label="Close">✕</button><b id="ttl">Al-Fātiḥah</b><small id="jz"></small>
-<div class="seg" role="group" aria-label="Colour mode" hidden><button id="mPlain" class="on">Plain</button><button id="mCol">Colour</button></div>
-<button class="ib" id="go" aria-label="Go to surah, juz or page">≡</button></div>
-<div id="stage"><div class="page" id="pg" aria-live="polite"></div></div>
-<div class="foot"><button id="nx" aria-label="Next page">‹ Next</button><span id="pn"></span><button id="pv" aria-label="Previous page">Previous ›</button></div>
+<button class="ib" id="bm" aria-label="Bookmark this page" aria-pressed="false">🔖</button>
+<button class="ib" id="idx" aria-label="Index: surahs, juz, bookmarks and go to page">≡</button></div>
+<div id="stage"><div class="toast" id="toast"></div><div class="book" id="book"></div></div>
+<div class="foot"><span class="pn" id="pn" role="button" tabindex="0" aria-label="Go to page"></span><input type="range" id="sl" min="1" max="847" value="1" aria-label="Scroll through pages"><div class="bubble" id="bub" hidden></div></div>
+<div class="ov" id="ov" hidden><div class="sheet" role="dialog" aria-label="Qur'ān index">
+ <div class="sh-top"><h3>Index</h3><button class="sh-x" id="ovx" aria-label="Close index">✕</button></div>
+ <div class="jump"><input id="jp" type="number" inputmode="numeric" min="1" max="847" placeholder="Go to page 1–847"><button id="jgo">Go</button></div>
+ <div class="tabs3" role="tablist"><button data-t="s" class="on">Surahs</button><button data-t="j">Juz</button><button data-t="b">Bookmarks</button></div>
+ <div class="list" id="list"></div>
+</div></div>
 <script>
 const SUR=["Al-Fātiḥah","Al-Baqarah","Āl ʿImrān","An-Nisāʾ","Al-Māʾidah","Al-Anʿām","Al-Aʿrāf","Al-Anfāl","At-Tawbah","Yūnus","Hūd","Yūsuf","Ar-Raʿd","Ibrāhīm","Al-Ḥijr","An-Naḥl","Al-Isrāʾ","Al-Kahf","Maryam","Ṭā Hā","Al-Anbiyāʾ","Al-Ḥajj","Al-Muʾminūn","An-Nūr","Al-Furqān","Ash-Shuʿarāʾ","An-Naml","Al-Qaṣaṣ","Al-ʿAnkabūt","Ar-Rūm","Luqmān","As-Sajdah","Al-Aḥzāb","Sabaʾ","Fāṭir","Yā Sīn","Aṣ-Ṣāffāt","Ṣād","Az-Zumar","Ghāfir","Fuṣṣilat","Ash-Shūrā","Az-Zukhruf","Ad-Dukhān","Al-Jāthiyah","Al-Aḥqāf","Muḥammad","Al-Fatḥ","Al-Ḥujurāt","Qāf","Adh-Dhāriyāt","Aṭ-Ṭūr","An-Najm","Al-Qamar","Ar-Raḥmān","Al-Wāqiʿah","Al-Ḥadīd","Al-Mujādilah","Al-Ḥashr","Al-Mumtaḥanah","Aṣ-Ṣaff","Al-Jumuʿah","Al-Munāfiqūn","At-Taghābun","Aṭ-Ṭalāq","At-Taḥrīm","Al-Mulk","Al-Qalam","Al-Ḥāqqah","Al-Maʿārij","Nūḥ","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyāmah","Al-Insān","Al-Mursalāt","An-Nabaʾ","An-Nāziʿāt","ʿAbasa","At-Takwīr","Al-Infiṭār","Al-Muṭaffifīn","Al-Inshiqāq","Al-Burūj","Aṭ-Ṭāriq","Al-Aʿlā","Al-Ghāshiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Aḍ-Ḍuḥā","Ash-Sharḥ","At-Tīn","Al-ʿAlaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-ʿĀdiyāt","Al-Qāriʿah","At-Takāthur","Al-ʿAṣr","Al-Humazah","Al-Fīl","Quraysh","Al-Māʿūn","Al-Kawthar","Al-Kāfirūn","An-Naṣr","Al-Masad","Al-Ikhlāṣ","Al-Falaq","An-Nās"];
 const JUZ=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,41],[9,93],[11,6],[12,53],[15,1],[17,1],[18,75],[21,1],[23,1],[25,21],[27,56],[29,46],[33,31],[36,28],[39,32],[41,47],[46,1],[51,31],[58,1],[67,1],[78,1]];
-let Q=null,P=1,MODE='plain';
-const $=s=>document.querySelector(s);
-try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t;P=+localStorage.getItem('q_page')||1;MODE=localStorage.getItem('q_mode')||'plain'}catch(e){}
-function ctx(p){ // surah and juz for the top bar: from the first ayah line on the page
-  const L=Q.pages[p-1].find(l=>l[0]===0)||[0,0,'',1,1];const s=L[3],a=L[4];
-  let j=1;JUZ.forEach((x,i)=>{if(s>x[0]||(s===x[0]&&a>=x[1]))j=i+1});return {s,j}}
-function render(){
-  const pg=$('#pg'),lines=Q.pages[P-1];
-  pg.innerHTML=lines.map(l=>{
-    if(l[0]===1)return '<div class="ln sn"><i>'+SUR[l[2]-1]+'</i></div>';
-    if(l[0]===2)return '<div class="ln c">'+Q.bism.split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div>';
-    return '<div class="ln'+(l[1]?' c':'')+'">'+l[2].split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div>';
-  }).join('')+'<div class="ln" style="visibility:hidden"></div>'.repeat(Math.max(0,13-lines.length));
-  fit();
-  const c=ctx(P);$('#ttl').textContent=SUR[c.s-1];$('#jz').textContent='Juz '+c.j;$('#pn').textContent=P+' / 847';
-  try{localStorage.setItem('q_page',P)}catch(e){}
+let Q=null,P=1,BM=[],PINFO=[],SSTART=[],JSTART=[],TAB='s';
+const $=s=>document.querySelector(s),N=847,K=(s,a)=>s*1000+a;
+try{const t=localStorage.getItem('salah_theme');if(t)document.documentElement.dataset.theme=t;P=Math.min(N,Math.max(1,+localStorage.getItem('q_page')||1));BM=JSON.parse(localStorage.getItem('q_bm')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('q_page',P);localStorage.setItem('q_bm',JSON.stringify(BM))}catch(e){}};
+
+/* where every surah and juz starts, and which surah and juz each page belongs to */
+function index(){
+  const lines=[];Q.pages.forEach((pg,i)=>pg.forEach(l=>{if(l[0]===0)lines.push([K(l[3],l[4]),i+1]);if(l[0]===1&&!SSTART[l[2]])SSTART[l[2]]=i+1}));
+  JUZ.forEach((x,j)=>{const k=K(x[0],x[1]);let pg=1;for(const [lk,p] of lines){if(lk<=k)pg=p;else break}JSTART[j+1]=pg});
+  for(let p=1;p<=N;p++){const f=Q.pages[p-1].find(l=>l[0]===0);const k=f?K(f[3],f[4]):0;let j=1;JUZ.forEach((x,i)=>{if(k>=K(x[0],x[1]))j=i+1});
+    let s=f?f[3]:1;const h=Q.pages[p-1].find(l=>l[0]===1);if(h&&Q.pages[p-1].indexOf(h)===0)s=h[2];PINFO[p]={s,j}}
 }
-function fit(){ // one font size for the whole page so every line fits its width, like a printed mushaf
-  const pg=$('#pg'),W=pg.clientWidth*0.9,H=pg.clientHeight/13;let fs=Math.min(H*0.62,W/9);
-  pg.style.fontSize=fs+'px';
-  // keep at least a quarter-letter gap between words on the fullest line
-  let worst=1;pg.querySelectorAll('.ln').forEach(l=>{if(l.classList.contains('sn'))return;const sp=l.querySelectorAll('span');let w=0;sp.forEach(x=>w+=x.offsetWidth);w+=(sp.length-1)*fs*0.22;if(w>l.clientWidth)worst=Math.min(worst,l.clientWidth/w)});
-  if(worst<1)pg.style.fontSize=(fs*worst*0.97)+'px';
+
+/* draw one page into a .page element */
+const ROS='<path d="M20 8l3.5 8.5L32 20l-8.5 3.5L20 32l-3.5-8.5L8 20l8.5-3.5z" fill="#c9a24f" stroke="#9c7426" stroke-width=".8"/>';
+function draw(el,p){
+  const lines=Q.pages[p-1];
+  el.innerHTML=lines.map(l=>{
+    if(l[0]===1)return '<div class="ln sn"><i>Sūrah '+SUR[l[2]-1]+'</i></div>';
+    const t=l[0]===2?Q.bism:l[2];
+    return '<div class="ln'+(l[0]===2||l[1]?' c':'')+'"><div class="fit">'+t.split(' ').map(w=>'<span>'+w+'</span>').join('')+'</div></div>';
+  }).join('')+'<div class="ln" style="visibility:hidden"></div>'.repeat(Math.max(0,13-lines.length))
+   +['a','b','c','d'].map(k=>'<svg class="cr '+k+'" viewBox="0 0 40 40"><circle cx="20" cy="20" r="9" fill="#f6ecd0" stroke="#9c7426" stroke-width="1.6"/>'+ROS+'<circle cx="20" cy="20" r="2.6" fill="#0f5a37"/></svg>').join('')
+   +'<div class="pnum">'+p+'</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';
+  el.dataset.p=p;fit(el);
 }
-function go(p){P=Math.max(1,Math.min(847,p));render()}
-$('#nx').onclick=()=>go(P+1);$('#pv').onclick=()=>go(P-1);
-let x0=null;$('#stage').addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
-$('#stage').addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(P+(dx>0?1:-1))}); // Arabic book: swipe right for the next page
-function setMode(m){MODE=m;$('#mPlain').classList.toggle('on',m==='plain');$('#mCol').classList.toggle('on',m==='colour');document.body.classList.toggle('colour',m==='colour');try{localStorage.setItem('q_mode',m)}catch(e){}}
-$('#mPlain').onclick=()=>setMode('plain');$('#mCol').onclick=()=>setMode('colour');
-$('#go').onclick=()=>{const v=prompt('Go to page (1–847), or s18 for a surah, j15 for a juz');if(!v)return;
-  const m=/^s(\d+)$/i.exec(v),j=/^j(\d+)$/i.exec(v);
-  if(m){const s=+m[1];const i=Q.pages.findIndex(pp=>pp.some(l=>l[0]===1&&l[2]===s));if(i>=0)go(i+1)}
-  else if(j){const t=JUZ[+j[1]-1];if(t){const i=Q.pages.findIndex(pp=>pp.some(l=>l[0]===0&&(l[3]>t[0]||(l[3]===t[0]&&l[4]>=t[1]))));go(i+1)}}
-  else if(+v)go(+v)};
-addEventListener('resize',fit);
+function fit(pg){ // one size for the page; full lines then stretch to the full width like print
+  const H=pg.clientHeight*(1-.136)/13,lines=[...pg.querySelectorAll('.ln:not(.sn)')];
+  lines.forEach(l=>{l.classList.remove('j');const f=l.querySelector('.fit');if(f){f.style.transform='';f.style.width='';f.style.margin=''}});
+  let fs=H*0.66;pg.style.fontSize=fs+'px';
+  let worst=1;lines.forEach(l=>{const f=l.querySelector('.fit');if(!f||l.classList.contains('c'))return;const r=(l.clientWidth*.975)/f.scrollWidth;if(r<worst)worst=r});
+  if(worst<1){fs*=worst;pg.style.fontSize=fs+'px'}
+  lines.forEach(l=>{const f=l.querySelector('.fit');if(!f||l.classList.contains('c'))return;
+    const avail=l.clientWidth*.975,k=avail/f.scrollWidth;
+    if(k<=1.12)f.style.transform='scaleX('+k.toFixed(4)+')';else{f.style.transform='scaleX(1.12)';l.classList.add('j');f.style.width=(avail/1.12)+'px';f.style.margin='0 auto'}});
+}
+
+/* the book: one visible page; during a turn a second page sits underneath */
+const book=$('#book');let cur,under=null,busy=false;
+function mk(cls){const d=document.createElement('div');d.className='page '+(cls||'');book.appendChild(d);return d}
+function show(p){book.innerHTML='';cur=mk();draw(cur,p);under=null;P=p;bar();save()}
+function bar(){const i=PINFO[P];$('#ttl').textContent=SUR[i.s-1];$('#jz').textContent='Juz '+i.j;$('#pn').textContent=P+' / '+N;$('#sl').value=P;
+  const on=BM.some(b=>b.p===P);$('#bm').classList.toggle('on',on);$('#bm').setAttribute('aria-pressed',on)}
+let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1800)}
+function crossed(a,b){ // tell the reader when a turn enters a new surah or juz
+  const pg=Q.pages[b-1],h=pg.find(l=>l[0]===1);
+  if(h&&b>a)toast('Sūrah '+SUR[h[2]-1]+' begins');else if(PINFO[a].j!==PINFO[b].j)toast('Juz '+PINFO[b].j);}
+
+/* turning: angle 0 = flat, 180 = turned over the spine (the right edge, as in an Arabic book) */
+function setAngle(el,a){el.style.transform='rotateY('+a+'deg)';const s=el.querySelector('.shade');if(s)s.style.opacity=Math.sin(a*Math.PI/180)*.9;
+  if(under){const u=under.querySelector('.shade');if(u)u.style.opacity=(1-a/180)*.6}}
+function prep(dir){ // dir 1 = next page (the current page turns away), -1 = previous (it turns back in)
+  if(dir>0){if(P>=N)return null;under=mk('under');book.insertBefore(under,cur);draw(under,P+1);cur.classList.add('turn');return cur}
+  if(P<=1)return null;under=cur;under.classList.add('under');const t=mk('turn');draw(t,P-1);setAngle(t,180);return t}
+function animate(el,from,to,done){busy=true;const t0=performance.now(),d=Math.max(160,Math.abs(to-from)*2.6);
+  (function f(now){const k=Math.min(1,(now-t0)/d),e=1-Math.pow(1-k,3);setAngle(el,from+(to-from)*e);if(k<1)requestAnimationFrame(f);else{busy=false;done()}})(t0)}
+function turn(dir){if(busy||!Q)return;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const from=P,to=P+dir;if(to<1||to>N)return;
+  if(reduce){show(to);crossed(from,to);return}
+  const el=prep(dir);if(!el)return;
+  if(dir>0)animate(el,0,180,()=>{show(to);crossed(from,to)});else animate(el,180,0,()=>{show(to);crossed(from,to)});
+}
+/* drag to turn: the page follows the finger; swipe right = next page */
+let g=null;
+$('#stage').addEventListener('touchstart',e=>{if(busy||!Q)return;g={x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now(),dir:0,el:null}},{passive:true});
+$('#stage').addEventListener('touchmove',e=>{if(!g)return;const dx=e.touches[0].clientX-g.x,dy=e.touches[0].clientY-g.y;
+  if(!g.dir){if(Math.abs(dx)<10||Math.abs(dy)>Math.abs(dx))return;g.dir=dx>0?1:-1;g.el=prep(g.dir);if(!g.el){g=null;return}}
+  const W=book.clientWidth,k=Math.min(1,Math.abs(dx)/W);setAngle(g.el,g.dir>0?k*180:180-k*180)},{passive:true});
+$('#stage').addEventListener('touchend',e=>{if(!g)return;const G=g;g=null;
+  if(!G.el){const x=e.changedTouches[0].clientX,r=book.getBoundingClientRect();if(Math.abs(x-G.x)<8){if(x<r.left+r.width*.3)turn(1);else if(x>r.right-r.width*.3)turn(-1)}return}
+  const dx=e.changedTouches[0].clientX-G.x,v=Math.abs(dx)/(performance.now()-G.t),W=book.clientWidth,k=Math.min(1,Math.abs(dx)/W),go=k>.35||v>.5;
+  const a=G.dir>0?k*180:180-k*180,from=P,to=P+G.dir;
+  if(G.dir>0)animate(G.el,a,go?180:0,()=>{if(go){show(to);crossed(from,to)}else show(from)});
+  else animate(G.el,a,go?0:180,()=>{if(go){show(to);crossed(from,to)}else show(from)});
+});
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(1);if(e.key==='ArrowRight')turn(-1)});
+book.addEventListener('click',e=>{if(matchMedia('(hover:hover)').matches){const r=book.getBoundingClientRect();if(e.clientX<r.left+r.width*.3)turn(1);else if(e.clientX>r.right-r.width*.3)turn(-1)}});
+
+/* page slider with a live "page · juz · surah" bubble */
+const sl=$('#sl'),bub=$('#bub');
+function bubble(p){const i=PINFO[p];bub.innerHTML='<b>'+p+'</b>Juz '+i.j+' · '+SUR[i.s-1];bub.hidden=false}
+sl.addEventListener('input',()=>bubble(+sl.value));
+sl.addEventListener('change',()=>{bub.hidden=true;const to=+sl.value;if(to!==P){const from=P;show(to);crossed(Math.min(from,to),to)}});
+['pointerup','touchend','blur'].forEach(ev=>sl.addEventListener(ev,()=>setTimeout(()=>bub.hidden=true,150)));
+
+/* bookmarks */
+$('#bm').onclick=()=>{const i=BM.findIndex(b=>b.p===P);if(i>=0){BM.splice(i,1);toast('Bookmark removed')}else{BM.unshift({p:P,t:Date.now()});toast('Page '+P+' bookmarked')}save();show(P)};
+
+/* index sheet: surahs, juz, bookmarks, go to page */
+function list(){const L=$('#list');let h='';
+  if(TAB==='s')h=SUR.map((n,i)=>'<button class="row'+(PINFO[P].s===i+1?' cur':'')+'" data-p="'+SSTART[i+1]+'"><span class="no">'+(i+1)+'</span><span class="nm">'+n+'<small>Juz '+PINFO[SSTART[i+1]].j+'</small></span><span class="pg">p. '+SSTART[i+1]+'</span></button>').join('');
+  if(TAB==='j')h=JUZ.map((x,j)=>'<button class="row'+(PINFO[P].j===j+1?' cur':'')+'" data-p="'+JSTART[j+1]+'"><span class="no">'+(j+1)+'</span><span class="nm">Juz '+(j+1)+'<small>Starts '+SUR[x[0]-1]+' '+x[0]+':'+x[1]+'</small></span><span class="pg">p. '+JSTART[j+1]+'</span></button>').join('');
+  if(TAB==='b')h=BM.length?BM.map(b=>'<button class="row" data-p="'+b.p+'"><span class="no">🔖</span><span class="nm">Page '+b.p+'<small>'+SUR[PINFO[b.p].s-1]+' · Juz '+PINFO[b.p].j+' · '+new Date(b.t).toLocaleDateString()+'</small></span><span class="pg" data-del="'+b.p+'" aria-label="Remove bookmark">✕</span></button>').join(''):'<div class="empty">No bookmarks yet. Tap 🔖 at the top to bookmark a page.</div>';
+  L.innerHTML=h;const c=L.querySelector('.cur');if(c)c.scrollIntoView({block:'center'});
+  document.querySelectorAll('.tabs3 button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB))}
+function openIdx(){$('#ov').hidden=false;list()}function closeIdx(){$('#ov').hidden=true}
+$('#idx').onclick=openIdx;$('#pn').onclick=()=>{openIdx();setTimeout(()=>$('#jp').focus(),50)};$('#ovx').onclick=closeIdx;
+$('#ov').onclick=e=>{if(e.target.id==='ov')closeIdx()};
+document.querySelector('.tabs3').onclick=e=>{const b=e.target.closest('button');if(b){TAB=b.dataset.t;list()}};
+$('#list').onclick=e=>{const d=e.target.closest('[data-del]');if(d){BM=BM.filter(b=>b.p!==+d.dataset.del);save();list();bar();return}
+  const r=e.target.closest('.row');if(r){closeIdx();show(+r.dataset.p)}};
+function jump(){const v=Math.round(+$('#jp').value);if(v>=1&&v<=N){closeIdx();show(v);$('#jp').value=''}else{$('#jp').value='';$('#jp').placeholder='Enter 1 to 847'}}
+$('#jgo').onclick=jump;$('#jp').addEventListener('keydown',e=>{if(e.key==='Enter')jump()});
+/* the phone's back button closes the index before it closes the reader */
+window.qrBack=()=>{if(!$('#ov').hidden){closeIdx();return true}return false};
 $('#cls').onclick=()=>{try{parent.qrClose()}catch(e){history.back()}};
-setMode(MODE);
-fetch('quran/pages.json').then(r=>r.json()).then(d=>{Q=d;document.fonts.load('20px IndoPak').then(render,render)});
+addEventListener('resize',()=>{if(cur)fit(cur)});
+fetch('quran/pages.json').then(r=>r.json()).then(d=>{Q=d;index();document.fonts.load('20px IndoPak').then(()=>show(P),()=>show(P))});
 </script>
 </body></html>

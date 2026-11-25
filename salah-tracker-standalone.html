@@ -2850,7 +2850,7 @@ window.qrClose=qrClose;
 $('#qrbtn').onclick=qrOpen;$('#qropen').onclick=qrOpen;
 try{const n=+localStorage.getItem('q_page');if(n>1)$('#qrinfo').textContent='Continue from page '+n+' of 847.'}catch(e){}
 window.salahBack=function(){
-  if(!$('#qrov').hidden){qrClose();return true}
+  if(!$('#qrov').hidden){try{const f=$('#qrov iframe');if(f&&f.contentWindow.qrBack&&f.contentWindow.qrBack())return true}catch(e){}qrClose();return true}
   if(!$('#lock').hidden)return false;
   if(!$('#qbov').hidden){qbClose();return true}
   if(!$('#qzov').hidden){qzClose();return true}
