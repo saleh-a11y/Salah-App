@@ -1039,7 +1039,7 @@ function freshTxt(){
 }
 function resetMasjid(){
   for(const k of Object.keys(MASJID))delete MASJID[k];
-  Object.assign(MASJID,{rows:[],info:[],jumuah:null,note:'',asOf:ymd(today0())},S.board===LAKE.url&&S.asr==='hanafi'?JSON.parse(JSON.stringify(LAKE_SNAP)):{});
+  Object.assign(MASJID,{rows:[],info:[],jumuah:null,note:'',up:[],asOf:ymd(today0())},S.board===LAKE.url&&S.asr==='hanafi'?JSON.parse(JSON.stringify(LAKE_SNAP)):{});
   MASJID.url=S.board;
 }
 function applyLoc(){
@@ -1183,6 +1183,9 @@ function planNotifs(){
   if(NP.rm)for(let k=0;k<7;k++){const d=addDays(t0,k);if(!rmActive(d))continue;const W=win(d),ba=boardAdhan(3,d.getDay()===5,d),ift=ba!=null?ba:W[3][0],at=m=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,Math.round(m));
     if(at(W[0][0]-30).getTime()>now+30000)out.push({id:920+k,title:'Sehri ends in 30 minutes',body:'Sehri ends at '+hm(W[0][0])+'. Make your intention for the fast.',schedule:{at:at(W[0][0]-30),allowWhileIdle:true}});
     if(at(ift).getTime()>now+30000)out.push({id:930+k,title:'Ifṭār time ✦',body:'Time to open your fast ('+hm(ift)+'). '+IFTAR_DUA,schedule:{at:at(ift),allowWhileIdle:true}});}
+  // the board announces a time change in advance: remind the evening before (18:00), every time
+  if(S.board&&Array.isArray(MASJID.up))MASJID.up.slice(0,20).forEach((c,i)=>{const d=boardDate(c.d);if(!d)return;const at=new Date(d.getFullYear(),d.getMonth(),d.getDate()-1,18,0),n=String(c.n||'').replace(/^Esha$/i,'Isha');
+    if(at.getTime()>now+30000)out.push({id:940+i,title:n+' time changes tomorrow',body:'From tomorrow ('+fmt(d)+'), '+n+' at '+(S.bname||'your masjid')+' is at '+c.t+'.',schedule:{at,allowWhileIdle:true}})});
   if(NP.jum)for(let k=0;k<8;k++){const d=addDays(t0,k);if(d.getDay()!==5)continue;const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),8,0),j=S.board?jamaah(1,true,d):null;
     if(at.getTime()>now+30000)out.push({id:910+k,title:"Jumu'ah Mubārak ✦",body:'Read Sūrah al-Kahf today, make ghusl and go early.'+(j?' Khutbah at '+hm(j.t)+' · '+(S.bname||'your masjid')+'.':''),schedule:{at,allowWhileIdle:true}})}
   let lb=0;try{lb=+localStorage.getItem('salah_lastbk')||0}catch(e){}
@@ -2719,7 +2722,7 @@ function boardRows(html){
   return[...doc.querySelectorAll('tr')].map(r=>[...r.children].map(c=>c.textContent.replace(/\s+/g,' ').trim()));
 }
 function parseRows(rows){
-  const R={rows:[],info:{},jumuah:null,chg:[]};let hdr=null;
+  const R={rows:[],info:{},jumuah:null,chg:[],up:[]};let hdr=null;
   for(const r of rows){
     if(r.length>=3&&/^(fajr|dhuhr|zuhr|asr|maghrib|esha|isha)/i.test(r[0])&&isT(r[1])&&isT(r[2]))R.rows.push([r[0].replace(/^zuhr$/i,'Dhuhr'),r[1],r[2]]);
     else if(r.length===3&&r.every(isT))R.jumuah=r;
@@ -2731,7 +2734,7 @@ function parseRows(rows){
     else if(r.length===3&&/^fajr$/i.test(r[0])&&/asr/i.test(r[1]))hdr=r;
     else if(hdr&&r.length===3&&r.some(c=>/\d{4}/.test(c)))hdr.d=r;
     else if(hdr&&hdr.d&&r.length===3&&r.some(isT)){
-      r.forEach((c,i)=>{if(isT(c)&&hdr.d[i])R.chg.push(hdr[i].replace(/^['\u2019]/,'')+' changes to '+c+' on '+hdr.d[i].replace(/\s*\d{1,2}:\d{2}$/,''))});hdr=null;
+      r.forEach((c,i)=>{if(isT(c)&&hdr.d[i]){const n=hdr[i].replace(/^['\u2019]/,''),dd=hdr.d[i].replace(/\s*\d{1,2}:\d{2}$/,'');R.chg.push(n+' changes to '+c+' on '+dd);R.up.push({n,t:c,d:dd})}});hdr=null;
     }
   }
   const I=R.info;R.t={fj:tm(I.fj),sr:tm(I.sr),zw:tm(I.zw),as:tm(I.as),ss:tm(I.ss),is:tm(I.is)};const t=R.t;
@@ -2745,7 +2748,7 @@ async function getBoard(url){
 function refreshViews(){if(typeof INTRO_BUSY!=='undefined'&&INTRO_BUSY){INTRO_PEND=true;return}if(S.pub&&!S.edit){all();cdKey='';renderCountdown();renderToday();if(!$('#ov').hidden)renderSheet()}}
 function applyBoard(R){
   const d=ymd(today0()),I=R.info;LIVE={date:d,t:R.t};
-  const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':''};
+  const m={rows:R.rows,info:[['Fajr starts',I.fj],['Sunrise',I.sr],['Zawaal ends',I.zw],[S.asr==='shafii'?"Asr (Shāfi'i)":'Asr (Hanafi)',I.as],['Sunset',I.ss],['Isha starts',I.is]],jumuah:R.jumuah||MASJID.jumuah,note:R.chg.length?R.chg.join('. ')+'.':'',up:R.up};
   const prev=boardCache()[S.board];
   Object.assign(MASJID,m,{asOf:d,upd:Date.now(),status:'Live from the board, updated '+hm((new Date()-today0())/6e4)+'.'});
   try{boardChanged(prev,m)}catch(e){}
@@ -2753,6 +2756,14 @@ function applyBoard(R){
   renderMasjid();refreshViews();queueNotifs();
 }
 /* compare with what the board said last time; Maghrib's small daily moves with sunset are ignored */
+/* a date as the board writes it ("15 Nov 2026", "Sat 15 November", "15/11/2026", "2026-11-15") */
+function boardDate(s){s=String(s||'');const M=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'],now=today0();let y,mo,d,m;
+  if((m=/(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s)))[y,mo,d]=[+m[1],m[2]-1,+m[3]];
+  else if((m=/(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})/.exec(s)))[d,mo,y]=[+m[1],m[2]-1,+m[3]<100?2000+ +m[3]:+m[3]];
+  else{const a=/(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3})/i.exec(s)||/([a-z]{3})[a-z]*\s+(\d{1,2})/i.exec(s);if(!a)return null;
+    const num=/\d/.test(a[1])?a[1]:a[2],mn=/\d/.test(a[1])?a[2]:a[1];mo=M.indexOf(mn.slice(0,3).toLowerCase());if(mo<0)return null;d=+num;
+    const yy=/\b(20\d{2})\b/.exec(s);y=yy?+yy[1]:now.getFullYear();if(!yy&&new Date(y,mo,d)<addDays(now,-60))y++}
+  const r=new Date(y,mo,d);return isNaN(r)||r.getMonth()!==mo?null:r}
 function boardChanged(prev,m){
   if(!prev||!prev.m||!Array.isArray(prev.m.rows)||!prev.m.rows.length||(prev.asr||'hanafi')!==S.asr)return;
   const out=[],nm=r=>(r[0]||'').toLowerCase().slice(0,3);
