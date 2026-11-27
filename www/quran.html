@@ -170,13 +170,21 @@ function trim(c){ // the printed page without its white margins: [x,y,w,h]
   const row=y=>{let k=0;for(let x=0;x<w;x+=2)if(dark(x,y)&&++k>3)return true;return false},col=x=>{let k=0;for(let y=0;y<h;y+=2)if(dark(x,y)&&++k>3)return true;return false};
   let t=0,b=h-1,l=0,r=w-1;while(t<b&&!row(t))t++;while(b>t&&!row(b))b--;while(l<r&&!col(l))l++;while(r>l&&!col(r))r--;
   if(r-l<w*.3||b-t<h*.3)return[0,0,w,h];const px=Math.round(w*.008);l=Math.max(0,l-px);t=Math.max(0,t-px);r=Math.min(w-1,r+px);b=Math.min(h-1,b+px);return[l,t,r-l+1,b-t+1]}
+const GREY='#e6e7e7';
+function greyOut(c,l,t,w,h){ // turn the white paper outside the printed frame grey (flood fill from the edges)
+  const x=c.getContext('2d'),im=x.getImageData(l,t,w,h),d=im.data,seen=new Uint8Array(w*h),st=new Int32Array(w*h);let n=0;
+  const light=i=>d[i*4]+d[i*4+1]+d[i*4+2]>600,push=i=>{if(!seen[i]&&light(i)){seen[i]=1;st[n++]=i}};
+  for(let i=0;i<w;i++){push(i);push((h-1)*w+i)}for(let j=0;j<h;j++){push(j*w);push(j*w+w-1)}
+  while(n){const i=st[--n],a=i%w;d[i*4]=230;d[i*4+1]=231;d[i*4+2]=231;if(a>0)push(i-1);if(a<w-1)push(i+1);if(i>=w)push(i-w);if(i<w*(h-1))push(i+w)}
+  x.putImageData(im,l,t)}
 async function render(p){ // render one printed page to a canvas (cached for quick page turns); full screen stretches it to fill the screen
   const key=PV+OFF+(FILL?'F':'f')+':'+p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
   const n=p+OFF;if(n<1||n>PDF.numPages)return null;
   const pr=(async()=>{const pg=await PDF.getPage(n),W=Math.round(book.clientWidth*(devicePixelRatio||1)),H=Math.round(book.clientHeight*(devicePixelRatio||1)),v0=pg.getViewport({scale:1}),sc=Math.max(W/v0.width,H/v0.height)*1.08,v=pg.getViewport({scale:sc});
     const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d',{willReadFrequently:true});x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;
-    const [l,t,w,h]=trim(c),k=Math.min(W/w,H/h),o=document.createElement('canvas');o.width=FILL?W:Math.round(w*k);o.height=FILL?H:Math.round(h*k);
-    const y=o.getContext('2d');y.imageSmoothingQuality='high';y.fillStyle='#fff';y.fillRect(0,0,o.width,o.height);y.drawImage(c,l,t,w,h,0,0,o.width,o.height);c.width=c.height=0;return o})();
+    const [l,t,w,h]=trim(c),PL=PV==='plain';if(PL)greyOut(c,l,t,w,h); // plain print: grey surround like the colour edition
+    const mx=PL?Math.round(w*.045):0,my=PL?Math.round(h*.03):0,cw=w+2*mx,ch=h+2*my,k=Math.min(W/cw,H/ch),o=document.createElement('canvas');o.width=FILL?W:Math.round(cw*k);o.height=FILL?H:Math.round(ch*k);
+    const sx=o.width/cw,sy=o.height/ch,y=o.getContext('2d');y.imageSmoothingQuality='high';y.fillStyle=PL?GREY:'#fff';y.fillRect(0,0,o.width,o.height);y.drawImage(c,l,t,w,h,mx*sx,my*sy,w*sx,h*sy);c.width=c.height=0;return o})();
   CACHE.set(key,pr);if(CACHE.size>8)CACHE.delete(CACHE.keys().next().value);return pr}
 function draw(el,p){
   el.classList.add('scan');el.innerHTML='<div class="wait">Loading page…</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';el.dataset.p=p;
