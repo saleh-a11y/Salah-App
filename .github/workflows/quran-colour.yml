@@ -1,0 +1,62 @@
+name: Build colour Qur'an download
+
+# Makes the compressed colour-coded Qur'an (quran-13-line-colour.pdf) that the app downloads once,
+# from the colour PDF uploaded to the "quran-colour" release, and attaches it to that release.
+on:
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: Rebuild even if the file is already on the release
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - scripts/make-colour-quran.sh
+      - .github/workflows/quran-colour.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quran-colour
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OUT: quran-13-line-colour.pdf
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check whether it is already built
+        id: have
+        run: |
+          if gh release view quran-colour --json assets -q '.assets[].name' | grep -qx "$OUT" && [ "${{ inputs.rebuild }}" != "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"; echo "$OUT is already on the release."
+          fi
+
+      - name: Install tools
+        if: steps.have.outputs.skip != 'true'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils imagemagick
+          pip install -q img2pdf
+
+      - name: Download the uploaded colour PDF
+        if: steps.have.outputs.skip != 'true'
+        run: |
+          NAME=$(gh release view quran-colour --json assets -q '.assets[].name' | grep -i '\.pdf$' | grep -vx "$OUT" | head -1)
+          [ -n "$NAME" ] || { echo "No source PDF on the quran-colour release"; exit 1; }
+          echo "Source: $NAME"
+          gh release download quran-colour -p "$NAME" -O source.pdf
+
+      - name: Build the 847-page colour Qur'an
+        if: steps.have.outputs.skip != 'true'
+        run: scripts/make-colour-quran.sh source.pdf "$OUT"
+
+      - name: Attach it to the quran-colour release
+        if: steps.have.outputs.skip != 'true'
+        run: gh release upload quran-colour "$OUT" --clobber

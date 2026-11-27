@@ -24,6 +24,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(Launch.class);
         registerPlugin(Review.class);
         registerPlugin(Lock.class);
+        registerPlugin(QuranFile.class);
         super.onCreate(savedInstanceState);
         // back button / gesture: let the page close a sheet, leave settings or go back to Today first;
         // if it has nothing to close, send the app to the background like other apps
