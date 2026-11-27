@@ -150,11 +150,12 @@ async function cUrl(){ // private repo: the file's API address, fetched with the
   if(!TOK)return{url:CURL};
   const r=await fetch('https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/quran-colour',{headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+TOK},cache:'no-store'});
   if(!r.ok)throw new Error('release '+r.status);const a=((await r.json()).assets||[]).find(a=>a.name==='quran-13-line-colour.pdf');if(!a)throw new Error('no file');return{url:a.url,token:TOK}}
-const CAP=(()=>{try{return window.Capacitor||parent.Capacitor}catch(e){return window.Capacitor}})();
+const CAP=(()=>{const n=c=>c&&c.isNativePlatform&&c.isNativePlatform()&&c.registerPlugin; // the reader runs in a frame: use the main app's native bridge
+  try{if(n(parent.Capacitor))return parent.Capacitor}catch(e){}return n(window.Capacitor)?window.Capacitor:null})();
 const QF=CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()&&CAP.registerPlugin?CAP.registerPlugin('QuranFile'):null;
 let PDF=null,pdfjs=null,CACHE=new Map(),PV='plain',OFF=0,CST={have:false,busy:false},CPCT=null,CERR='';
 try{localStorage.removeItem('q_src');PV=localStorage.getItem('q_pv')==='colour'?'colour':'plain';indexedDB.deleteDatabase('salah_quran')}catch(e){} // (an earlier test build kept a PDF there)
-async function cStatus(){if(!QF)return CST;try{CST=await QF.status()}catch(e){}return CST}
+async function cStatus(){if(!QF)return CST;try{CST=await Promise.race([QF.status(),new Promise((_,j)=>setTimeout(j,4000))])}catch(e){}return CST}
 async function lib(){if(!pdfjs){pdfjs=await import('./vendor/pdfjs/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs'}return pdfjs}
 async function loadPdf(){ // opens the plain or colour pages, whichever is chosen (plain if there is no colour PDF)
   await lib();
@@ -244,7 +245,8 @@ $('#jgo').onclick=jump;$('#jp').addEventListener('keydown',e=>{if(e.key==='Enter
 /* colour-coded pages: download once, switch, remove */
 const mb=b=>Math.round(b/1e6);
 function srcUI(){
-  $('#cseg').hidden=!QF;$('#src').hidden=!QF;if(!QF)return;
+  $('#cseg').hidden=false;$('#src').hidden=false;
+  if(!QF){$('#srcInfo').textContent='Colour pages can only be downloaded in the installed app.';$('#cGet').hidden=true;$('#cDel').hidden=true;return}
   document.querySelectorAll('#cseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===PV));
   const g=$('#cGet');let t;
   if(CST.have){t='Colour-coded (tajweed) pages are saved on this phone ('+mb(CST.size)+' MB). Switch between Colour and Plain at the top.';g.hidden=true}
