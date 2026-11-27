@@ -53,6 +53,7 @@ public class QuranFile extends Plugin {
     @PluginMethod
     public void download(PluginCall call) {
         final String url = call.getString("url");
+        final String token = call.getString("token");
         if (url == null || !url.startsWith("https://")) { call.reject("A secure download link is needed"); return; }
         if (busy) { call.reject("busy"); return; }
         busy = true;
@@ -61,12 +62,7 @@ public class QuranFile extends Plugin {
             HttpURLConnection conn = null;
             try {
                 long have = p.exists() ? p.length() : 0;
-                conn = (HttpURLConnection) new URL(url).openConnection();
-                conn.setInstanceFollowRedirects(true);
-                conn.setConnectTimeout(20000);
-                conn.setReadTimeout(60000);
-                if (have > 0) conn.setRequestProperty("Range", "bytes=" + have + "-");
-                conn.connect();
+                conn = GitHubNet.open(url, token, have);
                 int code = conn.getResponseCode();
                 boolean resume = code == 206 && have > 0;
                 if (code == 416 && have > 0) { // the part file is already complete

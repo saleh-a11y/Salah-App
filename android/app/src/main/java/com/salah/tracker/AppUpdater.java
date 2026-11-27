@@ -54,6 +54,7 @@ public class AppUpdater extends Plugin {
     @PluginMethod
     public void download(PluginCall call) {
         final String url = call.getString("url");
+        final String token = call.getString("token");
         if (url == null || !url.startsWith("https://")) {
             call.reject("A secure download link is needed");
             return;
@@ -63,11 +64,7 @@ public class AppUpdater extends Plugin {
             File part = new File(out.getPath() + ".part");
             HttpURLConnection conn = null;
             try {
-                conn = (HttpURLConnection) new URL(url).openConnection();
-                conn.setInstanceFollowRedirects(true);
-                conn.setConnectTimeout(20000);
-                conn.setReadTimeout(60000);
-                conn.connect();
+                conn = GitHubNet.open(url, token, 0);
                 int code = conn.getResponseCode();
                 if (code < 200 || code > 299) throw new Exception("Download failed (" + code + ")");
                 long total = conn.getContentLengthLong();

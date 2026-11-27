@@ -50,12 +50,20 @@ jobs:
           grep -n 'android.permission.INTERNET' "$MANIFEST"
 
       - name: Stamp build number
+        env:
+          APP_READ_TOKEN: ${{ secrets.APP_READ_TOKEN }}
         run: |
           N=${{ github.run_number }}
           cp node_modules/@capacitor/core/dist/capacitor.js www/capacitor.js
           grep -q '<script src="capacitor.js"></script>' www/index.html
           grep -q "registerPlugin" www/capacitor.js
           sed -i "s/const BUILD='__BUILD__'/const BUILD='$N'/" www/index.html
+          # Private repository: put the read-only key into the app so it can fetch updates and the colour Qur'an.
+          if [ -n "$APP_READ_TOKEN" ]; then
+            sed -i "s|const GHT='__GHT__'|const GHT='$APP_READ_TOKEN'|" www/index.html www/quran.html
+            grep -q "const GHT='__GHT__'" www/index.html www/quran.html && exit 1
+            echo "Read-only GitHub key added."
+          fi
           grep -q "const BUILD='$N'" www/index.html
           sed -i -E "s/versionCode [0-9]+/versionCode $N/; s/versionName \"[^\"]*\"/versionName \"1.$N\"/" android/app/build.gradle
           grep -nE "versionCode|versionName" android/app/build.gradle

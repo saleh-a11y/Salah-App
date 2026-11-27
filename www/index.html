@@ -1080,6 +1080,8 @@ function renderMasjid(){
     +'<div class="row" style="margin-top:10px"><button id="wkshare">Share this week’s times</button></div><p id="wkm" class="mu" style="font-size:13px;margin:6px 0 0"></p>';
 }
 /* ---- update check: compare this build with the newest one on GitHub ---- */
+/* GHT: read-only GitHub key put in by the build when the repository is private (never stored in the code) */
+const GHT='__GHT__',TOK=/^__/.test(GHT)?'':GHT;
 const BUILD='__BUILD__',REL='https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/latest',APK='https://github.com/saleh-a11y/Salah-App/releases/download/latest/SalahTracker.apk';
 /* web requests: the WebView's fetch first (on the phone Capacitor routes it natively), the native HTTP plugin as a backup */
 async function httpGet(url,headers){
@@ -1091,11 +1093,11 @@ async function httpGet(url,headers){
     return typeof r.data==='string'?r.data:JSON.stringify(r.data);
   }finally{clearTimeout(to)}
 }
-async function getJSON(url){return JSON.parse(await httpGet(url,{Accept:'application/vnd.github+json'}))}
+async function getJSON(url){const h={Accept:'application/vnd.github+json'};if(TOK&&url.startsWith('https://api.github.com/'))h.Authorization='Bearer '+TOK;return JSON.parse(await httpGet(url,h))}
 /* newest build: a small version.json published beside the APK (no GitHub API limits), the API as a fallback */
 const VJ='https://github.com/saleh-a11y/Salah-App/releases/download/latest/version.json';
 async function latestBuild(){
-  try{const o=JSON.parse(await httpGet(VJ+'?t='+Date.now()));if(o&&+o.build>0)return +o.build}catch(e){}
+  if(!TOK)try{const o=JSON.parse(await httpGet(VJ+'?t='+Date.now()));if(o&&+o.build>0)return +o.build}catch(e){} // private repo: only the signed-in API works
   const j=await getJSON(REL),m=/Build (\d+)/.exec((j&&j.body)||''),hasApk=(j.assets||[]).some(a=>a.name==='SalahTracker.apk');
   if(!m||!hasApk)throw new Error('no release');return +m[1];
 }
@@ -1131,7 +1133,9 @@ $('#ug').onclick=async()=>{
   ustate='busy';$('#ul').hidden=true;umsg('Downloading… 0%',null,0);
   try{
     if(!ulisten){ulisten=true;try{Promise.resolve(AU.addListener('progress',e=>{if(ustate==='busy')umsg('Downloading… '+e.percent+'%',null,e.percent)})).catch(()=>{})}catch(e){}}
-    await AU.download({url:APK});ustate='ready';await uInstall();
+    let dl={url:APK};
+    if(TOK){const j=await getJSON(REL),a=(j.assets||[]).find(a=>a.name==='SalahTracker.apk');if(!a)throw new Error('no apk');dl={url:a.url,token:TOK}}
+    await AU.download(dl);ustate='ready';await uInstall();
   }catch(e){
     const msg=String(e&&e.message||e);
     if(/not implemented|unimplemented/i.test(msg)){$('#upd').hidden=true;ustate='idle';location.href=APK;return}

@@ -145,6 +145,11 @@ function index(){Q.s.forEach((p,i)=>SSTART[i+1]=p);Q.j.forEach((p,i)=>JSTART[i+1
    The colour-coded (tajweed) edition, page for page the same 847 pages, is downloaded once inside the app
    (about 97 MB) and kept in the app's own storage, offline and through updates. */
 const CURL='https://github.com/saleh-a11y/Salah-App/releases/download/quran-colour/quran-13-line-colour.pdf',CMB=97;
+const GHT='__GHT__',TOK=/^__/.test(GHT)?'':GHT; // read-only GitHub key put in by the build when the repository is private
+async function cUrl(){ // private repo: the file's API address, fetched with the key
+  if(!TOK)return{url:CURL};
+  const r=await fetch('https://api.github.com/repos/saleh-a11y/Salah-App/releases/tags/quran-colour',{headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+TOK},cache:'no-store'});
+  if(!r.ok)throw new Error('release '+r.status);const a=((await r.json()).assets||[]).find(a=>a.name==='quran-13-line-colour.pdf');if(!a)throw new Error('no file');return{url:a.url,token:TOK}}
 const CAP=(()=>{try{return window.Capacitor||parent.Capacitor}catch(e){return window.Capacitor}})();
 const QF=CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()&&CAP.registerPlugin?CAP.registerPlugin('QuranFile'):null;
 let PDF=null,pdfjs=null,CACHE=new Map(),PV='plain',OFF=0,CST={have:false,busy:false},CPCT=null,CERR='';
@@ -253,7 +258,7 @@ let lis=null;
 async function cDownload(){
   if(!QF||CST.busy)return;CERR='';CPCT=null;CST.busy=true;srcUI();
   if(!lis){lis=true;try{Promise.resolve(QF.addListener('progress',e=>{CPCT=e;if(!$('#ov').hidden)srcUI()})).catch(()=>{})}catch(e){}}
-  try{CST=await QF.download({url:CURL});CPCT=null;toast('Colour pages ready');closeIdx();await usePV('colour');calm(false)}
+  try{CST=await QF.download(await cUrl());CPCT=null;toast('Colour pages ready');closeIdx();await usePV('colour');calm(false)}
   catch(e){CPCT=null;await cStatus();CST.busy=false;CERR=/busy/.test(String(e&&e.message||e))?'':'The download stopped (check your internet).'}
   srcUI()}
 $('#cGet').onclick=cDownload;
