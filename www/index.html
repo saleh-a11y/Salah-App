@@ -648,6 +648,15 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 .lvchip.on{background:linear-gradient(180deg,#f1d792,#c9a24f);color:#123a27;border-color:#e6c983}
 @keyframes lvp{0%{box-shadow:0 0 0 0 rgba(255,90,79,.55)}80%,100%{box-shadow:0 0 0 7px rgba(255,90,79,0)}}
 @media (prefers-reduced-motion:reduce){.lvchip i{animation:none}}
+.wnew{border-color:var(--gold2);background:linear-gradient(180deg,#fffdf6,#fbf3dd);position:relative}
+.wnew .wn-h{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.wnew .wn-s{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#fbf4e2;background:linear-gradient(180deg,var(--em),var(--em2));box-shadow:inset 0 0 0 1px rgba(227,194,122,.5)}
+.wnew .wn-h b{display:block;font-family:Marcellus,serif;font-size:19px;font-weight:400}
+.wnew h4{margin:12px 0 4px;font-size:14px;color:var(--gold)}
+.wnew ul{margin:0 0 4px;padding-left:18px;font-size:14px;line-height:1.45}
+.wnew li{margin:5px 0}
+.wnew .row{margin-top:12px}
+[data-theme="dark"] .wnew{background:linear-gradient(180deg,#1f2a24,#1a231e)}
 </style>
 </head>
 <body>
@@ -689,6 +698,7 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 <section id="app" hidden>
 <div class="pane" id="p_today">
 <div class="bkdue" id="bkdue" hidden><span><b>Back up your prayers</b><i id="bkdt" style="font-style:normal" class="mu"></i></span><button id="bkdl">Later</button><button class="pri" id="bkdb">Back up</button></div>
+<div class="card wnew" id="wnew" hidden aria-live="polite"></div>
 <div class="card bchg" id="bchg" hidden aria-live="polite"></div>
 <div class="card yask" id="yask" hidden aria-live="polite"></div>
 <div class="msw" id="msw" role="group" aria-label="Masjid"></div>
@@ -816,7 +826,7 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 
 <div class="card"><h2 class="serif">Ramaḍān mode</h2><p class="mu" style="margin:0 0 10px">Switches on by itself when Ramaḍān starts (Jamiatul Ulama dates). Turn it on now to see how it looks.</p><label class="tg"><input type="checkbox" id="rmon"><span>Show Ramaḍān mode now<small class="mu">Preview only. Fasts you log are kept.</small></span></label></div>
 <div class="card"><h2 class="serif">Your privacy</h2><label class="tg" id="lkrow" hidden><input type="checkbox" id="lkon"><span>Lock the app<small class="mu" id="lks"></small></span></label><p style="margin:0;font-size:14px">Everything you enter stays on this phone: your prayers, qaḍā, fasts and adhkār. No ads, no accounts, no tracking. The app only downloads masjid times, Jamiat's Hijri dates and update checks.</p></div>
-<div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
+<div class="card"><h2 class="serif">App updates</h2><p id="vtxt" style="margin:0 0 10px;font-size:14px"></p><div class="row"><button id="vchk">Check for updates</button><button id="wnall">What’s new</button></div><p id="vmsg" class="mu" style="margin:8px 0 0"></p></div>
 <div class="card"><h2 class="serif">Settings</h2><p class="mu" style="margin:0 0 10px">Starting date, Asr method, masjid board and area.</p><div class="row"><button id="mset">Change settings</button><button id="mth">Light / dark</button></div></div>
 <small id="foot"></small>
 </div>
@@ -1280,6 +1290,30 @@ $('#nadt').onclick=async()=>{
   }catch(e){$('#nst').textContent='Couldn’t play the test. Check notifications are allowed.'}
 };
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
+
+/* ---- what's new: a banner shown once after an update. For every update people will notice, add an entry
+   at the TOP with the next number (n), the date and a short title, in plain words. ---- */
+const NEWS=[
+  {n:1,d:'27 Nov 2026',t:'Live from your masjid, and a new Qur’ān',items:[
+    '<b>Listen live.</b> Hear your masjid’s live broadcast (LiveMasjid) right in the app: Settings → Live from your masjid, or tap <b>Live · Listen</b> on the Today page when it’s on air.',
+    '<b>Live adhān.</b> Choose Recorded or Live for each salāh. Live plays your masjid’s own adhān and stops by itself when it’s over. If the masjid isn’t on air, the recorded adhān plays.',
+    '<b>Jumu’ah and bayāns.</b> Get a notification, or have it play, when your masjid goes live for the Jumu’ah bayān and khutbah or other bayāns.',
+    '<b>13-line Qur’ān.</b> The Waterval 13-line print, full screen, with a colour-coded (tajweed) version to download once.',
+    '<b>Time changes.</b> A reminder at 6pm the day before your masjid changes a salāh time.',
+    '<b>Your location.</b> No masjid board nearby? Prayer times are worked out for where you are (Settings → Your area → My location).']}
+];
+function renderNews(all){
+  const el=$('#wnew');if(!el)return;const seen=+(lsGet('salah_news')||0),list=all?NEWS:NEWS.filter(x=>x.n>seen);
+  if(!list.length){el.hidden=true;return}
+  el.hidden=false;
+  el.innerHTML='<div class="wn-h"><span class="wn-s" aria-hidden="true">✦</span><div><b>What’s new</b><small class="mu">'+(all?'Recent updates':list.length>1?list.length+' updates since you last looked':'Updated '+esc(list[0].d))+'</small></div></div>'
+    +list.slice(0,all?10:3).map(x=>'<h4>'+esc(x.t)+(all||list.length>1?' · '+esc(x.d):'')+'</h4><ul>'+x.items.map(i=>'<li>'+i+'</li>').join('')+'</ul>').join('')
+    +'<div class="row"><button class="pri" id="wnok">Got it</button></div>';
+}
+function newsInit(){ // a new install starts up to date; someone updating sees what changed
+  let s=lsGet('salah_news');if(s==null){lsSet('salah_news',String(S.pub?0:NEWS[0].n))}renderNews()}
+$('#wnew').onclick=e=>{if(e.target.id==='wnok'){lsSet('salah_news',String(NEWS[0].n));renderNews()}};
+$('#wnall').onclick=()=>{showTab('today');renderNews(true);window.scrollTo({top:0,behavior:'smooth'})};
 
 /* ---- live from the masjid: the board's LiveMasjid stream (relay.livemasjid.com:8443/<name>) ---- */
 const LSP=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('LiveStream'):null;
@@ -3113,7 +3147,7 @@ function boot(){
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();setTimeout(gpsRefresh,4000);liveCfg();renderLive();liveCheck(true);
+  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();newsInit();setTimeout(gpsRefresh,4000);liveCfg();renderLive();liveCheck(true);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri();if(TAB==='more')try{renderAdhanCheck()}catch(e){}}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>
