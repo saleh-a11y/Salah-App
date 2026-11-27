@@ -218,7 +218,7 @@ public class LiveService extends Service {
     private void startPlay(boolean adhan) {
         stopPlayer();
         try {
-            meter.reset();
+            meter.clear();
             adhanOnly = adhan;
             playStart = System.currentTimeMillis();
             Context ctx = getApplicationContext();

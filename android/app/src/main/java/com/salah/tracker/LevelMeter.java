@@ -21,7 +21,7 @@ final class LevelMeter extends BaseAudioProcessor {
     private int window = 22050, n = 0;
     private double sum = 0;
 
-    void reset() { lastLoud = 0; loudMs = 0; voice = 0f; n = 0; sum = 0; }
+    void clear() { lastLoud = 0; loudMs = 0; voice = 0f; n = 0; sum = 0; }
 
     @Override
     protected AudioProcessor.AudioFormat onConfigure(AudioProcessor.AudioFormat f) throws AudioProcessor.UnhandledAudioFormatException {
