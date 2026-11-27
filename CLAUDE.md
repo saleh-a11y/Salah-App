@@ -5,7 +5,8 @@
 After an update, the app shows a **What's new** banner once on the Today page. Its text comes from the
 `NEWS` list in `www/index.html` (search for `const NEWS=`).
 
-For every change the user or their family will notice, add an entry at the **top** of `NEWS`:
+**Every update gets an entry**: the user expects the banner after each update. Add it at the **top** of `NEWS`
+in the same commit as the change:
 
 ```js
 {n:<previous top n + 1>,d:'<day Mon YYYY>',t:'<short title>',items:[
@@ -14,8 +15,8 @@ For every change the user or their family will notice, add an entry at the **top
 ```
 
 - Plain, friendly words for non-technical family members. No code or file names.
-- Behind-the-scenes fixes that nobody will notice don't need an entry.
-- Several changes on the same day can go in one entry.
+- For a behind-the-scenes fix, still add an entry, e.g. `'<b>Fixes.</b> Small fixes to make the app more reliable.'`
+- Never edit an entry people may already have seen: give each update its own new `n`.
 - New installs start "up to date" and only see entries added after they installed.
 
 ## Qur'ān reader
