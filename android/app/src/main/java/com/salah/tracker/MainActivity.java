@@ -22,7 +22,6 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AdhanPlayer.class);
         registerPlugin(Compass.class);
         registerPlugin(Launch.class);
-        registerPlugin(Review.class);
         registerPlugin(Lock.class);
         registerPlugin(QuranFile.class);
         super.onCreate(savedInstanceState);
