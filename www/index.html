@@ -643,7 +643,11 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 .lvr .sg{display:flex;gap:6px}.lvr .sg button{padding:6px 12px;border-radius:999px;border:1px solid var(--bd);background:none;font:inherit;font-size:13px;color:inherit}
 .lvr .sg button.on{background:var(--em);border-color:var(--em2);color:#fbf4e2}
 .lvdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#b9b2a2;margin-right:6px;vertical-align:1px}.lvdot.on{background:#d33;box-shadow:0 0 0 3px rgba(221,51,51,.2)}
-.lvchip{margin-left:8px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:rgba(211,51,51,.85);color:#fff;font:inherit;font-size:12.5px;font-weight:600}
+.lvchip{margin-left:8px;padding:5px 12px 5px 10px;border-radius:999px;border:1px solid rgba(230,201,131,.55);background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.08));color:#fbf4e2;font:inherit;font-size:12.5px;font-weight:600;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.10)}
+.lvchip i{width:8px;height:8px;border-radius:50%;background:#ff5a4f;box-shadow:0 0 0 0 rgba(255,90,79,.6);animation:lvp 1.6s ease-out infinite}
+.lvchip.on{background:linear-gradient(180deg,#f1d792,#c9a24f);color:#123a27;border-color:#e6c983}
+@keyframes lvp{0%{box-shadow:0 0 0 0 rgba(255,90,79,.55)}80%,100%{box-shadow:0 0 0 7px rgba(255,90,79,0)}}
+@media (prefers-reduced-motion:reduce){.lvchip i{animation:none}}
 </style>
 </head>
 <body>
@@ -1501,7 +1505,7 @@ function renderCountdown(){
       +'<div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
       +'<div class="cd-big'+(live?'':' done')+'"><small>'+(live?lw:'')+'</small><span class="cd-c" data-k="'+(live?live.k:'-')+'">'+(live?'':'✓ called')+'</span></div>'
       +'<div class="cd-pills">'+boxes.map(b=>'<span class="cd-p'+(b===live?' live':'')+(b.at<=now?' past':'')+'">'+(b.at<=now?'✓ ':'')+b.label+' <b>'+clock(b.at)+'</b></span>').join('')+'</div>'
-      +(S.board&&!(x.adhan||x.jam)?'<div class="cd-foot">Board not read yet, so calculated times are shown</div>':S.board?'<div class="cd-foot">'+freshTxt()+(LVON&&liveSlug()?'<button class="lvchip" id="lvchip">● Live · '+(LVPLAY?'Stop':'Listen')+'</button>':'')+'</div>':'')
+      +(S.board&&!(x.adhan||x.jam)?'<div class="cd-foot">Board not read yet, so calculated times are shown</div>':S.board?'<div class="cd-foot">'+freshTxt()+(LVON&&liveSlug()?'<button class="lvchip'+(LVPLAY?' on':'')+'" id="lvchip"><i></i>'+(LVPLAY?'Playing · Stop':'Live · Listen')+'</button>':'')+'</div>':'')
       +(S.trv>0&&x.jam&&x.jam>now?'<div class="cd-foot">Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah")+'</div>':'')
       +(cur?'<div class="cd-cur" id="cdcur" data-s="'+(+cur.start)+'" data-e="'+(+cur.end)+'" data-i="'+cur.i+'" data-d="'+ymd(cur.d)+'"></div>':'');
     renderToday();
