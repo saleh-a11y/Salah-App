@@ -669,7 +669,7 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 <p class="mu" style="margin:0 0 6px">Minutes it takes you to get there. You’ll get a “Leave now” reminder instead of “jamā'ah in 8 minutes”.</p>
 <input type="number" id="trv" min="0" max="120" inputmode="numeric" placeholder="e.g. 7" style="width:120px;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit"></div>
 <div class="fld"><b>Your area</b>
-<p class="mu" style="margin:0 0 6px">Used to work out prayer times when the board can't be read.</p>
+<p class="mu" style="margin:0 0 6px">Used to work out prayer times when there's no masjid board, or it can't be read. “My location” uses your phone's GPS.</p>
 <select id="loc"></select></div>
 <div class="row" style="margin-top:16px"><button class="pri" id="ps">Save &amp; start</button><button id="pc" hidden>Cancel</button></div>
 <small id="ph"></small>
@@ -1044,7 +1044,7 @@ function resetMasjid(){
 }
 function applyLoc(){
   const c=CITIES.find(x=>x[0]===S.loc),j=CITIES[0];
-  if(S.loc==='board'&&S.blat!=null){LAT=S.blat;LON=S.blon}else if(c){LAT=c[2];LON=c[3]}else if(S.loc==='board'&&S.board===LAKE.url){LAT=LAKE.lat;LON=LAKE.lon}else{LAT=j[2];LON=j[3]}
+  if(S.loc==='gps'&&S.glat!=null){LAT=S.glat;LON=S.glon}else if(S.loc==='board'&&S.blat!=null){LAT=S.blat;LON=S.blon}else if(c){LAT=c[2];LON=c[3]}else if(S.loc==='board'&&S.board===LAKE.url){LAT=LAKE.lat;LON=LAKE.lon}else{LAT=j[2];LON=j[3]}
 }
 function cleanBoards(a){
   const out=[];if(!Array.isArray(a))return out;
@@ -1332,7 +1332,7 @@ $('#bkok').onclick=async()=>{
     const st=o.settings,clean={pub:st.pub,q:[0,0,0,0,0,0],ts:/^\d{4}-\d{2}-\d{2}$/.test(st.ts||'')?st.ts:ymd(today0())};
     for(const k of['asr','board','bname','btown','loc'])clean[k]=typeof st[k]==='string'?st[k]:(k==='asr'?'hanafi':k==='loc'?'jhb':'');
     clean.asr=clean.asr==='shafii'?'shafii':'hanafi';clean.board=boardURL(clean.board);
-    for(const k of['blat','blon'])clean[k]=typeof st[k]==='number'?st[k]:null;
+    for(const k of['blat','blon','glat','glon'])clean[k]=typeof st[k]==='number'?st[k]:null;
     clean.boards=cleanBoards(st.boards);if(clean.board&&!clean.boards.some(b=>b.url===clean.board))clean.boards.unshift({url:clean.board,name:clean.bname,town:clean.btown,lat:clean.blat,lon:clean.blon});
     clean.qt=5;loadQz(clean,st);loadRm(clean,st);clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
@@ -2372,7 +2372,7 @@ function qbPlace(){
   if(QB.gps)return;
   QB.lat=LAT;QB.lon=LON;
   const c=CITIES.find(x=>x[0]===S.loc);
-  QB.src=S.loc==='board'&&S.blat!=null?(S.bname||'your masjid')+(S.btown?', '+S.btown:''):c?c[1]:'Johannesburg';
+  QB.src=S.loc==='gps'&&S.glat!=null?'your location':S.loc==='board'&&S.blat!=null?(S.bname||'your masjid')+(S.btown?', '+S.btown:''):c?c[1]:'Johannesburg';
 }
 function qbDial(){
   /* ring with ticks every 10°, letters, and the Kaaba at the Qibla bearing; the whole ring turns with the phone */
@@ -2826,7 +2826,7 @@ function wTick(d){
 }
 
 /* make-up (qada) prayers: counts per prayer, kept with the settings */
-const setDoc=()=>({qr:S.qr,rd:S.rd,rn:S.rn,trv:S.trv,pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon});
+const setDoc=()=>({qr:S.qr,rd:S.rd,rn:S.rn,trv:S.trv,pub:S.pub,q:S.q,qt:S.qt,ql:S.ql,qz:S.qz,qh:S.qh,qe:S.qe,qa:S.qa,fz:S.fz,ts:S.ts,asr:S.asr,boards:S.boards,board:S.board,bname:S.bname,btown:S.btown,loc:S.loc,blat:S.blat,blon:S.blon,glat:S.glat,glon:S.glon});
 async function saveSettings(){stat('Saving…');try{await save('settings',setDoc());stat('Saved ✓')}catch(e){stat('Couldn’t save')}}
 let sq=Promise.resolve();
 function qada(sign){
@@ -2908,11 +2908,11 @@ function renderBList(){
 $('#blist').onclick=e=>{const pr=e.target.closest('[data-pr]');if(pr){const i=F.boards.findIndex(b=>b.url===pr.dataset.pr);if(i>0){F.boards.unshift(F.boards.splice(i,1)[0]);renderBList()}return}const b=e.target.closest('[data-rm]');if(!b)return;F.boards=F.boards.filter(x=>x.url!==b.dataset.rm);if(F.board===b.dataset.rm){const a=F.boards[0];F.board=a?a.url:''}renderBList();fillLoc();$('#bmsg').textContent='';};
 function fillLoc(){
   const A=fActive(),anyLoc=F.boards.some(b=>b.lat!=null);
-  const o=(anyLoc?'<option value="board">'+esc('The masjid’s location (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  const o='<option value="gps">'+esc(S.glat!=null?'My location (GPS)':'My location (GPS) · tap Save to find it')+'</option>'+(anyLoc?'<option value="board">'+esc('The masjid’s location (from its board)')+'</option>':'')+CITIES.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
   $('#loc').innerHTML=o;$('#loc').value=F.loc==='board'&&!anyLoc?'jhb':F.loc;if(!$('#loc').value)$('#loc').value='jhb';
 }
 function fillSetup(){
-  F={asr:S.asr,board:S.board,boards:JSON.parse(JSON.stringify(S.boards)),loc:S.loc};
+  F={asr:S.asr,board:S.board,boards:JSON.parse(JSON.stringify(S.boards)),loc:S.pub?S.loc:'gps'}; // a new phone starts on its own location
   $('#bu').value='';$('#bmsg').textContent='';$('#bmsg').className='mu';
   setAsr(S.asr);renderBList();fillLoc();$('#trv').value=S.trv||'';
 }
@@ -2946,7 +2946,14 @@ $('#bfind').onclick=()=>openFinder(async entry=>{
   $('#bu').value=entry.url;await checkBoard();
   const b=F.boards.find(x=>x.url===entry.url);if(b&&!b.name){b.name=entry.name;b.town=entry.town;renderBList()}
 },F.boards.map(b=>b.url));
-$('#loc').onchange=()=>{F.loc=$('#loc').value};
+$('#loc').onchange=()=>{F.loc=$('#loc').value;if(F.loc==='gps')getGps(true).then(p=>{$('#ph').textContent=p?'✓ Prayer times will be worked out for where you are.':'Couldn’t get your location. Allow location for Salah Tracker, or pick a city.'})};
+/* the phone's own location, for prayer times where there is no masjid board (or it can't be read) */
+function gpsNow(fresh){return new Promise(res=>{if(!navigator.geolocation)return res(null);navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(4),lon:+p.coords.longitude.toFixed(4)}),()=>res(null),{enableHighAccuracy:false,timeout:20000,maximumAge:fresh?6e4:6*36e5})})}
+async function getGps(fresh){const p=await gpsNow(fresh);if(p){S.glat=p.lat;S.glon=p.lon}return p}
+const kmBetween=(a,b,c,d)=>{const r=Math.PI/180,x=(d-b)*r*Math.cos((a+c)/2*r),y=(c-a)*r;return Math.sqrt(x*x+y*y)*6371};
+async function gpsRefresh(){ // on opening: if they moved more than 3 km, times follow them
+  if(S.loc!=='gps')return;const o=[S.glat,S.glon],p=await getGps(false);if(!p)return;
+  if(o[0]==null||kmBetween(o[0],o[1],p.lat,p.lon)>3){applyLoc();saveSettings();refreshViews();queueNotifs()}}
 $('#ps').onclick=async()=>{
   const v=$('#pd').value;
   if(!v||parse(v)>today0()){$('#ph').textContent='Please choose a date that is today or earlier.';return}
@@ -2955,7 +2962,8 @@ $('#ps').onclick=async()=>{
   if(!fActive()){const a=F.boards[0];F.board=a?a.url:''}
   const A=fActive()||{url:'',name:'',town:'',lat:null,lon:null},asrCh=F.asr!==S.asr,changed=A.url!==S.board||asrCh;
   S.trv=Math.max(0,Math.min(120,Math.floor(+$('#trv').value||0)));
-  Object.assign(S,{pub:v,asr:F.asr,boards:F.boards,board:A.url,bname:A.name,btown:A.town,blat:A.lat,blon:A.lon,loc:$('#loc').value||'jhb',edit:false});
+  let lv=$('#loc').value||'jhb';if(lv==='gps'&&S.glat==null){$('#ph').textContent='Finding your location…';if(!(await getGps(true))){lv='jhb';$('#ph').textContent='Couldn’t get your location, so Johannesburg is used. Allow location and choose My location again.'}else $('#ph').textContent=''}
+  Object.assign(S,{pub:v,asr:F.asr,boards:F.boards,board:A.url,bname:A.name,btown:A.town,blat:A.lat,blon:A.lon,loc:lv,edit:false});
   if(!S.ts)S.ts=ymd(today0());stat('Saving…');
   try{await save('settings',setDoc());await loadYears();stat('Saved ✓')}catch(e){stat('Couldn’t save')}
   applyLoc();
@@ -2991,14 +2999,14 @@ function boot(){
   if(st&&typeof st.ts==='string')S.ts=st.ts;
   if(st&&st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)S.ql[k]=Math.floor(+v);
   if(st&&st.pub&&st.asr===undefined){Object.assign(S,{asr:'hanafi',board:LAKE.url,bname:LAKE.name,btown:LAKE.town,blat:LAKE.lat,blon:LAKE.lon,loc:'board'});saveSettings()}
-  else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon'])if(typeof st[k]==='number')S[k]=st[k]}
+  else if(st){for(const k of['asr','board','bname','btown','loc'])if(typeof st[k]==='string')S[k]=st[k];for(const k of['blat','blon','glat','glon'])if(typeof st[k]==='number')S[k]=st[k]}
   S.boards=cleanBoards(st&&st.boards);
   if(S.board&&!S.boards.some(b=>b.url===S.board))S.boards.unshift({url:S.board,name:S.bname,town:S.btown,lat:S.blat,lon:S.blon});
   if(S.boards.length&&S.board!==S.boards[0].url){const P=S.boards[0];Object.assign(S,{board:P.url,bname:P.name,btown:P.town,blat:P.lat,blon:P.lon})}
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();
+  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();setTimeout(gpsRefresh,4000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri();if(TAB==='more')try{renderAdhanCheck()}catch(e){}}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>
