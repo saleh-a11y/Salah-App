@@ -143,8 +143,8 @@ function index(){Q.s.forEach((p,i)=>SSTART[i+1]=p);Q.j.forEach((p,i)=>JSTART[i+1
 
 /* the plain 13-line Qur'ān (30 juz, 847 pages) ships inside the app; page n of the PDF is page n of the muṣḥaf.
    The colour-coded (tajweed) edition, page for page the same 847 pages, is downloaded once inside the app
-   (about 94 MB) and kept in the app's own storage, offline and through updates. */
-const CURL='https://github.com/saleh-a11y/Salah-App/releases/download/quran-colour/quran-13-line-colour.pdf',CMB=94;
+   (about 97 MB) and kept in the app's own storage, offline and through updates. */
+const CURL='https://github.com/saleh-a11y/Salah-App/releases/download/quran-colour/quran-13-line-colour.pdf',CMB=97;
 const CAP=(()=>{try{return window.Capacitor||parent.Capacitor}catch(e){return window.Capacitor}})();
 const QF=CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()&&CAP.registerPlugin?CAP.registerPlugin('QuranFile'):null;
 let PDF=null,pdfjs=null,CACHE=new Map(),PV='plain',OFF=0,CST={have:false,busy:false},CPCT=null,CERR='';
