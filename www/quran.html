@@ -94,8 +94,8 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-seri
 .off button{width:44px;height:36px;border-radius:12px;border:1px solid rgba(184,145,63,.5);background:none;color:inherit}
 .off b{flex:1;text-align:center;font-weight:600}
 html,body{overflow:hidden;background:var(--paper)}
-#stage{position:fixed;left:0;right:0;top:var(--sat);bottom:var(--sab);padding:6px 4px;display:flex;align-items:center;justify-content:center}
-.book{width:100%!important;height:min(100%,calc((100vw - 8px)/.54))!important}
+#stage{position:fixed;left:0;right:0;top:var(--sat);bottom:var(--sab);padding:0;display:flex;align-items:center;justify-content:center}
+.book{width:100%!important;height:100%!important}
 .book .page{box-shadow:none;border-radius:0}
 .top,.foot{position:fixed;left:0;right:0;z-index:6;transition:opacity .25s,transform .25s}
 .top{top:0;padding:calc(var(--sat) + 8px) 12px 10px;box-shadow:0 6px 18px -8px rgba(0,0,0,.45)}
@@ -123,6 +123,7 @@ body.calm .toast{top:calc(var(--sat) + 14px)}
   <p id="srcInfo"></p>
   <div class="r"><button id="cGet">Download colour pages</button><button id="cDel" hidden>Remove colour pages</button></div>
  </div>
+ <div class="src"><p>Page size</p><div class="r" id="fitSeg"><button data-v="fill">Full screen</button><button data-v="fit">Keep shape</button></div></div>
  <div class="jump"><input id="jp" type="number" inputmode="numeric" min="1" max="847" placeholder="Go to page 1–847"><button id="jgo">Go</button></div>
  <div class="tabs3" role="tablist"><button data-t="s" class="on">Surahs</button><button data-t="j">Juz</button><button data-t="b">Bookmarks</button></div>
  <div class="list" id="list"></div>
@@ -163,11 +164,19 @@ async function loadPdf(){ // opens the plain or colour pages, whichever is chose
   if(PV==='colour'){if(CST.have&&CST.uri)src={url:CAP.convertFileSrc(CST.uri),disableAutoFetch:true,disableStream:true};else PV='plain'}
   if(!src)src={data:new Uint8Array(await (await fetch('quran/quran-13-line.pdf')).arrayBuffer())};
   const old=PDF;PDF=await pdfjs.getDocument(src).promise;CACHE.clear();if(old)try{old.destroy()}catch(e){}}
-async function render(p){ // render one printed page to a canvas (cached for quick page turns)
-  const key=PV+OFF+':'+p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
+let FILL=true;try{FILL=localStorage.getItem('q_fit')!=='fit'}catch(e){}
+function trim(c){ // the printed page without its white margins: [x,y,w,h]
+  const w=c.width,h=c.height,d=new Uint8ClampedArray(c.getContext('2d').getImageData(0,0,w,h).data.buffer),dark=(x,y)=>{const i=(y*w+x)*4;return d[i]+d[i+1]+d[i+2]<600};
+  const row=y=>{let k=0;for(let x=0;x<w;x+=2)if(dark(x,y)&&++k>3)return true;return false},col=x=>{let k=0;for(let y=0;y<h;y+=2)if(dark(x,y)&&++k>3)return true;return false};
+  let t=0,b=h-1,l=0,r=w-1;while(t<b&&!row(t))t++;while(b>t&&!row(b))b--;while(l<r&&!col(l))l++;while(r>l&&!col(r))r--;
+  if(r-l<w*.3||b-t<h*.3)return[0,0,w,h];const px=Math.round(w*.008);l=Math.max(0,l-px);t=Math.max(0,t-px);r=Math.min(w-1,r+px);b=Math.min(h-1,b+px);return[l,t,r-l+1,b-t+1]}
+async function render(p){ // render one printed page to a canvas (cached for quick page turns); full screen stretches it to fill the screen
+  const key=PV+OFF+(FILL?'F':'f')+':'+p+':'+book.clientWidth+'x'+book.clientHeight;if(CACHE.has(key))return CACHE.get(key);
   const n=p+OFF;if(n<1||n>PDF.numPages)return null;
-  const pr=(async()=>{const pg=await PDF.getPage(n),W=book.clientWidth*(devicePixelRatio||1),H=book.clientHeight*(devicePixelRatio||1),v0=pg.getViewport({scale:1}),sc=Math.min(W/v0.width,H/v0.height),v=pg.getViewport({scale:sc});
-    const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;return c})();
+  const pr=(async()=>{const pg=await PDF.getPage(n),W=Math.round(book.clientWidth*(devicePixelRatio||1)),H=Math.round(book.clientHeight*(devicePixelRatio||1)),v0=pg.getViewport({scale:1}),sc=Math.max(W/v0.width,H/v0.height)*1.08,v=pg.getViewport({scale:sc});
+    const c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d',{willReadFrequently:true});x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;
+    const [l,t,w,h]=trim(c),k=Math.min(W/w,H/h),o=document.createElement('canvas');o.width=FILL?W:Math.round(w*k);o.height=FILL?H:Math.round(h*k);
+    const y=o.getContext('2d');y.imageSmoothingQuality='high';y.fillStyle='#fff';y.fillRect(0,0,o.width,o.height);y.drawImage(c,l,t,w,h,0,0,o.width,o.height);c.width=c.height=0;return o})();
   CACHE.set(key,pr);if(CACHE.size>8)CACHE.delete(CACHE.keys().next().value);return pr}
 function draw(el,p){
   el.classList.add('scan');el.innerHTML='<div class="wait">Loading page…</div>'+(BM.some(b=>b.p===p)?'<div class="ribbon" aria-hidden="true"></div>':'')+'<div class="shade"></div>';el.dataset.p=p;
@@ -267,6 +276,8 @@ $('#cGet').onclick=cDownload;
 $('#cseg').onclick=e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.v==='colour'&&!CST.have){openIdx();$('#src').scrollIntoView({block:'start'});toast('Download the colour pages first');return}
   usePV(b.dataset.v)};
+function fitUI(){document.querySelectorAll('#fitSeg button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='fill')===FILL))}fitUI();
+$('#fitSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;FILL=b.dataset.v==='fill';try{localStorage.setItem('q_fit',FILL?'fill':'fit')}catch(x){}fitUI();CACHE.clear();if(PDF)show(P)};
 $('#cDel').onclick=async()=>{if(PV==='colour')await usePV('plain');try{CST=await QF.remove()}catch(e){}toast('Colour pages removed from this phone');srcUI()};
 async function openIdxSrc(){await cStatus();srcUI()}
 
