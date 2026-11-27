@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- same dark green as the opening doors, so the launch screen blends into the intro -->
-    <color name="intro_bg">#0B4A37</color>
-</resources>
