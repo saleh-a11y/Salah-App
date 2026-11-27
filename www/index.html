@@ -639,6 +639,11 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 .tabs{transition:transform .32s cubic-bezier(.3,.7,.2,1),opacity .25s;will-change:transform}
 .tabs.hide{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.tabs{transition:opacity .2s}}
+.lvr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd)}.lvr:last-child{border-bottom:0}
+.lvr .sg{display:flex;gap:6px}.lvr .sg button{padding:6px 12px;border-radius:999px;border:1px solid var(--bd);background:none;font:inherit;font-size:13px;color:inherit}
+.lvr .sg button.on{background:var(--em);border-color:var(--em2);color:#fbf4e2}
+.lvdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#b9b2a2;margin-right:6px;vertical-align:1px}.lvdot.on{background:#d33;box-shadow:0 0 0 3px rgba(221,51,51,.2)}
+.lvchip{margin-left:8px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:rgba(211,51,51,.85);color:#fff;font:inherit;font-size:12.5px;font-weight:600}
 </style>
 </head>
 <body>
@@ -782,6 +787,16 @@ h2{font-size:20px!important;letter-spacing:.01em!important}
 <div class="row" style="margin-top:10px"><button class="pri" id="non" hidden>Turn on notifications</button><button id="nex" hidden>Allow exact timing</button></div>
 <div class="row" style="margin-top:8px"><button id="nadt" hidden>Test the adhān (in 5 seconds)</button></div>
 <div id="nchk" class="nchk" hidden></div>
+</div>
+<div class="card" id="lvcard" hidden>
+<h2 class="serif">Live from your masjid</h2>
+<p class="mu" id="lvst" style="margin:0 0 10px"></p>
+<div class="row"><button class="pri" id="lvplay">▶ Listen live</button><button id="lvchg">Change stream</button></div>
+<div id="lvedit" hidden style="margin-top:10px"><p class="mu" style="margin:0 0 6px;font-size:13px">Paste the masjid's LiveMasjid link (e.g. livemasjid.com/beyerspark) or just its name on LiveMasjid.</p><input id="lvin" type="text" placeholder="livemasjid.com/…" autocapitalize="off" autocomplete="off" spellcheck="false" style="width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;font:inherit;color:inherit"><div class="row" style="margin-top:8px"><button class="pri" id="lvsave">Save</button><button id="lvcan">Cancel</button></div><small id="lvmsg" class="mu"></small></div>
+<h3 style="margin:16px 0 4px;font-size:15px">At adhān time, play</h3>
+<div id="lvpr"></div>
+<small class="mu" id="lvprs">Live listens for the masjid's own adhān from 2 minutes before the board's adhān time. If the masjid isn't on air by 4 minutes after, the recorded adhān plays instead.</small>
+<label class="tg" style="margin-top:12px"><input type="checkbox" id="lvalw"><span>Play whenever the masjid goes live<small class="mu">Bayāns and talks too, even with the app closed. Uses a bit more battery and data, and shows a quiet notification while it listens.</small></span></label>
 </div>
 
 <div class="card" id="bkcard">
@@ -1056,7 +1071,7 @@ function switchMasjid(url){
   const b=S.boards.find(x=>x.url===url);if(!b||url===S.board)return;
   Object.assign(S,{board:b.url,bname:b.name,btown:b.town,blat:b.lat,blon:b.lon});
   applyLoc();LIVE=null;resetMasjid();loadBoardCache();pulled=0;
-  renderMasjid();renderSwitch();cdKey='';refreshViews();renderNotif();pullBoard();queueNotifs();saveSettings();
+  LVON=false;renderMasjid();renderSwitch();cdKey='';refreshViews();renderNotif();pullBoard();queueNotifs();saveSettings();liveCfg();renderLive();liveCheck(true);
 }
 function renderSwitch(){
   const el=$('#msw');if(!el)return;
@@ -1171,7 +1186,7 @@ function planNotifs(){
     for(let i=0;i<5;i++){
       const base=k*100+i*10,st=W[i][0],en=W[i][1],add=(n,t,title,body,x)=>{if(t.getTime()>now+30000)out.push(Object.assign({id:base+n,title,body,schedule:{at:t,allowWhileIdle:true}},x||{}))};
       const dd=ymd(d);
-      if(NP.adh){const ba=boardAdhan(i,fri,d),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st;add(4,at(am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i})}
+      if(NP.adh){const ba=boardAdhan(i,fri,d),nm=fri&&i===1&&S.board&&MASJID.jumuah?"Jumu'ah":P[i],am=ba!=null?ba:st,lv=!!(AP&&LSP&&LV.pr[i]&&ba!=null&&liveSlug());add(4,at(lv?am-2:am),nm+' adhān · '+AR[i],(ba!=null?(S.bname||'Your masjid')+' · ':'')+'Time for '+nm+' ('+hm(am)+').',{channelId:'adhan1',d:dd,p:i,live:lv})}
       if(NP.pre)add(1,at(st-15),P[i]+' in 15 minutes',P[i]+' time starts at '+hm(st)+'.');
       if(NP.jam){const j=jamaah(i,fri,d);if(j){if(S.trv>0)add(2,at(j.t-S.trv-2),'Leave now for '+j.label,j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid')+' is about '+S.trv+' min away.');else add(2,at(j.t-8),j.label+' in 8 minutes',j.label+' at '+hm(j.t)+' · '+(S.bname||'your masjid'));}}
       if(NP.end&&!(m>>i&1)&&!(getEx(d)>>i&1)&&k<3)add(3,at(en-10),P[i]+' time ends in 10 minutes','Not ticked yet. '+P[i]+' ends at '+hm(en)+'.',{d:dd,p:i});
@@ -1203,9 +1218,9 @@ async function scheduleNotifs(){
     const list=planNotifs(),isNat=n=>isAdhan(n)||n.id%10===3&&n.id<900,adh=list.filter(isNat);
     /* the adhān is played by the app's own alarm player (full recording, works with the app closed); plain notifications as a fallback */
     try{if(AP)await AP.setDone({done:doneList()})}catch(e){}
-    const native=await setAdhan(adh.map(n=>({id:n.id,at:new Date(n.schedule.at).getTime(),title:n.title,body:n.body,kind:isAdhan(n)?'adhan':'end',d:n.d,p:n.p})));
+    const native=await setAdhan(adh.map(n=>({id:n.id,at:new Date(n.schedule.at).getTime(),title:n.title,body:n.body,kind:n.live?'live':isAdhan(n)?'adhan':'end',d:n.d,p:n.p})));
     if(native){try{await LN.deleteChannel({id:'adhan1'})}catch(e){}}else{try{await LN.createChannel(ADHAN_CH)}catch(e){}}
-    const rest=(native?list.filter(n=>!isNat(n)):list).map(n=>{const o=Object.assign({},n);delete o.d;delete o.p;return o});
+    const rest=(native?list.filter(n=>!isNat(n)):list).map(n=>{const o=Object.assign({},n);delete o.d;delete o.p;delete o.live;return o});
     if(rest.length)await LN.schedule({notifications:rest});
     renderNotif(list[0]);
   }catch(e){$('#nst').textContent='Couldn’t set up notifications. Open the app again to retry.'}
@@ -1230,7 +1245,7 @@ async function takeTicks(){
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)takeTicks()});
 try{if(AP&&AP.addListener)AP.addListener('ticked',()=>takeTicks())}catch(e){}
 async function renderNotif(next){
-  const st=$('#nst');
+  const st=$('#nst');try{renderLive()}catch(e){}
   if(!LN){st.textContent='Notifications work in the Android app.';$('#nopts').hidden=true;$('#non').hidden=true;$('#nex').hidden=true;$('#nadt').hidden=true;return}
   ['adh','pre','jam','end','jum','rm'].forEach(k=>{$('#n_'+k).checked=NP[k];$('#n_'+k).disabled=!NP.on});$('#nadt').hidden=!NP.on;
   $('#n_adh_s').textContent=(S.board?'At '+(S.bname||'your masjid')+'\'s adhān times':'When each prayer time starts')+(AP?' · full adhān, quiet when your phone is on silent or vibrate':'');
@@ -1259,6 +1274,77 @@ $('#nadt').onclick=async()=>{
 };
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotifs()});
 
+/* ---- live from the masjid: the board's LiveMasjid stream (relay.livemasjid.com:8443/<name>) ---- */
+const LSP=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin?Capacitor.registerPlugin('LiveStream'):null;
+let LV={s:{},pr:[0,0,0,0,0],always:false},LVON=false,LVPLAY=false,LVT=0;
+try{const o=JSON.parse(localStorage.getItem('salah_live'));if(o&&typeof o==='object'){if(o.s&&typeof o.s==='object')LV.s=o.s;if(Array.isArray(o.pr))LV.pr=[0,1,2,3,4].map(i=>o.pr[i]?1:0);LV.always=!!o.always}}catch(e){}
+const saveLV=()=>{try{localStorage.setItem('salah_live',JSON.stringify(LV))}catch(e){}};
+const liveOf=u=>LV.s[u||S.board]||null,liveSlug=()=>{const o=liveOf();return o&&o.slug||''};
+const LM_SKIP=/^(www|images?|img|css|js|assets?|includes?|api|php|activestream|activetakbeer|activemanzil|newstream|conduct|status-json|embed|player|stream|streams|live|index|about|contact|login|register|recordings?|wp-content|favicon)$/i;
+function liveFromHtml(html){ // the board's player names the masjid's stream
+  const re=/(?:relay\.)?livemasjid\.com(?::\d+)?\/(?:embed\/|player\/|listen\/|#\/?)?([a-z0-9_]{3,40})(?![a-z0-9_.])/ig;let m;
+  while((m=re.exec(html||'')))if(!LM_SKIP.test(m[1]))return m[1].toLowerCase();
+  const q=/livemasjid[^"'<>]{0,200}?[?&](?:mount|stream|masjid|m)=([a-z0-9_]{3,40})/i.exec(html||'');return q&&!LM_SKIP.test(q[1])?q[1].toLowerCase():''}
+async function lmList(){ // LiveMasjid's list of masjids: [[stream name, description]], kept a week
+  let c=null;try{c=JSON.parse(localStorage.getItem('salah_lmlist'))}catch(e){}
+  if(c&&Date.now()-c.t<7*864e5&&Array.isArray(c.l)&&c.l.length)return c.l;
+  const doc=new DOMParser().parseFromString(await httpGet('https://www.livemasjid.com/'),'text/html'),seen=new Set(),l=[];
+  doc.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'',m=/livemasjid\.com\/([a-z0-9_]{3,40})\/?$/i.exec(h)||/^\/?([a-z0-9_]{3,40})\/?$/i.exec(h);if(!m||LM_SKIP.test(m[1]))return;
+    const k=m[1].toLowerCase();if(seen.has(k))return;seen.add(k);const p=a.parentElement;let t=a.textContent;if(p&&p.textContent.length<240)t=p.textContent;l.push([k,t.replace(/\s+/g,' ').trim().slice(0,200)])});
+  if(l.length)try{localStorage.setItem('salah_lmlist',JSON.stringify({t:Date.now(),l}))}catch(e){}
+  return l}
+const lmNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const LM_GEN=new Set('masjid musjid masjied jaami jaame jami jame jamia jaamia jamiah jumma juma jumuah musallah musalla ul al the of and mosque centre center islamic rsa jhb gauteng south africa street road ext'.split(' '));
+function lmScore(name,town,k,t){ // how well a LiveMasjid entry matches the board's masjid
+  const T=lmNorm(t+' '+k),W=T.split(' '),TJ=T.replace(/ /g,''),tw=lmNorm(town).replace(/ /g,'');let s=0;
+  if(tw.length>=4&&TJ.includes(tw))s+=3;
+  for(const w of new Set(lmNorm(name+' '+town).split(' ')))if(w.length>=4&&!LM_GEN.has(w)&&W.includes(w))s+=1;
+  if(lmNorm(name).split(' ').some(w=>w.length>=4&&LM_GEN.has(w)&&W.includes(w)))s+=.5;
+  return s}
+async function detectLive(b,html){
+  if(!b||!b.url)return null;const cur=LV.s[b.url];
+  if(cur&&(cur.src==='user'||cur.src==='board'||Date.now()-(cur.t||0)<30*864e5))return cur;
+  let slug=liveFromHtml(html),src='board',lm='';
+  if(!slug)try{const l=await lmList();let best=null,bs=0,nd=0;
+    for(const [k,t] of l){const sc=lmScore(b.name||'',b.town||'',k,t);if(sc>bs){nd=bs;bs=sc;best=[k,t]}else if(sc>nd)nd=sc}
+    if(best&&bs>=3&&bs-nd>=.5){slug=best[0];lm=best[1];src='match'}}catch(e){}
+  if(!slug)return cur||null;
+  const ch=!cur||cur.slug!==slug;LV.s[b.url]={slug,src,t:Date.now(),lm};saveLV();if(ch&&b.url===S.board){liveCfg();renderLive();liveCheck(true)}
+  return LV.s[b.url]}
+function liveCfg(){if(LSP)try{LSP.config({slug:liveSlug(),name:S.bname||'Your masjid',always:LV.always&&!!liveSlug()})}catch(e){}}
+async function liveCheck(force){ // on air now? (checked at most once a minute while the app is open)
+  if(!LSP||!liveSlug()||(!force&&Date.now()-LVT<6e4))return;LVT=Date.now();
+  try{const [r,st]=await Promise.all([LSP.check({slug:liveSlug()}),LSP.status()]);const on=!!(r&&r.live),pl=!!(st&&st.playing);
+    if(on!==LVON||pl!==LVPLAY){LVON=on;LVPLAY=pl;cdKey='';try{renderCountdown()}catch(e){}}renderLive()}catch(e){}}
+async function liveToggle(){
+  if(!LSP||!liveSlug())return;
+  if(LVPLAY){await LSP.stop();LVPLAY=false}else{await LSP.config({slug:liveSlug(),name:S.bname||'Your masjid',always:LV.always});await LSP.play();LVPLAY=true;}
+  cdKey='';try{renderCountdown()}catch(e){}renderLive();setTimeout(()=>liveCheck(true),4000)}
+function renderLive(){
+  const c=$('#lvcard');if(!c)return;c.hidden=!LSP;if(!LSP)return;
+  const o=liveOf(),nm=S.bname||'your masjid';
+  if(!S.board){$('#lvst').textContent='Add your masjid in settings (⚙︎) to listen to its live broadcast.';$('#lvplay').disabled=true;$('#lvchg').hidden=true}
+  else if(!o){$('#lvst').textContent='Looking for '+nm+' on LiveMasjid… If it isn’t found, tap Change stream.';$('#lvplay').disabled=true;$('#lvchg').hidden=false}
+  else{$('#lvst').innerHTML='<span class="lvdot'+(LVON?' on':'')+'"></span><b>'+esc(nm)+'</b> · '+(LVON?'live now':'off air')+'<br><small>LiveMasjid stream: '+esc(o.slug)+(o.lm?' ('+esc(o.lm.slice(0,70))+')':'')+'</small>';$('#lvplay').disabled=false;$('#lvchg').hidden=false}
+  $('#lvplay').textContent=LVPLAY?'■ Stop':'▶ Listen live';
+  $('#lvalw').checked=LV.always;$('#lvalw').disabled=!o;
+  $('#lvpr').innerHTML=P.slice(0,5).map((p,i)=>'<div class="lvr"><span>'+p+' <span class="mu" style="font-size:13px">'+AR[i]+'</span></span><span class="sg" data-i="'+i+'"><button data-v="0" class="'+(LV.pr[i]?'':'on')+'">Recorded</button><button data-v="1" class="'+(LV.pr[i]?'on':'')+'"'+(o?'':' disabled')+'>Live</button></span></div>').join('');
+  $('#lvprs').textContent=!NP.on||!NP.adh?'Turn on “Adhān at prayer time” above for this to work.':'Live listens for the masjid’s own adhān from 2 minutes before the board’s adhān time. If the masjid isn’t on air by 4 minutes after, the recorded adhān plays instead.';
+}
+$('#lvplay').onclick=liveToggle;
+document.addEventListener('click',e=>{if(e.target.closest('#lvchip')){e.stopPropagation();liveToggle()}},true);
+$('#lvpr').onclick=e=>{const b=e.target.closest('button[data-v]');if(!b||b.disabled)return;const i=+b.parentElement.dataset.i;LV.pr[i]=+b.dataset.v;saveLV();renderLive();queueNotifs()};
+$('#lvalw').onchange=e=>{LV.always=e.target.checked;saveLV();liveCfg();renderLive()};
+$('#lvchg').onclick=()=>{$('#lvedit').hidden=false;$('#lvin').value=liveSlug()?'livemasjid.com/'+liveSlug():'';$('#lvmsg').textContent='';$('#lvin').focus()};
+$('#lvcan').onclick=()=>{$('#lvedit').hidden=true};
+$('#lvsave').onclick=async()=>{
+  const v=$('#lvin').value.trim(),m=/livemasjid\.com(?::\d+)?\/([a-z0-9_]{3,40})/i.exec(v)||/^([a-z0-9_]{3,40})$/i.exec(v.replace(/\s+/g,''));
+  if(!m||LM_SKIP.test(m[1])){$('#lvmsg').textContent='That doesn’t look like a LiveMasjid link.';return}
+  const slug=m[1].toLowerCase();$('#lvmsg').textContent='Checking…';
+  LV.s[S.board]={slug,src:'user',t:Date.now(),lm:''};saveLV();liveCfg();$('#lvedit').hidden=true;await liveCheck(true);renderLive();queueNotifs()};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)liveCheck()});
+setInterval(()=>{if(!document.hidden)liveCheck()},6e4);
+
 /* ---- backup and restore: one JSON file the person keeps in Drive, WhatsApp, email… ---- */
 const NATIVE=typeof Capacitor!=='undefined'&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin;
 const FSP=NATIVE?Capacitor.registerPlugin('Filesystem'):null,SHP=NATIVE?Capacitor.registerPlugin('Share'):null;
@@ -1271,7 +1357,7 @@ async function backupData(){
   for(const y of new Set([...Object.keys(S.yrs),...Object.keys(S.yx),...Object.keys(S.yn),...Object.keys(S.yo)]))if(S.yrs[y]||S.yx[y]||S.yn[y]||S.yo[y])years[y]=yearDoc(y);
   if(!ref)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^salah_y(\d{4})$/.exec(k||'');if(m&&!years[m[1]]){try{const o=JSON.parse(localStorage.getItem(k));if(o&&YRE.test(o.m||'')){years[m[1]]={m:o.m,l:YRE.test(o.l||'')?o.l:'0'.repeat(366)};for(const q in XK)if(YRE.test(o[q]||''))years[m[1]][q]=o[q]}}catch(e){}}}
   let dhikr={};try{dhikr=JSON.parse(lsGet('salah_dhikr_h'))||{}}catch(e){}
-  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),dhikr,names:lsGet('salah_names'),mydk:MY};
+  return{app:'salah-tracker',format:1,created:new Date().toISOString(),build:BUILD,settings:setDoc(),years,notif:NP,theme:lsGet('salah_theme'),dhikr,names:lsGet('salah_names'),mydk:MY,live:LV};
 }
 function markBackup(){lsSet('salah_lastbk',String(Date.now()));renderBackup();if(typeof queueNotifs==='function')queueNotifs()}
 let bkBusy=false;
@@ -1337,6 +1423,7 @@ $('#bkok').onclick=async()=>{
     clean.qt=5;loadQz(clean,st);loadRm(clean,st);clean.ql={};if(st.ql&&typeof st.ql==='object')for(const [k,v] of Object.entries(st.ql))if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&+v>0)clean.ql[k]=Math.floor(+v);
     await save('settings',clean);
     for(const [y,v] of Object.entries(years))await save('y'+y,v);
+    if(o.live&&typeof o.live==='object')lsSet('salah_live',JSON.stringify({s:o.live.s&&typeof o.live.s==='object'?o.live.s:{},pr:Array.isArray(o.live.pr)?o.live.pr:[0,0,0,0,0],always:!!o.live.always}));
     if(o.notif&&typeof o.notif==='object')lsSet('salah_notif',JSON.stringify({on:!!o.notif.on,pre:o.notif.pre!==false,jam:o.notif.jam!==false,end:o.notif.end!==false,jum:o.notif.jum!==false,rm:o.notif.rm!==false}));
     if(o.theme==='dark'||o.theme==='light')lsSet('salah_theme',o.theme);
     if(/^[01]{99}$/.test(o.names||''))lsSet('salah_names',o.names);
@@ -1414,7 +1501,7 @@ function renderCountdown(){
       +'<div class="cd-name">'+esc(x.name)+'<span class="ar">'+AR[x.i]+'</span></div>'
       +'<div class="cd-big'+(live?'':' done')+'"><small>'+(live?lw:'')+'</small><span class="cd-c" data-k="'+(live?live.k:'-')+'">'+(live?'':'✓ called')+'</span></div>'
       +'<div class="cd-pills">'+boxes.map(b=>'<span class="cd-p'+(b===live?' live':'')+(b.at<=now?' past':'')+'">'+(b.at<=now?'✓ ':'')+b.label+' <b>'+clock(b.at)+'</b></span>').join('')+'</div>'
-      +(S.board&&!(x.adhan||x.jam)?'<div class="cd-foot">Board not read yet, so calculated times are shown</div>':S.board?'<div class="cd-foot">'+freshTxt()+'</div>':'')
+      +(S.board&&!(x.adhan||x.jam)?'<div class="cd-foot">Board not read yet, so calculated times are shown</div>':S.board?'<div class="cd-foot">'+freshTxt()+(LVON&&liveSlug()?'<button class="lvchip" id="lvchip">● Live · '+(LVPLAY?'Stop':'Listen')+'</button>':'')+'</div>':'')
       +(S.trv>0&&x.jam&&x.jam>now?'<div class="cd-foot">Leave by <b>'+clock(new Date(x.jam-(S.trv+2)*6e4))+'</b> to catch '+(x.name==="Jumu'ah"?'the khutbah':"jamā'ah")+'</div>':'')
       +(cur?'<div class="cd-cur" id="cdcur" data-s="'+(+cur.start)+'" data-e="'+(+cur.end)+'" data-i="'+cur.i+'" data-d="'+ymd(cur.d)+'"></div>':'');
     renderToday();
@@ -2788,6 +2875,7 @@ async function pullBoard(){
   if(!S.board||Date.now()-pulled<6e5)return;pulled=Date.now();
   try{
     const html=await getBoard(),R=parseRows(boardRows(html)),c=sunCalc(today0()),bm=boardMeta(html);
+    try{const b0=S.boards.find(x=>x.url===S.board)||{url:S.board,name:S.bname||bm.name,town:S.btown||bm.town};detectLive(b0,html)}catch(e){}
     const be=S.boards.find(x=>x.url===S.board);
     if(bm.name&&!S.bname){S.bname=bm.name;S.btown=bm.town;if(be){be.name=bm.name;be.town=bm.town}saveSettings();renderSwitch()}
     if(be&&be.lat==null&&bm.lat!=null){be.lat=S.blat=bm.lat;be.lon=S.blon=bm.lon;applyLoc();saveSettings()}
@@ -3006,7 +3094,7 @@ function boot(){
   applyLoc();resetMasjid();
   if(S.pub&&!S.ts){S.ts=ymd(today0());saveSettings()}
   if(S.pub)await loadYears();
-  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();setTimeout(gpsRefresh,4000);
+  stat('');checkUpdate(true);loadBoardCache();boot();takeTicks();if(lockOn())lockNow();pullBoard();renderNotif();queueNotifs();jmRefresh();checkBoardHijri();introEnd();setTimeout(gpsRefresh,4000);liveCfg();renderLive();liveCheck(true);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){jmRefresh();checkBoardHijri();if(TAB==='more')try{renderAdhanCheck()}catch(e){}}});setInterval(()=>{if(!document.hidden)jmRefresh()},5*6e4);
 })();
 </script>

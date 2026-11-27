@@ -13,16 +13,33 @@ public class AdhanReceiver extends BroadcastReceiver {
         if (a.equals(Intent.ACTION_BOOT_COMPLETED) || a.equals(Intent.ACTION_LOCKED_BOOT_COMPLETED) || a.equals(Intent.ACTION_MY_PACKAGE_REPLACED)
                 || a.equals("android.intent.action.QUICKBOOT_POWERON") || a.equals(Intent.ACTION_TIME_CHANGED) || a.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
             AdhanPlayer.schedule(c);
+            LiveService.resume(c);
             return;
         }
         String kind = intent.getStringExtra("kind"), d = intent.getStringExtra("d");
         int p = intent.getIntExtra("p", -1);
+        if ("livewatch".equals(kind)) { LiveService.start(c, LiveService.A_WATCH, null); return; }
+        if ("live".equals(kind)) {
+            // this salāh is set to "Live": listen for the masjid's own adhān (recorded adhān if it doesn't come on air)
+            AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "waiting for the live adhān");
+            Intent w = new Intent().putExtra("id", intent.getIntExtra("id", 0)).putExtra("title", intent.getStringExtra("title"))
+                    .putExtra("body", intent.getStringExtra("body")).putExtra("d", d).putExtra("p", p);
+            if (LiveService.playing) { AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "masjid already live"); return; }
+            LiveService.start(c, LiveService.A_WAIT, w);
+            return;
+        }
         if (kind != null && !kind.equals("adhan")) {
             // a reminder: skipped if the prayer was ticked in the meantime
             if (!Ticks.has(c, d, p)) Ticks.remind(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), intent.getStringExtra("body"), d, p);
             return;
         }
         AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "alarm went off");
+        if (LiveService.playing) {
+            // the masjid is already playing live: don't play the recording over it
+            AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "masjid playing live: recorded adhān skipped");
+            AdhanService.plainNotice(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), intent.getStringExtra("body"), false);
+            return;
+        }
         Intent s = new Intent(c, AdhanService.class)
                 .putExtra("id", intent.getIntExtra("id", 0))
                 .putExtra("title", intent.getStringExtra("title"))

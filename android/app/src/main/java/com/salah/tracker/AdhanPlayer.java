@@ -214,7 +214,7 @@ public class AdhanPlayer extends Plugin {
                 if (at <= now) continue;
                 String kind = o.optString("kind", "adhan"), d = o.optString("d", null);
                 int pr = o.optInt("p", -1);
-                if (!kind.equals("adhan") && Ticks.has(c, d, pr)) continue;
+                if (!kind.equals("adhan") && !kind.equals("live") && Ticks.has(c, d, pr)) continue;
                 setAlarm(c, at, alarmIntent(c, o.optInt("id"), o.optString("title"), o.optString("body"), kind, d, pr));
             }
         } catch (Exception ignored) {}
