@@ -31,6 +31,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import androidx.core.app.NotificationCompat;
 import org.json.JSONArray;
+import java.util.Calendar;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -50,7 +51,8 @@ import java.net.URL;
 @OptIn(markerClass = UnstableApi.class)
 public class LiveService extends Service {
     static final String A_PLAY = "com.salah.tracker.LIVE_PLAY", A_STOP = "com.salah.tracker.LIVE_STOP",
-            A_WAIT = "com.salah.tracker.LIVE_WAIT", A_WATCH = "com.salah.tracker.LIVE_WATCH", A_UNWATCH = "com.salah.tracker.LIVE_UNWATCH";
+            A_WAIT = "com.salah.tracker.LIVE_WAIT", A_WATCH = "com.salah.tracker.LIVE_WATCH", A_UNWATCH = "com.salah.tracker.LIVE_UNWATCH",
+            A_SLEEP = "com.salah.tracker.LIVE_SLEEP";
     static final String PREFS = "live_stream", CH_LIVE = "live_play", CH_WATCH = "live_watch", CH_ALERT = "live_alert";
     static final String RELAY = "https://relay.livemasjid.com:8443/";
     static final int NOTE = 7900;
@@ -70,7 +72,7 @@ public class LiveService extends Service {
     private boolean manual = false, fg = false;
     /** How the current broadcast was handled: null = not yet, s = salāh time, j = Jumu'ah, o = other, m = playing on request, x = stopped by the person. */
     private String hk = null;
-    private String cur = "", curName = "";
+    private String cur = "", curName = "", shown = "";
     private long waitUntil = 0;
     private Intent waitInfo;
     private final Runnable tick = this::tick, guard = this::guard;
@@ -86,10 +88,60 @@ public class LiveService extends Service {
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
     }
 
-    /** After a reboot or app update: start watching again a little later (an alarm may start the player; boot may not). */
+    /** After a reboot or app update: check again a little later (an alarm may start the player; boot may not). */
     static void resume(Context c) {
         if (!watchOn(c) || prefs(c).getString("slug", "").isEmpty()) return;
         AdhanPlayer.setAlarm(c, System.currentTimeMillis() + 30000, AdhanPlayer.alarmIntent(c, 989, "", "", "livewatch", null, -1));
+    }
+
+    /** Should the background listener run now? "Other bayāns" on: always. Only Jumu'ah on: only in the Friday Jumu'ah window. */
+    static boolean needWatch(Context c, long now) {
+        SharedPreferences p = prefs(c);
+        if (p.getString("slug", "").isEmpty()) return false;
+        if (p.getInt("ot", 0) > 0) return true;
+        if (p.getInt("jm", 0) == 0) return false;
+        long[] w = nextJ(c, now);
+        return w != null && now >= w[0] - 60000 && now < w[1];
+    }
+
+    /** The current or next Jumu'ah window from the times the app sent, or next Friday 11:30–14:30 if it hasn't sent any. */
+    static long[] nextJ(Context c, long now) {
+        long[] best = null;
+        try {
+            JSONArray a = new JSONArray(prefs(c).getString("win", "[]"));
+            for (int i = 0; i < a.length(); i++) {
+                JSONArray w = a.getJSONArray(i);
+                if (!"j".equals(w.getString(2))) continue;
+                long s = w.getLong(0), e = w.getLong(1);
+                if (e > now && (best == null || s < best[0])) best = new long[]{s, e};
+            }
+        } catch (Exception ignored) {}
+        if (best != null) return best;
+        for (int i = 0; i < 8; i++) {
+            Calendar d = Calendar.getInstance();
+            d.setTimeInMillis(now);
+            d.add(Calendar.DAY_OF_YEAR, i);
+            if (d.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) continue;
+            d.set(Calendar.HOUR_OF_DAY, 11); d.set(Calendar.MINUTE, 30); d.set(Calendar.SECOND, 0); d.set(Calendar.MILLISECOND, 0);
+            long s = d.getTimeInMillis(), e = s + 3 * 3600000L;
+            if (e > now) return new long[]{s, e};
+        }
+        return null;
+    }
+
+    /** Start listening if it's needed now; otherwise stop, and set an alarm for the next Jumu'ah if that's switched on. */
+    static void arm(Context c) {
+        long now = System.currentTimeMillis();
+        if (needWatch(c, now)) { if (!watching) start(c, A_WATCH, null); return; }
+        if (watching) start(c, A_SLEEP, null);
+        scheduleNext(c, now);
+    }
+
+    static void scheduleNext(Context c, long now) {
+        SharedPreferences p = prefs(c);
+        if (p.getInt("jm", 0) == 0 || p.getInt("ot", 0) > 0 || p.getString("slug", "").isEmpty()) return;
+        long[] w = nextJ(c, now + 60000);
+        if (w != null) AdhanPlayer.setAlarm(c, Math.max(now + 5000, w[0] - 60000), AdhanPlayer.alarmIntent(c, 989, "", "", "livewatch", null, -1));
     }
 
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE); }
@@ -116,7 +168,7 @@ public class LiveService extends Service {
         slug = p.getString("slug", "");
         name = p.getString("name", "Your masjid");
         String a = intent == null || intent.getAction() == null ? A_WATCH : intent.getAction(); // restarted by the system: carry on watching
-        boolean always = watchOn(this);
+        boolean always = prefs(this).getInt("ot", 0) > 0;   // only "other bayāns" needs listening all the time
         if (!foreground()) return START_NOT_STICKY;
         h.post(() -> {
             switch (a) {
@@ -127,6 +179,9 @@ public class LiveService extends Service {
                     break;
                 case A_UNWATCH:
                     prefs(this).edit().putInt("jm", 0).putInt("ot", 0).apply();
+                    watching = false;
+                    break;
+                case A_SLEEP:
                     watching = false;
                     break;
                 case A_PLAY:
@@ -144,14 +199,15 @@ public class LiveService extends Service {
                     waitInfo = intent == null ? null : new Intent(intent);
                     break;
                 default: // A_WATCH
-                    watching = always;
+                    watching = needWatch(this, System.currentTimeMillis());
+                    if (!watching) scheduleNext(this, System.currentTimeMillis());
             }
             if (!watching && a.equals(A_WATCH) && !playing && !waiting) { end(); return; }
             update();
             h.removeCallbacks(tick);
             h.post(tick);
         });
-        return watching || always ? START_STICKY : START_NOT_STICKY;
+        return always ? START_STICKY : START_NOT_STICKY;
     }
 
     /** startForeground right away (Android requires it within seconds of starting). */
@@ -172,8 +228,9 @@ public class LiveService extends Service {
 
     /** One check of the masjid's stream; runs on the background thread. */
     private void tick() {
-        if (!playing && !waiting && !watching && !manual) { end(); return; }
         long now = System.currentTimeMillis();
+        if (watching && !needWatch(this, now)) { watching = false; scheduleNext(this, now); }   // Jumu'ah time is over
+        if (!playing && !waiting && !watching && !manual) { end(); return; }
         if (!playing && !slug.isEmpty()) {
             boolean live = isLive(slug);
             liveNow = live;
@@ -385,6 +442,9 @@ public class LiveService extends Service {
     private void update() {
         wake(waiting || watching);
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        String k = playing + "|" + waiting + "|" + watching + "|" + adhanOnly + "|" + curName + "|" + name;
+        if (k.equals(shown)) return;              // unchanged: leave it alone (if it was swiped away, it stays away)
+        shown = k;
         if (nm != null && fg) try { nm.notify(NOTE, note()); } catch (Exception ignored) {}
     }
 
@@ -416,7 +476,7 @@ public class LiveService extends Service {
         boolean play = playing;
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, play || waiting ? CH_LIVE : CH_WATCH)
                 .setSmallIcon(R.drawable.ic_stat_salah).setColor(AdhanService.COLOR)
-                .setContentIntent(AdhanService.openApp(this)).setOngoing(true).setSilent(true)
+                .setContentIntent(AdhanService.openApp(this)).setOngoing(true).setSilent(true).setOnlyAlertOnce(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         if (play) {
             b.setContentTitle("● Live · " + (curName.isEmpty() ? name : curName)).setContentText(adhanOnly ? "The masjid's adhān · stops when it's over" : "Playing the masjid's live broadcast")
@@ -427,8 +487,9 @@ public class LiveService extends Service {
                     .setContentText("Plays live when the masjid comes on air, or the recorded adhān if it doesn't")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT).addAction(0, "Cancel", act(A_STOP, 1));
         } else {
+            boolean jOnly = prefs(this).getInt("ot", 0) == 0;
             b.setContentTitle("Listening for " + name + " to go live")
-                    .setContentText("For Jumu'ah and bayāns, as set in the app")
+                    .setContentText(jOnly ? "During Jumu'ah time only" : "For Jumu'ah and bayāns, as set in the app")
                     .setPriority(NotificationCompat.PRIORITY_MIN).addAction(0, "Turn off", act(A_UNWATCH, 2));
         }
         return b.build();

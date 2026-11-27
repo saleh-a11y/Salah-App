@@ -1294,6 +1294,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueNotif
 /* ---- what's new: a banner shown once after an update. For every update people will notice, add an entry
    at the TOP with the next number (n), the date and a short title, in plain words. ---- */
 const NEWS=[
+  {n:3,d:'28 Nov 2026',t:'Quieter background listening',items:[
+    '<b>Jumu’ah only.</b> If only “Jumu’ah bayān and khutbah” is switched on, the app now listens just on Fridays around Jumu’ah, so the “Listening for … to go live” notification only shows then.',
+    '<b>No more pop-ups.</b> That notification no longer keeps coming back. If you swipe it away, it stays away.']},
   {n:2,d:'27 Nov 2026',t:'Live adhān fix',items:[
     '<b>Live adhān on its own.</b> A salāh set to Live now plays your masjid’s adhān even when “Adhān at prayer time” is switched off. Salāhs set to Recorded only play when that box is ticked.',
     '<b>What’s new.</b> After every update, this card tells you what changed. See it again anytime in Settings → App updates → What’s new.']},
@@ -1383,7 +1386,7 @@ function renderLive(){
   $('#lvplay').textContent=LVPLAY?'■ Stop':'▶ Listen live';
   const mo=mainB(),mn=mo&&mo.name||'your masjid',ml=mo&&LV.s[mo.url];
   $('#lvot').innerHTML=[['jm',"Jumu’ah bayān and khutbah"],['ot','Other bayāns and talks']].map(([k,l])=>'<div class="lvr"><span>'+l+'</span><span class="sg" data-k="'+k+'">'+['Off','Notify','Play'].map((t,v)=>'<button data-m="'+v+'" class="'+(LV[k]===v?'on':'')+'"'+(v&&!ml?' disabled':'')+'>'+t+'</button>').join('')+'</span></div>').join('');
-  $('#lvots').textContent=!ml?'Your main masjid ('+mn+') needs a LiveMasjid stream for this.':'For your main masjid, '+mn+'. Notify sends “'+mn+' is live” with a Listen button; Play starts it by itself. Both work with the app closed, with a quiet notification while it listens (a little more battery and data). Broadcasts at adhān and salāh time follow the setting above.';
+  $('#lvots').textContent=!ml?'Your main masjid ('+mn+') needs a LiveMasjid stream for this.':'For your main masjid, '+mn+'. Notify sends “'+mn+' is live” with a Listen button; Play starts it by itself. Both work with the app closed. While the app listens it shows a quiet notification: with only Jumu’ah on, that’s just on Fridays from an hour before the Jumu’ah adhān; with other bayāns on, it listens all the time (a little more battery and data). Broadcasts at adhān and salāh time follow the setting above.';
   $('#lvpr').innerHTML=P.slice(0,5).map((p,i)=>'<div class="lvr"><span>'+p+' <span class="mu" style="font-size:13px">'+AR[i]+'</span></span><span class="sg" data-i="'+i+'"><button data-v="0" class="'+(LV.pr[i]?'':'on')+'">Recorded</button><button data-v="1" class="'+(LV.pr[i]?'on':'')+'"'+(ml?'':' disabled')+'>Live</button></span></div>').join('');
   $('#lvprs').textContent=!isMain()?'Live adhān uses your main masjid ('+mn+'). Switch to it on the Today page to change this.':!NP.on?'Turn on prayer notifications above for this to work.':!NP.adh?'“Adhān at prayer time” is off, so salāhs set to Recorded stay quiet. Salāhs set to Live still play the masjid’s adhān (or the recording if it isn’t on air).':'Live listens for the masjid’s own adhān from 2 minutes before the board’s adhān time. If the masjid isn’t on air by 4 minutes after, the recorded adhān plays instead.';
 }

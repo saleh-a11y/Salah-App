@@ -23,8 +23,10 @@ public class LiveStream extends Plugin {
         String old = LiveService.prefs(c).getString("slug", "");
         LiveService.prefs(c).edit().putString("slug", slug).putString("name", name).putInt("jm", jm).putInt("ot", ot).putString("win", win).remove("always").apply();
         boolean on = jm > 0 || ot > 0;
-        if (on && (!was || !old.equals(slug) || !LiveService.watching)) LiveService.start(c, LiveService.A_WATCH, null);
-        else if (!on && was) LiveService.start(c, LiveService.A_UNWATCH, null);
+        if (on) {
+            if (LiveService.watching) LiveService.start(c, LiveService.A_WATCH, null);  // re-reads the masjid and decides whether to keep listening
+            else LiveService.arm(c);
+        } else if (was && LiveService.watching) LiveService.start(c, LiveService.A_UNWATCH, null);
         call.resolve();
     }
 

@@ -18,7 +18,7 @@ public class AdhanReceiver extends BroadcastReceiver {
         }
         String kind = intent.getStringExtra("kind"), d = intent.getStringExtra("d");
         int p = intent.getIntExtra("p", -1);
-        if ("livewatch".equals(kind)) { LiveService.start(c, LiveService.A_WATCH, null); return; }
+        if ("livewatch".equals(kind)) { LiveService.arm(c); return; }
         if ("live".equals(kind)) {
             // this salāh is set to "Live": listen for the masjid's own adhān (recorded adhān if it doesn't come on air)
             AdhanService.log(c, intent.getIntExtra("id", 0), intent.getStringExtra("title"), "waiting for the live adhān");
